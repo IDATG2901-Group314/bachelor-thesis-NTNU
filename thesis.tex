@@ -12,8 +12,8 @@
 
 \begin{document}
 
-\input{chapters/0a-abstract.tex}
-\input{chapters/0b-sammendrag.tex}
+\input{chapters/section0a-preamble/0a-abstract}
+\input{chapters/section0a-preamble/0b-summary}
 
 \tableofcontents
 \listoffigures
@@ -26,10 +26,23 @@
 \chapter*{\glossaryname}          % Create an unnumbered chapter for the glossary
 \printglossary                    % Print glossary
 
-\input{chapters/1-introduction}
-\input{chapters/2-usage.tex}
-\input{chapters/3-structure.tex}
-\input{chapters/4-conclusion.tex}
+\input{chapters/section01-intro/01-introduction}
+\input{chapters/section01-intro/02-literature-review}
+\input{chapters/section01-intro/03-requirements-analysis-and-system-design}
+
+\input{chapters/section02-main/04-development-process}
+\input{chapters/section02-main/05-system-architecture-and-design}
+\input{chapters/section02-main/06-user-interface-design}
+\input{chapters/section02-main/07-technologies-and-methodologies}
+\input{chapters/section02-main/08-implementation-details}
+\input{chapters/section02-main/09-security-implementation-and-analysis}
+\input{chapters/section02-main/10-quality-assurance}
+\input{chapters/section02-main/11-testing-and-evaluation}
+\input{chapters/section02-main/12-sustainability-analysis}
+
+\input{chapters/section03-ending/13-results}
+\input{chapters/section03-ending/14-discussion-and-reflection}
+\input{chapters/section03-ending/15-conclusion}
 
 \chapter*{\bibname}
 \printbibliography[heading=none]
