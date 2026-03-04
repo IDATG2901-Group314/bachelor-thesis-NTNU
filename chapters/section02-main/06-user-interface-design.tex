@@ -1,1 +1,165 @@
 \chapter{UI and UX Design}
+
+Intro to the chapter ???
+
+\section{Design Methodology and Principles}
+
+\section{Early Designs, Prototype and MVP}
+
+The design of the application did not undergo any major structural changes during development. However, it went through several iterations that gradually improved the user interface (UI) and user experience (UX). These improvements were primarily based on feedback from user testing sessions and discussions with the client.
+
+The first stage of the design process was carried out in Figma, where wireframes were created to explore the layout and interaction flow of the application. The purpose of these wireframes was to establish the basic structure of the interface and identify the most important features needed in the prototype. After validating the concept in Figma, the first working prototype was implemented in a separate repository before later transitioning to a new repository for the minimum viable product (MVP).
+
+\subsection{Initial Design}
+
+Based on the initial requirements and project scope, the system only needed to support a limited set of core functionalities: uploading an image, detecting sensitive information, and redacting detected content. Because of this limited scope, it was determined early in the design phase that the application did not require multiple pages, pop-up dialogs, or additional navigation views. Instead, all functionality could be contained within a single interface, allowing users to perform the entire workflow in one place.
+
+The initial prototype, therefore, focused on designing a single-page interface where the user could easily understand the available actions and complete the full workflow without switching contexts. The interface was structured around a central interaction area where the uploaded image would be displayed.
+
+Before an image is uploaded, the interface presents a minimal layout where the upload button is positioned at the center of the screen. This design choice emphasizes the primary action available to the user and provides a clear starting point for interacting with the system. Figure~\ref{fig:prototype_empty} illustrates the interface in its initial state before any image has been uploaded.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/figmasketch3.png}
+\caption{Initial interface before an image is uploaded.}
+\label{fig:prototype_empty}
+\end{figure}
+
+Once an image is uploaded, the layout adjusts to accommodate the available interaction features. The upload button is moved to the top of the interface so that users can easily upload another image if needed, while the central area becomes the main image viewer displaying the selected image.
+
+A file list is always present on the left side of the interface, showing the uploaded image. This allows users to keep track of the currently selected file. Below the image viewer, a set of control buttons becomes available for interacting with the system.
+
+These controls allow the user to run detection, redact detected information, and toggle the highlighting of detected areas. By placing these controls directly below the image viewer, the interface maintains a clear connection between the displayed image and the actions that can be performed on it. Figure~\ref{fig:prototype_loaded} shows the interface after an image has been uploaded.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/figmasketch4.png}
+\caption{Prototype interface after an image has been uploaded, showing detection and redaction controls.}
+\label{fig:prototype_loaded}
+\end{figure}
+
+The goal of this initial design was to provide a clear and straightforward workflow where users first upload an image, then run detection, and finally apply redaction if necessary. 
+
+\subsection{The Prototype}
+
+Since the group had limited experience with frontend development and had not previously worked with React and Vite, an early prototype was developed to experiment with the framework and explore possible interface designs before implementing the minimum viable product (MVP). The prototype was developed in a separate repository, allowing the group to freely experiment with different layouts and interaction patterns without affecting the main project. The goal of this stage was therefore not to build a fully functional system, but to gain familiarity with the frontend technologies and evaluate the overall interface structure.
+
+During the prototype phase, several interface components were introduced and tested. One of the key design decisions was the use of a permanent sidebar together with a top navigation bar. The sidebar provides an overview of uploaded images and enables quick access to files currently being worked on, while the top navigation bar contains the primary tools available in the system, such as downloading, printing, highlighting, annotations, and redaction options. This structure helped organize the available tools in a consistent and accessible manner.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/prototype1.png}
+\caption{Prototype interface showing the sidebar, top navigation bar, and image viewer.}
+\label{fig:prototype_overview}
+\end{figure}
+
+At this stage of development, some interface elements were included primarily for layout testing rather than full functionality. For example, the \textit{AI Mission} and \textit{Redact} buttons were present in the interface but were not yet connected to backend functionality. Instead, the prototype focused on testing the visual layout and interaction flow.
+
+The prototype also included a manual highlighting feature that allowed users to mark regions directly within the image viewer. Bounding boxes could be added to selected areas, giving users the ability to highlight regions of interest. This functionality allowed the group to evaluate how highlighted regions should be visually presented in the interface and how users could interact with them.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/images/prototype3.png}
+\caption{Prototype example showing manually highlighted regions within the image viewer.}
+\label{fig:prototype_detection}
+\end{figure}
+
+Once the group had gained sufficient familiarity with the frontend framework and the general layout of the application, development transitioned to the MVP repository. While some interface states such as the empty upload state were not implemented in the prototype itself, the prototype played an important role in shaping the final interface structure.
+
+\subsection{MVP Design Iteration}
+
+After the prototype phase, development continued with the implementation of the minimum viable product (MVP). While the prototype primarily focused on experimenting with the frontend framework and interface layout, the MVP introduced the core functionality of the system and refined several aspects of the interface.
+
+The overall layout established during the prototype stage was largely preserved. The interface continues to use a permanent sidebar for file and page navigation, together with a top navigation bar containing the main tools available to the user. This structure was retained because it provides clear organization of functionality while keeping the central viewing area dedicated to the document or image being processed.
+
+In the MVP, several of the previously inactive interface elements were connected to their underlying functionality. In particular, the \textit{AI Mission} feature was implemented to allow the system to automatically detect faces within images. Detected faces are displayed as bounding boxes directly in the document viewer, providing immediate visual feedback to the user. This allows users to quickly identify which regions of the document contain faces that may require redaction.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/mvp1.png}
+\caption{MVP interface showing the document viewer, navigation sidebar, and available tools.}
+\label{fig:mvp_overview}
+\end{figure}
+
+The MVP also expanded support for document-based workflows by allowing users to upload and navigate multi-page PDF documents. Pages are displayed within the central viewer while the sidebar provides a structured overview of the document’s page hierarchy. This allows users to easily navigate between pages while maintaining the same interaction environment for detection and redaction tasks.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/mvp2.png}
+\caption{Example of face detection results displayed within the document viewer.}
+\label{fig:mvp_detection}
+\end{figure}
+
+By integrating automated detection together with manual interaction tools, the MVP provides a workflow where users can quickly identify sensitive information and review the detected regions before applying redaction. Therefore, this iteration represents the transition from a layout-focused prototype to a functional system capable of supporting the intended redaction workflow.
+
+\subsection{Final Design}
+Mer informativ layout
+Fjernet PDF la til Video
+Video editor
+Terms of Service
+
+\section{Usability and Interaction Design}
+
+The interface was designed with a strong focus on usability and efficient interaction with the redaction workflow. Since document and image redaction requires careful inspection of visual content, the system aims to support users by providing clear controls, customizable settings, and responsive feedback during the editing process. The design therefore emphasizes flexibility, workflow efficiency, and visual clarity while maintaining a simple and consistent interface structure.
+
+\subsection{Workflow and Interaction Efficiency}
+
+The interface workflow centers around the document viewer, where users inspect content and interact with detection and redaction tools. Supporting panels and toolbars provide quick access to common actions without obstructing the main viewing area.
+
+Users can hide the side panel when additional workspace is required, or resize it by dragging the panel edge. This allows the interface to adapt to different working styles and screen sizes. The top toolbar contains the primary tools used during editing, including highlighting, annotation, detection, and redaction functions.
+
+To maintain usability on smaller screens, the toolbar automatically adjusts its layout based on available screen space. When the interface becomes crowded, less frequently used actions are grouped under a “more” menu, ensuring that the workspace remains uncluttered while still providing access to all tools.
+
+Undo and redo functionality is also included, allowing users to quickly revert or restore changes. This feature makes it easier to experiment with different redaction approaches and compare results without permanently modifying the document.
+
+\subsection{Customization and User Preferences}
+
+The system provides several customization options that allow users to tailor the interface and workflow to their preferences. User-defined keyboard shortcuts can be configured to improve efficiency and allow users to rely on familiar key combinations when performing repetitive tasks.
+
+Users can also adjust export settings depending on the type of media being processed. Images can be exported in either PNG or JPEG format, while video files are exported using the MP4 format to ensure compatibility with common media players.
+
+Visual customization options are also available. The interface supports both dark and light modes, allowing users to select the theme that best suits their working environment or visual comfort.
+
+\subsection{Detection and Redaction Controls}
+
+To provide flexibility in how sensitive information is handled, the system allows users to choose between multiple redaction methods. Available options include black box redaction, blur, and pixelation. Users can also adjust the intensity of these effects depending on the desired level of concealment.
+
+Detection filters enable users to control which types of elements the system attempts to detect. By filtering specific categories, users can focus only on the relevant types of sensitive information within a document or image.
+
+Each detection category is represented using color-coded bounding boxes. Users can customize these colors as well as the color used for manually created highlight regions. This helps visually distinguish between different detection types and manual annotations.
+
+\subsection{Visual Feedback and Interface Clarity}
+
+Clear visual feedback is an important aspect of the user experience when working with automated detection systems. Detection results are displayed directly on the document using bounding boxes, allowing users to quickly identify detected elements and review them before applying redaction.
+
+A preview system is included when modifying colors or redaction methods. Small preview panels show how the selected color or redaction effect will appear before it is applied, helping users make informed adjustments.
+
+Progress indicators are also used during processing operations to provide feedback on system activity. These indicators help users understand when tasks such as detection or export are in progress, reducing uncertainty and improving the overall interaction experience.
+
+Additional visual cues are used throughout the interface to highlight selected files and active elements, ensuring that users can easily identify the current focus of their work.
+
+\section{Accessibility Features}
+
+The interface was designed with accessibility considerations in mind to ensure that the system can be used by a wide range of users with different needs and working environments. Since document and image redaction tasks often involve prolonged visual attention and detailed inspection of content, the interface aims to provide flexible visual settings and multiple interaction methods that improve usability and reduce strain during extended use.
+
+\subsection{Visual Accessibility}
+
+Several visual accessibility features were implemented to improve readability and comfort while interacting with the system. The interface supports both dark mode and light mode, allowing users to select the theme that best suits their working environment or personal preference. Dark mode can reduce eye strain when working in low-light conditions, while light mode may provide better contrast in brightly lit environments.
+
+Users are also able to adjust highlight colors used for manual annotations and detection bounding boxes. By allowing users to customize these colors, the interface can better accommodate individuals with different visual preferences or color perception differences. Detection highlights use semi-transparent overlays to ensure that the underlying content remains visible while still clearly indicating detected regions.
+
+Zoom functionality is provided through the toolbar, allowing users to increase or decrease the scale of the document or image being processed. This makes it easier to inspect small details and verify detection results without losing the overall layout of the document.
+
+Together, these visual adjustments allow users to adapt the interface to their visual needs and working conditions.
+
+\subsection{Interaction Accessibility}
+
+The interface is designed to support multiple interaction methods in order to accommodate different user preferences and accessibility requirements. Keyboard shortcuts can be configured for common actions, enabling users to navigate and perform operations efficiently without relying exclusively on mouse input.
+
+Undo and redo functionality further improves accessibility by allowing users to easily revert mistakes or restore previous changes. This reduces the risk associated with editing sensitive documents and gives users greater confidence when performing redaction tasks.
+
+Interface elements are also organized in a consistent and predictable layout. The sidebar provides structured access to uploaded files and navigation controls, while the main toolbar contains the most frequently used tools. This predictable structure helps users quickly understand how to interact with the system and reduces the effort required to locate specific features.
+
+Additionally, panels within the workspace can be collapsed or resized, allowing users to adapt the layout depending on their screen size or personal workflow preferences. This flexibility ensures that the system remains usable across a variety of devices and display resolutions.
+
+\section{Final Interface Design and Components}
