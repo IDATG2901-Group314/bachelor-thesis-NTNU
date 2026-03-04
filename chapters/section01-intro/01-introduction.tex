@@ -1,2 +1,51 @@
 \chapter{Introduction}
 
+\section{Background and Problem}
+
+Sensitive information is increasingly present in digital visual media. Photographs and images are widely used across domains such as journalism, surveillance, documentation, mapping, and social platforms. While visual data offers significant practical value, it also introduces challenges related to privacy, security, and ethical responsibility. Images may contain sensitive information, including faces, license plates, textual content, and contextual details that can directly or indirectly identify individuals.
+
+When such information is disclosed without proper handling, it may lead to privacy violations, unauthorized identification, or misuse of personal data. As a consequence, regulations such as the General Data Protection Regulation (GDPR) impose strict requirements on how personal data must be processed and protected. Organizations and individuals handling visual data must, ensure that sensitive content is adequately anonymized prior to publication, storage, or sharing.
+
+The traditional approach to anonymizing sensitive information in images relies heavily on manual editing using software tools such as Photoshop. While manual redaction provides a high degree of control, it is inherently time-consuming, repetitive, and prone to human error. These limitations become particularly significant when processing large volumes of visual material, where even minor oversights may compromise privacy.
+
+Advances in artificial intelligence and machine learning have enabled automated techniques for detecting sensitive content in images. Modern computer vision models can identify faces, text, and objects with increasing accuracy, creating opportunities for more efficient anonymization workflows. However, existing solutions vary considerably in quality, usability, and adaptability. Many systems either lack sufficient accuracy, offer limited interactivity, or impose constraints related to storage, privacy, or integration.
+
+Safe Media AI AS has developed an AI-based platform primarily focused on text-based document processing. As visual data continues to grow in importance, extending automated redaction capabilities to images represents a natural and necessary progression. This project addresses that need by exploring the design and development of a system capable of automatically identifying and anonymizing sensitive information in still images while preserving usability, efficiency, and privacy-by-design principles.
+
+\section{Group Background}
+
+This bachelor thesis is carried out by three students enrolled in the Bachelor’s program in Data Engineering at the Norwegian University of Science and Technology (NTNU). An Hoang Chu is the main frontend developer and is responsible for all written documents. Henrik Weflen Gjermundsen serves as the Scrum Master, ensuring that the meetings are held, planning sprints, and writing down the meeting minutes. Additionally, he helps with fine tuning the models used in the backend. Lastly, Karwan Shekhe is the main developer for the backend and the group leader for the team. He is responsible for making the right calls for the group when there are disagreements and ensuring effective team contributions.
+
+Throughout the study program, the group members have acquired foundational knowledge in programming, software engineering, databases, and system architecture. The project provided an opportunity to apply and extend this knowledge in a practical context, particularly within artificial intelligence and computer vision. In addition to technical development, the project emphasizes structured collaboration, version control, and agile working methodologies.
+
+The work also serves as a learning process, where theoretical concepts are explored through experimentation, evaluation, and iterative refinement. By engaging with real-world challenges related to privacy and automated redaction, the project contributes to both academic development and practical competence building.
+
+\section{Project Goals and Scope}
+
+Referere til prosjektplan? Skrive om endringer av prosjektet?
+
+\section{Delimitaion}
+
+This project has clear boundaries to keep it manageable and focused. The solution is primarily designed for the anonymization of sensitive information in still images. While video processing represents a relevant extension, it is considered optional and is only pursued if a stable and reliable image-processing pipeline is successfully established.
+
+The system supports and exports common image file formats like png and jpeg. These formats were selected based on practical relevance and compatibility with existing workflows. Extending support to additional formats is not prioritized or further considered within the scope of this project.
+
+he solution is designed to support both integration with Safe Media AI AS’s existing platform and standalone deployment. However, adapting the solution to a wide range of third party systems or highly customized deployment scenarios is outside the scope of this work.
+
+Infrastructure considerations emphasize secure and privacy-conscious data handling. Images are processed transiently and are not stored on the server. Cloud based solutions, including Google Cloud, are utilized for deployment and testing purposes. To ensure compliance with GDPR and related privacy regulations, all processing is conducted in accordance with privacy by design principles.
+
+Finally, aspects such as large-scale performance optimization, long-term infrastructure scaling, and full production deployment strategies are not comprehensively addressed within this thesis.
+
+\section{The Approach}
+
+\section{Significance and Impact}
+
+\section{Project Organization}
+
+The project follows a structured organization with clearly defined roles and responsibilities. The work was carried out in collaboration with Safe Media AI AS, which served as the commissioning organization for the project.
+
+The project group operates under academic supervision from Tom Røise at the Norwegian University of Science and Technology (NTNU). Tom Røise is a university lecturer at the Department of Information Technology and Informatics at NTNU in Gjøvik. Throughout the project, the supervisor provided guidance related to methodological considerations, technical challenges, and overall project direction.
+
+Representatives from Safe Media AI AS, Jon Yngve Hardeberg and Yasin Hessnawi, contributed domain knowledge, project objectives, and continuous feedback. Their involvement ensured alignment between system development and practical requirements. Regular meetings facilitated structured communication and iterative refinement of project decisions.
+
+Following the Scrumban methodology, the project maintained a structured workflow based on sprint planning, progress tracking, and continuous evaluation. This supported consistent progress, effective collaboration, and adaptive responses to emerging technical challenges.
