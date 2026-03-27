@@ -1,51 +1,78 @@
 \chapter{Introduction}
 
-\section{Background and Problem}
+\section{Background}
 
-Sensitive information is increasingly present in digital visual media. Photographs and images are widely used across domains such as journalism, surveillance, documentation, mapping, and social platforms. While visual data offers significant practical value, it also introduces challenges related to privacy, security, and ethical responsibility. Images may contain sensitive information, including faces, license plates, textual content, and contextual details that can directly or indirectly identify individuals.
+Sensitive information is increasingly present in digital visual media. Photographs and images are widely used across domains such as journalism, surveillance, documentation, mapping, and social platforms. While visual data offers significant practical value, it also introduces challenges related to privacy, security, and ethical responsibility. Images may contain sensitive information, including faces, license plates, textual content, and contextual details that can directly or indirectly identify individuals \cite{frome2009large}.
 
-When such information is disclosed without proper handling, it may lead to privacy violations, unauthorized identification, or misuse of personal data. As a consequence, regulations such as the General Data Protection Regulation (GDPR) impose strict requirements on how personal data must be processed and protected. Organizations and individuals handling visual data must, ensure that sensitive content is adequately anonymized prior to publication, storage, or sharing.
+When such information is disclosed without proper handling, it may lead to privacy violations, unauthorized identification, or misuse of personal data. As a consequence, regulations such as the General Data Protection Regulation (GDPR) impose strict requirements on how personal data must be processed and protected \cite{gdpr2016}. Organizations and individuals handling visual data must ensure that sensitive content is properly anonymized prior to publication, storage, or sharing.
 
-The traditional approach to anonymizing sensitive information in images relies heavily on manual editing using software tools such as Photoshop. While manual redaction provides a high degree of control, it is inherently time-consuming, repetitive, and prone to human error. These limitations become particularly significant when processing large volumes of visual material, where even minor oversights may compromise privacy.
+Traditionally, anonymizing sensitive information in images has relied on manual editing using image processing software. While manual redaction provides a high degree of control, it is inherently time-consuming, repetitive, and prone to human error. These limitations become particularly significant when processing large volumes of visual material, where manual approaches become inefficient and difficult to scale \cite{piao2024deidentification}.
 
-Advances in artificial intelligence and machine learning have enabled automated techniques for detecting sensitive content in images. Modern computer vision models can identify faces, text, and objects with increasing accuracy, creating opportunities for more efficient anonymization workflows. However, existing solutions vary considerably in quality, usability, and adaptability. Many systems either lack sufficient accuracy, offer limited interactivity, or impose constraints related to storage, privacy, or integration.
+Recent advances in artificial intelligence and machine learning have enabled automated techniques for detecting sensitive content in images. Modern computer vision models, particularly those based on deep learning, can identify objects such as faces, license plates, and textual elements with increasing accuracy \cite{raina2023egoblur}. These developments create opportunities for more efficient anonymization workflows that reduce manual effort while improving consistency. However, existing solutions still vary considerably in terms of detection accuracy, usability, and adaptability to different application contexts.
 
-Safe Media AI AS has developed an AI-based platform primarily focused on text-based document processing. As visual data continues to grow in importance, extending automated redaction capabilities to images represents a natural and necessary progression. This project addresses that need by exploring the design and development of a system capable of automatically identifying and anonymizing sensitive information in still images while preserving usability, efficiency, and privacy-by-design principles.
+\section{Problem Statement}
 
-\section{Group Background}
+Despite the availability of computer vision techniques for detecting sensitive content, many existing solutions remain limited in terms of accuracy, usability, and privacy considerations. Studies on privacy-preserving computer vision systems highlight challenges related to reliable detection performance and the difficulty of achieving consistent anonymization across diverse visual environments \cite{piao2024deidentification}. In addition, some solutions rely on cloud-based processing or centralized storage, which may introduce additional privacy concerns and complicate integration into secure organizational workflows \cite{raina2023egoblur}. These limitations make it challenging for organizations to adopt automated solutions that both protect privacy and fit into existing operational requirements.
 
-This bachelor thesis is carried out by three students enrolled in the Bachelor’s program in Data Engineering at the Norwegian University of Science and Technology (NTNU). An Hoang Chu is the main frontend developer and is responsible for all written documents. Henrik Weflen Gjermundsen serves as the Scrum Master, ensuring that the meetings are held, planning sprints, and writing down the meeting minutes. Additionally, he helps with fine tuning the models used in the backend. Lastly, Karwan Shekhe is the main developer for the backend and the group leader for the team. He is responsible for making the right calls for the group when there are disagreements and ensuring effective team contributions.
+Safe Media AI AS has developed an AI-based platform primarily focused on text-based document processing. As visual data continues to grow in importance, extending automated redaction capabilities to images represents a natural and necessary progression. However, designing an effective system for automated image redaction requires addressing challenges related to detection accuracy, usability, and privacy-by-design principles.
 
-Throughout the study program, the group members have acquired foundational knowledge in programming, software engineering, databases, and system architecture. The project provided an opportunity to apply and extend this knowledge in a practical context, particularly within artificial intelligence and computer vision. In addition to technical development, the project emphasizes structured collaboration, version control, and agile working methodologies.
-
-The work also serves as a learning process, where theoretical concepts are explored through experimentation, evaluation, and iterative refinement. By engaging with real-world challenges related to privacy and automated redaction, the project contributes to both academic development and practical competence building.
+This project investigates how a system can be designed and implemented to automatically identify and anonymize sensitive information in still images while maintaining efficiency, usability, and strong privacy protection. In addition to reliable detection and redaction, the system should provide flexible user interaction and interface design that allows users to review, adjust, and control the anonymization process according to their specific workflow requirements.
 
 \section{Project Goals and Scope}
 
-Referere til prosjektplan? Skrive om endringer av prosjektet?
+The main goal of this thesis is to design and develop a prototype system capable of automatically detecting and anonymizing sensitive information in still images, and later extended to video. The system aims to identify elements such as faces, license plates, and textual content and apply appropriate redaction techniques to prevent unintended disclosure of personal or confidential information.
 
-\section{Delimitaion}
+In addition to automated detection, the solution will provide interactive editing capabilities that allow users to review and adjust redaction results through a graphical user interface. This approach combines automated computer vision techniques with human oversight to improve both reliability and usability.
 
-This project has clear boundaries to keep it manageable and focused. The solution is primarily designed for the anonymization of sensitive information in still images. While video processing represents a relevant extension, it is considered optional and is only pursued if a stable and reliable image-processing pipeline is successfully established.
+The scope of the project is limited to the development and evaluation of a functional prototype for still image processing. The system will support common image formats such as PNG and JPEG and will be designed to integrate with the existing platform developed by Safe Media AI AS. This means, initial support for PDF is no longer considered. The solution will also follow privacy-by-design principles and consider relevant data protection requirements, including GDPR.
 
-The system supports and exports common image file formats like png and jpeg. These formats were selected based on practical relevance and compatibility with existing workflows. Extending support to additional formats is not prioritized or further considered within the scope of this project.
+\section{Delimitation}
 
-he solution is designed to support both integration with Safe Media AI AS’s existing platform and standalone deployment. However, adapting the solution to a wide range of third party systems or highly customized deployment scenarios is outside the scope of this work.
+The scope of this project is limited to the development of a prototype system for identifying and anonymizing sensitive information in visual media, including both still images and video. The primary focus is on establishing a reliable detection and redaction pipeline rather than developing a fully optimized large-scale processing system.
 
-Infrastructure considerations emphasize secure and privacy-conscious data handling. Images are processed transiently and are not stored on the server. Cloud based solutions, including Google Cloud, are utilized for deployment and testing purposes. To ensure compliance with GDPR and related privacy regulations, all processing is conducted in accordance with privacy by design principles.
+The solution is designed to integrate with the existing platform developed by Safe Media AI AS, while also supporting standalone use. However, extensive customization for different third-party systems or deployment environments is outside the scope of this project.
 
-Finally, aspects such as large-scale performance optimization, long-term infrastructure scaling, and full production deployment strategies are not comprehensively addressed within this thesis.
+Infrastructure constraints also influence the implementation. The system is developed and tested using Google Cloud services under a free-tier environment, which limits computational resources and requires model inference to run on CPU rather than GPU. In addition, only machine learning models with licenses compatible with commercial use are considered. Models with restrictive licenses that prevent commercial deployment are excluded from the project.
 
 \section{The Approach}
+Use available models and fine tune them. Develop features and user interface based on actual users working in the space. User has both manual and automated tools. Typescript and HTML with React + Vite framework in frontend while Python for the models. Strictly follow GDPR
 
 \section{Significance and Impact}
+
+The increasing reliance on visual media in digital systems creates a growing need for effective privacy-preserving technologies. Images and video frequently contain identifiable information such as faces, license plates, or textual elements, which must be carefully handled to comply with data protection regulations such as the General Data Protection Regulation (GDPR) \cite{gdpr2016}. As organizations process larger volumes of visual data, manual redaction becomes increasingly inefficient and difficult to scale \cite{piao2024deidentification}.
+
+This project contributes to the development of automated anonymization techniques by exploring the use of computer vision for detecting and redacting sensitive content in images and video. The proposed system combines automated detection with interactive editing features, enabling users to review and adjust anonymization results. In addition to its academic relevance within privacy-preserving computer vision, the project supports Safe Media AI AS in extending its platform from text-based document processing to visual media, providing a foundation for future development of automated privacy-preserving tools.
+
+\section{Group Background}
+
+This bachelor thesis is carried out by three students enrolled in the Bachelor’s program in Data Engineering at the Norwegian University of Science and Technology (NTNU). An Hoang Chu is the main frontend developer and is responsible for all written documents. Henrik Weflen Gjermundsen serves as the Scrum Master, ensuring that meetings are held, planning sprints, and writing meeting minutes. Additionally, he assists with fine-tuning the models used in the backend. Lastly, Karwan Shekhe is the main backend developer and the group leader for the team, responsible for making final decisions when disagreements arise and ensuring effective team contributions.
+
+Throughout the study program, the group members have acquired foundational knowledge in programming, software engineering, databases, and system architecture. The project allows this knowledge to be applied in a practical context while also emphasizing structured collaboration, version control, and agile working methodologies.
+
+The group’s motivation for this project stems from a shared interest in machine learning and computer vision, which were among the most engaging courses during the study program. The project provides an opportunity to work with training and fine-tuning machine learning models, as well as developing computer vision solutions related to privacy and security in visual media.
+
+The work also serves as a learning process, where theoretical concepts are explored through experimentation, evaluation, and iterative refinement. By engaging with real-world challenges related to privacy and automated redaction, the project contributes to both academic development and practical competence building.
 
 \section{Project Organization}
 
 The project follows a structured organization with clearly defined roles and responsibilities. The work was carried out in collaboration with Safe Media AI AS, which served as the commissioning organization for the project.
 
-The project group operates under academic supervision from Tom Røise at the Norwegian University of Science and Technology (NTNU). Tom Røise is a university lecturer at the Department of Information Technology and Informatics at NTNU in Gjøvik. Throughout the project, the supervisor provided guidance related to methodological considerations, technical challenges, and overall project direction.
-
 Representatives from Safe Media AI AS, Jon Yngve Hardeberg and Yasin Hessnawi, contributed domain knowledge, project objectives, and continuous feedback. Their involvement ensured alignment between system development and practical requirements. Regular meetings facilitated structured communication and iterative refinement of project decisions.
 
+The project group operates under academic supervision from Tom Røise at the Norwegian University of Science and Technology (NTNU). Tom Røise is a university lecturer at the Department of Information Technology and Informatics at NTNU in Gjøvik. Throughout the project, the supervisor provided guidance related to methodological considerations, technical challenges, and overall project direction.
+
 Following the Scrumban methodology, the project maintained a structured workflow based on sprint planning, progress tracking, and continuous evaluation. This supported consistent progress, effective collaboration, and adaptive responses to emerging technical challenges.
+
+\section{Project Report Structure}
+
+This thesis is structured to reflect the progression of the project, from problem formulation and theoretical foundations to system design, implementation, and evaluation.
+
+The introductory chapters establish the context and motivation for the project. Chapter 1 presents the background, objectives, and organizational framework of the work. Chapter 2 reviews relevant theory and existing approaches within artificial intelligence, image processing, and privacy-preserving technologies.
+
+Following the theoretical foundation, the thesis transitions to analysis and design. Chapter 3 describes the system requirements and key design considerations. Chapter 4 outlines the architectural decisions and overall system structure.
+
+The subsequent chapters focus on system development. Chapter 5 presents the implementation details of the solution, including both backend and frontend components. Chapter 6 discusses security and privacy considerations integrated into the system.
+
+Evaluation and testing are presented in Chapter 7, where both quantitative and qualitative assessment methods are described. Chapter 8 analyzes the results and system performance.
+
+Finally, Chapter 9 provides discussion and reflection on the project outcomes, including limitations and potential future work. Chapter 10 concludes the thesis by summarizing key contributions and findings.

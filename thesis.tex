@@ -1,11 +1,45 @@
 \documentclass[british,titlepage]{ntnuthesis}
 
-\usepackage{parskip}  % removes indent and adds paragraph spacing
 \usepackage{float}  % helps asserting figures between paragraphs
+\usepackage{caption} 
 
-\title{An NTNU Thesis \LaTeX{} Document Class}
+% --- START PÅ KODE-INNSTILLINGER ---
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{vscode-bg}{RGB}{30,30,30}
+\definecolor{vscode-keyword}{RGB}{86,156,214}
+\definecolor{vscode-string}{RGB}{206,145,120}
+\definecolor{vscode-comment}{RGB}{106,153,85}
+\definecolor{vscode-text}{RGB}{212,212,212}
+
+\lstset{
+    language=Python,
+    backgroundcolor=\color{vscode-bg},
+    % Bruker \scriptsize for å få plass til lange kommentarer
+    basicstyle=\ttfamily\scriptsize\color{vscode-text}, 
+    keywordstyle=\color{vscode-keyword}\bfseries,
+    stringstyle=\color{vscode-string},
+    commentstyle=\color{vscode-comment}\itshape,
+    identifierstyle=\color{vscode-text},
+    numbers=left, 
+    % FJERNET: frame=single (fjerner rammen/linjene rundt)
+    showstringspaces=false,
+    breaklines=true,               % Bryter linjen hvis den fortsatt er for lang
+    columns=fullflexible,          % Gjør avstanden mellom bokstaver mer kompakt
+    keepspaces=true,               % Bevarer innrykk korrekt
+    tabsize=4,
+    captionpos=b
+}
+% --- SLUTT PÅ KODE-INNSTILLINGER ---
+
+\captionsetup[table]{position=bottom}
+\setlength{\parindent}{0pt}
+\flushbottom
+
+\title{SafeVision: Automatic Detection and Redaction of Sensitive Content in Images}
 \shorttitle{An NTNU Thesis Document Class}
-\author{Community of Practice in Computer Science Education at NTNU}
+\author{Bachelor’s thesis in Computer Science}
 \shortauthor{CoPCSE$@$NTNU}
 \date{CC-BY \ntnuthesisdate}
 
@@ -38,14 +72,12 @@
 \input{chapters/section02-main/06-user-interface-design}
 \input{chapters/section02-main/07-technologies-and-methodologies}
 \input{chapters/section02-main/08-implementation-details}
-\input{chapters/section02-main/09-security-implementation-and-analysis}
-\input{chapters/section02-main/10-quality-assurance}
-\input{chapters/section02-main/11-testing-and-evaluation}
-\input{chapters/section02-main/12-sustainability-analysis}
+\input{chapters/section02-main/09-system-evaluation}
+\input{chapters/section02-main/10-sustainability-analysis}
 
-\input{chapters/section03-ending/13-results}
-\input{chapters/section03-ending/14-discussion-and-reflection}
-\input{chapters/section03-ending/15-conclusion}
+\input{chapters/section03-ending/11-results}
+\input{chapters/section03-ending/12-discussion-and-reflection}
+\input{chapters/section03-ending/13-conclusion}
 
 \chapter*{\bibname}
 \printbibliography[heading=none]

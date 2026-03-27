@@ -1,1 +1,265 @@
+
+
+
+
 \chapter{Technologies-and-Methodologies}
+
+\section{Introduction to Technology Stack}
+
+\section{Frontend Technologies}
+
+\section{Backend Technologies and Languages}
+
+The backend system was developed in Python, which was used for the computer vision components, the machine learning pipeline, and the FastAPI-based communication layer between the frontend and backend. This choice provided a consistent technology stack across the backend while also taking advantage of Python’s extensive library ecosystem for machine learning and image processing.
+
+Machine learning components in the image redaction system follow a structured development pipeline consisting of data preparation, model training, and deployment. This process is applied to all detection models used in the system, including face detection, text detection, and QR/barcode detection.
+
+
+\subsection{FastAPI Application and Routing}
+The backend was implemented using FastAPI as the main application framework. FastAPI was used to define the API structure, handle incoming requests, configure CORS, and register the main routing components for image and video processing. This provided a clear and modular backend architecture, where different processing tasks were separated into dedicated controllers.
+
+FastAPI's built-in concurrency support was utilized to improve the backend's ability to handle multiple requests efficiently. This contributed to better responsiveness and enabled detection and redaction operations to be processed in a scalable and non-blocking manner.
+
+In addition, a lifecycle function was used to preload machine learning models during application startup, reducing latency for incoming requests.
+
+\begin{figure}[H]
+\begin{lstlisting}[caption={FastAPI application structure and routing}, label={lst:fastapi_routing}]
+app = FastAPI(
+    title="Automatic Image Redaction API",
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(detect_router, prefix="/api", tags=["Detection"])
+app.include_router(redact_router, prefix="/api", tags=["Redaction"])
+app.include_router(video_detect_router, prefix="/api", tags=["Video"])
+app.include_router(video_redact_router, prefix="/api", tags=["Video"])
+\end{lstlisting}
+\end{figure}
+
+As shown in Listing~\ref{lst:fastapi_routing}, the FastAPI application was structured with middleware configuration and modular routing. This design enables clear separation between detection and redaction workflows for both image and video processing.
+
+\subsection{Detection and Redaction API Endpoints}
+The backend API was organized into dedicated endpoints for detection and redaction. Separate controllers were implemented for image detection, image redaction, video detection, and video redaction. This separation improved maintainability and made it easier to distinguish between different processing workflows in the system.
+
+\begin{figure}[H]
+\begin{lstlisting}[caption={Simple example detection endpoint}, label={lst:detect_endpoint}]
+@router.post("/detect")
+async def detect(file: UploadFile, types: str = Query(default="face")):
+    data = await file.read()
+    img_array = np.frombuffer(data, np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+    tasks = []
+
+    if "face" in types:
+        face_detector = get_face_detector()
+        tasks.append(asyncio.to_thread(run_pipeline_on_image, img, face_detector))
+
+    if "text" in types:
+        text_engine = get_text_ocr()
+        tasks.append(asyncio.to_thread(run_pipeline_on_image, img, text_engine))
+
+    results = await asyncio.gather(*tasks)
+
+    return {"live": results}
+\end{lstlisting}
+\end{figure}
+
+As shown in Listing~\ref{lst:detect_endpoint}, the detection endpoint receives an image from the client, decodes it, and delegates processing to multiple detection pipelines. These pipelines are executed concurrently using asynchronous execution, improving performance and reducing response time.
+
+This design follows a controller-service pattern, where the API layer handles request logic while computational tasks are assigned to specialized detection components.
+
+\subsection{Computer Vision and Model Services}
+A dedicated service layer was used to manage the computer vision and machine learning models required by the system. Shared detector instances were reused across requests in order to avoid repeated model loading and reduce processing overhead. This design supported efficient execution of face detection, text detection, barcode detection, license plate detection, and general object detection.
+
+\section{Machine Learning Pipeline}
+
+Machine learning components in the image redaction system follow a structured development pipeline consisting of data preparation, model training, and deployment. This process is applied to all detection models used in the system, including face detection, text detection, and QR/barcode detection.
+
+Figure \ref{fig:ml_pipeline} illustrates a general machine learning pipeline commonly used in data-driven systems.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/images/chapter-7/machine-learning-pipeline.png}
+\caption{General machine learning pipeline consisting of data preparation, model training, and deployment phases (adapted from \cite{ml_pipeline_source}).}
+\label{fig:ml_pipeline}
+\end{figure}
+
+The pipeline consists of three main phases.
+
+The first phase, data preparation, includes collecting datasets, cleaning the data, and splitting it into training, validation, and test sets. In this project, this stage involved combining multiple public  datasets and standardizing their annotations.
+
+The second phase, modeling, corresponds to the training and evaluation of machine learning models. 
+
+The final phase, deployment, corresponds to integrating the trained model into the backend detection pipeline of the image redaction system, where the model performs inference on uploaded images.
+
+\section{QR and Barcode Detection Methodology}
+The automatic detection of QR codes and barcodes is a critical component of the image redaction system. These elements often contain sensitive information and must therefore be reliably detected before the redaction stage can be applied.
+
+Traditional barcode libraries primarily focus on decoding barcodes rather than detecting their location within an image \cite{zxing}. Because the goal of this project is to detect barcode regions in arbitrary images, an object detection approach was required.
+
+For this reason, an object detection model based on the YOLOX architecture \cite{yolox2021} was selected and trained on a custom dataset containing QR code and barcode regions.
+
+\subsection{Detection Technology Selection}
+Several approches for QR and barcode detection were evaluated during the development of the system
+
+One commonly used library is ZXing \cite{zxing}, which is widely adpoted for barcode decoding. However, ZXing is primarily designed to read barcodes once they are already localized in the image. Since the project is developed in collaboration with an industry partner, such licensig restrictios were not suitable.
+
+For these reasons, an detection model based on the YOLOX architecture was selected. YOLOX is a modern real-time object detection framework that provides a good balance between detectio accuracy and inference speed \cite{yolox2021}.
+
+\subsection{Dataset Preparation}
+Training an object detection model requires a large and diverse labeled dataset \cite{shorten2019augmentation}. Since no single dataset contained enough images of both QR codes and 1D barcodes in realistic environments, multiple publicly available datasets were combined to construct a unified training dataset.
+
+The raw datasets consisted of images collected from several sources, including the Finder Patterns QR Code dataset \cite{finderpatterns_dataset}, the InventBar and ParcelBar benchmark barcode datasets \cite{kamnardsiri2022barcode}, and additional barcode and QR image datasets available on Kaggle \cite{barcodeqr_dataset}. In total, the raw datasets contained 15,680 images, as summarized in Table~\ref{tab:raw_datasets}.
+
+During the development process, the dataset was incrementally expanded as additional labeled data sources were incorporated. An initial version of the dataset contained approximately 2,323 labeled images. After integrating additional datasets and applying preprocessing steps, the final dataset used for training consisted of 4,633 labeled images.
+
+Before constructing the final dataset, several preprocessing steps were applied. Duplicate images across datasets were removed using MD5 hashing to prevent data leakage between training and evaluation sets. Images without annotations were also removed since object detection training requires labeled bounding boxes.
+
+The final dataset contained bounding box annotations in YOLO format representing a single object class, barcode region, which includes both QR codes and 1D barcodes.
+
+The original dataset was first divided into training, validation, and test subsets. 
+The test set was kept unchanged and was not used during training or augmentation. 
+The baseline model (v1) was trained on the original training and validation sets using the standard online data augmentation provided by YOLOX. 
+For the augmented model (v2), additional offline data augmentation was applied only to the training and validation sets, while the test set remained unchanged. 
+Both models were therefore evaluated on the same test set containing 407 images to ensure a fair comparison.
+
+The dataset was split into training, validation, and test sets using a fixed random seed to ensure reproducibility. The final dataset split consisted of 3,106 training images, 1,120 validation images, and 407 test images, as shown in Table~\ref{tab:dataset_split}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lc}
+\hline
+Dataset & Images \\
+\hline
+Archive dataset & 1371 \\
+Barcode and QR dataset & 952 \\
+BarcodeDatasets & 430 \\
+FinderPatterns dataset & 1602 \\
+QR-DN1.0 dataset & 11325 \\
+\hline
+Total & 15680 \\
+\hline
+\end{tabular}
+\caption{Overview of the raw datasets used to construct the barcode detection dataset.}
+\label{tab:raw_datasets}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lc}
+\hline
+Dataset Split & Images \\
+\hline
+Training & 3106 \\
+Validation & 1120 \\
+Test & 407 \\
+\hline
+Total & 4633 \\
+\hline
+\end{tabular}
+\caption{Final dataset split used for training and evaluation of the detection model.}
+\label{tab:dataset_split}
+\end{table}
+
+
+
+
+\subsection{Data Augmentation Strategy}
+To improve model generalization and reduce overfitting, data augmentation was applied to the training dataset. Data augmentation increases the diversity of the training data by introducing controlled variations that simulate real-world image conditions.
+
+An offline augmentation pipeline was first applied to generate additional training samples. 
+This included transformations such as brightness and contrast adjustments, Gaussian noise, 
+Gaussian blur, and small geometric transformations. 
+
+To ensure that the augmented data remained realistic, images containing very small bounding 
+boxes were skipped during augmentation. This was done to avoid introducing distorted samples 
+that could negatively affect the training process.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm]{figures/images/chapter-7/augmentations-example03.png}
+\caption{Examples of different augmentation techniques applied to the dataset.}
+\label{fig:augmentation_examples}
+\end{figure}
+
+In addition to the offline augmentation pipeline, the built-in augmentation mechanisms of YOLOX were used during training. These include mosaic augmentation and random flipping \cite{yolox2021}, which help the model learn to detect objects under varying spatial configurations.
+
+\subsection{Model Training Strategy}
+The object detection model used in this project is based on the YOLOX-S architecture \cite{yolox2021}. This model was selected because it provides a good balance between detection accuracy and computational efficiency, making it suitable for integration into real-time image processing systems.
+
+The model was trained on a custom dataset containing annotated regions of barcodes and QR codes. The dataset was divided into training, validation, and test subsets in order to enable reliable model evaluation and prevent overfitting.
+
+During the development process, several training configurations were explored. Initial experiments were conducted using an input resolution of ($640 \times $640) pixels and shorter training schedules (50 epochs) in order to establish a baseline model.
+
+In later experiments, the training configuration was refined to improve detection performance. The input resolution was increased to ($960 \times $960) pixels to improve the detection of small barcode and QR code regions. The model was trained using a batch size of 16 and mixed precision (FP16) to improve GPU training efficiency.
+
+Training was performed for a maximum of 200 epochs with early stopping using a patience of 20 epochs. This allowed the training process to terminate automatically when the validation performance stopped improving, thereby reducing the risk of overfitting.
+
+Two main training experiments were conducted. The first model was trained using the initial dataset with only oline augmetation. In the second experiment, the model was fine-tuned using offline augmented dataset generated through the augmentation pipeline described in the previous section. This allowed the impact of data augmentation on model performance to be evaluated.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lc}
+\hline
+Parameter & Value \\
+\hline
+Model architecture & YOLOX-S \\
+Input resolution & 960 × 960 \\
+Batch size & 16 \\
+Maximum epochs & 200 \\
+Early stopping & 20 epochs patience \\
+Precision mode & FP16 \\
+Number of classes & 1 (barcode\_region) \\
+\hline
+\end{tabular}
+\caption{Training configuration used for the final YOLOX model.}
+\label{tab:training_config}
+\end{table}
+
+
+\section{Deployment and Infrastructure}
+
+In addition to the core application technologies, the project relied on modern deployment and infrastructure practices to support development, testing, and delivery. Docker was used to containerize the application and provide a consistent runtime environment across development and deployment stages. GitHub Actions was used to automate parts of the CI/CD workflow, while Google Cloud was used as the cloud platform for hosting and deployment. GitHub also served as the main platform for version control and team collaboration.
+
+\subsection{Containerization with Docker}
+Docker was used to package the application and its dependencies into containers. This simplified deployment and reduced environment-specific issues by ensuring that the system could run consistently across different machines and stages of development.
+
+\subsection{Continuous Integration and Continuous Deployment}
+CI/CD practices were implemented using GitHub Actions to automate testing, building, and deployment of the system. 
+
+The CI pipeline was triggered on each push and pull request to the main branch, where both frontend and backend components were validated. This included dependency installation, static code analysis, automated testing, and build verification to ensure system stability.
+
+The CD pipeline was triggered after successful CI execution and was responsible for building a container image, deploying the backend to Google Cloud Run, and updating the frontend application in Google Cloud Storage. This ensured that new changes could be reliably deployed with minimal manual intervention.
+
+\begin{table}[H]
+\begin{lstlisting}[caption={CD pipeline for deployment to Google Cloud}, label={lst:cd_pipeline}]
+- name: Build container image
+  run: |
+    gcloud builds submit \
+      --tag europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cv-backend/cv-api
+
+- name: Deploy to Cloud Run
+  run: |
+    gcloud run deploy cv-api \
+      --image europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cv-backend/cv-api \
+      --region europe-north1 \
+      --platform managed
+\end{lstlisting}
+\end{table}
+
+As shown in Listing~\ref{lst:cd_pipeline}, the deployment pipeline builds a container image and deploys it to Google Cloud Run.
+
+\subsection{Cloud Deployment on Google Cloud}
+Google Cloud was used as the deployment platform for the system. This provided a scalable and accessible environment for hosting the application and testing its behavior in a cloud-based setting.
+
+\subsection{Version Control and Collaboration}
+GitHub was used for version control, code sharing, and collaboration throughout the project. This supported team-based development by enabling branch-based workflows, change tracking, and code integration.

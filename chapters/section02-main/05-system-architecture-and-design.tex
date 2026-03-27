@@ -1,1 +1,184 @@
 \chapter{System Architecture}
+
+\section{System Architecture Overview}
+
+The system is designed as a modular client-server architecture that separates the user interface, application logic, and processing components. This approach was chosen to support the integration of machine learning-based detection with an interactive redaction workflow, where both automated processing and user control are required.
+
+The architecture consists of three primary layers: the frontend, the backend, and the processing layer. The frontend provides an interactive environment where users can upload images, visualize detected regions, and manually adjust redactions. The backend manages communication and coordinates processing tasks, while the processing layer performs detection of sensitive elements such as faces and text, followed by anonymization through redaction techniques. This layered structure allows each part of the system to evolve independently while maintaining a clear flow of data between components.
+
+\subsection{Architectural Design}
+
+The system follows a layered architectural design, where each layer has a specific responsibility and communicates with adjacent layers. This design reduces system complexity and enables independent development of components \cite{shaw1996software}. It also simplifies debugging and testing, as each layer can be evaluated in isolation.
+
+\begin{itemize}
+    \item \textbf{Presentation Layer (Frontend):} Handles user interaction and displays results.
+    \item \textbf{Application Layer (Backend):} Manages requests and coordinates processing.
+    \item \textbf{Processing Layer:} Performs detection and redaction operations.
+\end{itemize}
+
+\subsection{Design Principles}
+
+The architecture is guided by several design principles to ensure robustness and long-term maintainability.
+
+A client-server architecture is used to separate user interaction from processing logic. This enables independent scaling of frontend and backend components and ensures that computationally intensive tasks are handled server-side, which is important for running machine learning models efficiently.
+
+Separation of concerns is applied by assigning distinct responsibilities to each component. In particular, detection and redaction are implemented as separate modules, allowing improvements to one part of the pipeline without affecting the other. This reduces coupling and simplifies future extensions.
+
+Modularity is emphasized to support extensibility. For example, the detection module can be replaced or upgraded as new machine learning models become available, without requiring changes to the frontend or backend interfaces. This is especially relevant in machine learning systems where models are continuously evolving.
+
+The backend is designed to be stateless, meaning that each request is processed independently. This simplifies deployment and allows the system to scale horizontally by distributing requests across multiple instances.
+
+Privacy is a key design consideration. By avoiding persistent storage of sensitive data, the system minimizes the risk of data exposure and aligns with privacy-focused design principles. This introduces a trade-off, as features such as history tracking or persistent sessions are limited, but this was considered acceptable given the sensitivity of the processed data.
+
+Overall, the chosen architecture reflects a balance between performance, usability, and privacy, where real-time interaction and user control are prioritized over fully automated processing.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/images/chapter-5/SystemArchitectureOverview.png}
+    \caption{High-level system architecture of the proposed solution}
+    \label{fig:system_architecture_overview}
+\end{figure}
+
+\section{System Components}
+
+Section 5.1 described the system from a layered architectural perspective, this section presents a complementary component-based view. Instead of focusing on system layers, the architecture is here decomposed into functional components that reflect the processing pipeline of detection and redaction. The system is structured around four primary components: the User Interface (UI), the Detection component, the Redaction component, and the API layer. These components are implemented as loosely coupled modules, enabling clear separation of concerns and supporting scalability and maintainability.
+
+While the system is structured as a layered architecture at a high level, it can also be described as a pipeline of functional components. In this view, the system follows a pipeline-oriented design where data flows through distinct processing stages, while still allowing user interaction between each stage. This is particularly important for privacy-sensitive applications, where full automation is not sufficient and human validation is required.
+
+\subsection{User Interface (UI)}
+
+The User Interface is implemented as a web-based frontend using React and TypeScript, following a feature-based modular architecture. The codebase is organized into domain-specific modules such as \texttt{detection}, \texttt{workspace}, and \texttt{userPreference}, each encapsulating its own components, state management, and logic.
+
+A central element of the UI is the workspace system, which provides an interactive canvas for visualizing and editing detection results. Components such as \texttt{CanvasSurface} and \texttt{PageEditorSurface} enable users to view images and manipulate detected regions through bounding boxes. Custom hooks (e.g., \texttt{useHighlightBoxEditor}, \texttt{useRedaction}) manage user interactions and editing behavior.
+
+State management is handled through a combination of custom hooks and centralized stores (e.g., \texttt{useDetectionsStore}, \texttt{useHighlightsStore}), enabling efficient synchronization between UI components. This allows real-time updates when users modify detection results or apply redaction.
+
+To support privacy requirements, sensitive data such as images and annotations are primarily stored client-side using browser-based storage mechanisms (e.g., IndexedDB). This aligns with the project’s data minimization strategy, where data is not persistently stored on the server.
+
+\subsection{Detection Component}
+
+The Detection component is responsible for identifying sensitive information in images. It is implemented as a collection of machine learning-based pipelines integrated into the backend.
+
+Multiple detection approaches are used to improve robustness and coverage:
+\begin{itemize}
+    \item Face detection using RetinaFace
+    \item Text detection using CRAFT
+    \item Object detection using YOLO-based models
+    \item Segmentation-based detection using MobileSAM
+\end{itemize}
+
+These models are integrated as third-party modules and executed during inference to generate bounding boxes or segmentation masks representing sensitive regions.
+
+The detection results are returned in a structured format and exposed through the API. Importantly, the system does not directly apply redaction after detection. Instead, results are sent to the UI, where users can review, filter, and adjust them. This supports a human-in-the-loop approach, improving reliability in cases where automated detection may be incomplete or imprecise.
+
+\subsection{Redaction Component}
+
+The Redaction component is responsible for transforming detected regions into anonymized outputs. It operates on user-validated regions and applies visual transformations such as blurring, pixelation, or masking.
+
+In the frontend, redaction is tightly integrated with the workspace system through hooks such as \texttt{useRedact} and \texttt{useRedaction}, allowing users to apply redaction interactively. The system supports both automatic redaction of detected regions and manual redaction, where users define custom areas.
+
+The redaction logic is implemented in a way that preserves the rest of the image while modifying only selected regions. This ensures that anonymization does not unnecessarily degrade image quality.
+
+By separating redaction from detection, the system allows independent evolution of both components. For example, new redaction techniques can be introduced without modifying the detection pipeline.
+
+\subsection{API Layer}
+
+The API layer acts as the communication bridge between the frontend and backend components. It is implemented through a set of service modules in the frontend (e.g., \texttt{detectionApi.ts}, \texttt{redactionApi.ts}) that interact with backend endpoints via HTTP requests.
+
+A centralized HTTP client (\texttt{httpClient.ts}) ensures consistent request handling, including serialization of image data and response parsing. This abstraction simplifies communication and isolates networking logic from UI components.
+
+The API follows a stateless design, where each request contains all necessary data for processing. This enables horizontal scalability and simplifies deployment, as backend instances do not need to maintain session state.
+
+In accordance with privacy requirements, the API does not persist uploaded images. Instead, images are processed temporarily during detection and redaction, and only the results are returned to the client.
+
+\subsection{Component Interaction}
+
+The interaction between components follows a structured workflow:
+
+\begin{enumerate}
+    \item The user uploads an image through the UI.
+    \item The image is managed locally and sent to the backend via the API.
+    \item The Detection component processes the image using multiple models and returns detected regions.
+    \item The UI visualizes the results and allows the user to adjust or refine them.
+    \item The user initiates redaction, and the request is sent through the API.
+    \item The Redaction component applies anonymization to the selected regions.
+    \item The final redacted image is returned and displayed in the UI.
+\end{enumerate}
+
+This interaction model reflects a hybrid approach that combines automated processing with user control. By introducing a validation step between detection and redaction, the system reduces the risk of incorrect anonymization and improves transparency in handling sensitive data.
+
+Overall, the component-based architecture aligns closely with the project’s goals of usability, privacy, and extensibility. The modular design enables independent development of detection models, redaction techniques, and user interface features, while maintaining a coherent and efficient processing pipeline.
+
+\section{Data Flow}
+
+The data flow describes how images and processing results move through the system. It highlights how the components interact to transform user input into a redacted output.
+
+\subsection{Detection Flow}
+
+The detection flow begins when a user uploads an image through the frontend. The image is sent to the backend via an API request, where it is prepared for processing.
+
+The backend forwards the image to the detection module, which analyzes the image using machine learning techniques. The module identifies regions containing sensitive information and returns bounding boxes representing these regions.
+
+The backend then sends the detection results back to the frontend, where they are visualized and can be reviewed by the user before further action is taken. This intermediate step allows users to validate detection results, which is important to avoid incorrect or incomplete redaction.
+
+\subsection{Redaction Flow}
+
+After detection, the user may choose to apply redaction. The frontend sends the image, detection results, and selected redaction parameters to the backend.
+
+The backend invokes the redaction module, which applies the selected anonymization techniques to the detected regions. The processed image is then returned to the frontend.
+
+This two-step process ensures that users retain control over the final result, reducing the risk of incorrect anonymization and improving overall system reliability.
+
+\subsection{Data Handling Strategy}
+
+All data is handled temporarily during processing. The system does not store images or intermediate results on the server, reducing security risks and supporting compliance with privacy requirements.
+
+Temporary state is maintained on the client side to support interaction, allowing the system to remain responsive without compromising data security.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/images/chapter-5/DataFlow.png}
+    \caption{Data flow through the system}
+    \label{fig:data_flow}
+\end{figure}
+
+\section{Deployment Architecture}
+
+The deployment architecture describes how the system components are packaged, executed, and made accessible to users. The system is deployed as a web-based application consisting of a frontend client and a backend service hosted in a cloud environment.
+
+\subsection{Deployment Setup}
+
+The frontend is delivered as a web application that runs in the user’s browser, while the backend is deployed as a server-side application responsible for handling requests and executing processing tasks.
+
+This separation ensures that computationally intensive operations, such as machine learning inference, are handled centrally, while the frontend remains lightweight and responsive.
+
+\subsection{Containerization}
+
+The system uses Docker to containerize the backend application and its dependencies. This ensures consistent execution across environments and simplifies deployment.
+
+Containerization is particularly beneficial in this system due to the dependency requirements of machine learning models and image processing libraries. By encapsulating these dependencies, the system avoids compatibility issues across different environments.
+
+\subsection{Execution Flow in Deployment}
+
+When deployed, the system operates as follows:
+
+\begin{enumerate}
+    \item The user accesses the frontend through a web browser.
+    \item The frontend sends an API request containing the image to the backend.
+    \item The backend processes the request by invoking the detection and redaction modules.
+    \item The processed result is returned to the frontend and displayed to the user.
+\end{enumerate}
+
+\subsection{Scalability}
+
+The deployment architecture supports horizontal scaling of the backend. Multiple instances of the backend service can be deployed to handle increased workloads and concurrent user requests.
+
+Since the backend is stateless, requests can be distributed across instances without requiring shared session data, simplifying load balancing and improving scalability.
+
+\subsection{Reliability}
+
+Reliability is achieved through the isolation of system components. By running the backend in a containerized environment, failures can be contained and recovered without affecting the entire system.
+
+\subsection{Security Considerations}
+
+Security is addressed by ensuring that communication between the frontend and backend occurs over secure protocols. Sensitive data is processed only during active requests and is not persistently stored, reducing the risk of data exposure.

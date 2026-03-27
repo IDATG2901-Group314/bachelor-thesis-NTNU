@@ -1,1 +1,92 @@
 \chapter{Implementation Details}
+
+\section{Introduction to Implementation Approach}
+
+\section{Frontend Implementation}
+
+The frontend of the system is implemented as a web-based application using React and TypeScript. It provides an interactive environment for uploading images, visualizing detection results, and performing redaction. The implementation emphasizes modularity, responsiveness, and user control, aligning with the system’s human-in-the-loop design.
+
+\subsection{Architecture and Structure}
+
+The implementation presented in this section concretizes the architectural design described in Chapter 5 by mapping conceptual components to specific modules, files, and interaction logic in the codebase.
+
+The frontend is implemented using a feature-based modular architecture, where the codebase is organized into domain-specific modules such as \texttt{detection}, \texttt{workspace}, \texttt{file}, and \texttt{userPreference}. Each module is structured as a self-contained unit consisting of React components, custom hooks, state management logic, and supporting utilities. 
+
+This organization is reflected directly in the project structure (see Figure~\ref{fig:frontend_structure}), where each feature folder encapsulates its own functionality. For example, the \texttt{detection} module contains components for filtering (e.g., \texttt{DetectionFiltersSection}), domain logic for mapping and grouping detections, and state stores for managing filter selections. Similarly, the \texttt{workspace} module includes canvas-related components (e.g., \texttt{CanvasSurface}, \texttt{PageEditorSurface}) and hooks for interaction logic such as \texttt{useHighlightBoxEditor} and \texttt{useRedaction}.
+
+Shared functionality is implemented through a dedicated service layer located in the \texttt{services} directory. This includes modules such as \texttt{detectionApi.ts} and \texttt{redactionApi.ts}, which handle communication with the backend, as well as a centralized HTTP client (\texttt{httpClient.ts}) for managing requests. This approach ensures that networking logic is decoupled from UI components.
+
+The chosen structure directly reflects the architectural design described in Chapter 5, where separation of concerns and modularity were identified as key design principles. By implementing features as independent modules, the system supports easier maintenance, testing, and future extension.
+
+\subsection{State Management and Interaction Logic}
+
+State management is implemented using custom React hooks and centralized stores. Hooks such as \texttt{useDetectionsStore}, \texttt{useHighlightsStore}, and \texttt{useImages} manage application state related to detection results, annotations, and uploaded files.
+
+This approach enables efficient synchronization between components and supports real-time updates. For instance, when a user modifies a bounding box in the workspace, the changes are immediately reflected across all relevant UI components.
+
+The system also includes undo/redo functionality through history-aware hooks (e.g., \texttt{useUndoRedoHistory}), allowing users to safely experiment with edits without losing previous states.
+
+\subsection{Workspace and Image Interaction}
+
+A central part of the frontend is the workspace system, which provides an interactive canvas for image manipulation. Components such as \texttt{CanvasSurface}, \texttt{PageEditorSurface}, and \texttt{ImageWorkspace} enable rendering of images and overlaying of detection results.
+
+Detected regions are represented as bounding boxes, which can be selected, resized, moved, or deleted by the user. Interaction logic is handled through hooks such as \texttt{useHighlightBoxEditor} and \texttt{useBoxActions}, which manage user input and coordinate transformations.
+
+The system also supports zooming, panning, and precise editing through custom hooks (e.g., \texttt{useZoom}, \texttt{useCtrlDragPan}), improving usability when working with high-resolution images.
+
+\subsection{Detection Integration in the UI}
+
+Detection results are integrated into the frontend through a dedicated service layer (\texttt{detectionApi.ts}). When a user uploads an image, it is sent to the backend, and the returned detections are stored in the detection state.
+
+The UI provides filtering and categorization tools (e.g., \texttt{DetectionFiltersSection}, \texttt{CategoryMultiSelect}) that allow users to control which types of detections are visible. This is particularly important when multiple detection models are used, as it helps reduce visual clutter and improves usability.
+
+Detected regions are visually distinguished using color-coded highlights, making it easier for users to identify different categories of sensitive information.
+
+\subsection{Redaction Workflow Implementation}
+
+The redaction workflow is implemented through hooks such as \texttt{useRedact} and \texttt{useRedaction}, which coordinate the transformation of selected regions.
+
+Users can apply redaction either automatically (based on detected regions) or manually by defining custom areas. Redaction parameters, such as blur or pixelation, are controlled through UI components in the top bar (e.g., \texttt{RedactionOptionsBar}).
+
+The frontend ensures that redaction is applied only to user-selected regions, maintaining control and preventing unintended modifications. The final result can then be exported using utilities such as \texttt{canvasExporter.ts}.
+
+\subsection{File Handling and User Workflow}
+
+File management is handled through the \texttt{file} module, which includes components such as \texttt{FilePanel} and \texttt{UploadDropzone}. Users can upload, organize, and switch between multiple images within the same session.
+
+Custom hooks (e.g., \texttt{useFileUpload}, \texttt{useFileSelection}) manage file operations and progress tracking. This enables batch processing workflows and provides visual feedback during long-running operations.
+
+\subsection{Client-Side Storage and Privacy Considerations}
+
+To support privacy requirements, the frontend uses client-side storage mechanisms such as IndexedDB to store temporary data, including highlights and user preferences.
+
+Repositories such as \texttt{highlightsIndexedDbRepository} ensure that sensitive data remains on the client and is not persistently stored on the server. This design aligns with the project’s data minimization strategy and reduces the risk of data exposure.
+
+\section{Backend Implementation}
+
+The backend of Safe Vision was implemented using a layered architecture consisting of an API layer and a computation backend. 
+
+The API layer was implemented using FastAPI controllers, where each endpoint handles specific detection and redaction requests. These controllers are responsible for receiving input data, validating requests, and delegating processing to the underlying services.
+
+The computation backend consists of service and pipeline components that execute the core functionality of the system. This includes image decoding, preprocessing, running detection models, and applying redaction techniques.
+
+The separation between these components was implemented directly in the codebase through a modular folder structure, where controllers, services, and pipeline modules are organized into distinct layers.
+
+\subsection{API Layer}
+\subsection{Computation Backend}
+
+\section{AI/ML Integration Implementation}
+\subsection{Detection Engine Architecture}
+\subsection{Face Detection Module}
+\subsection{Text Detection Module}
+\subsection{QR and Barcode Detection Module}
+
+\section{Image Processing Implementation}
+\subsection{Object Extractio and Mapping}
+\subsection{Entity Detection Implementation}
+\subsection{Bounding Box Processing}
+\subsection{Redaction Methods}
+
+\section{Deployment}
+
+\section{Implementation Challenges and Solutions}
