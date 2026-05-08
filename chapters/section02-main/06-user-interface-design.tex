@@ -1,193 +1,141 @@
 \chapter{User Interface and Usability}
+\label{user_interface_and_usability}
 
-Intro to the chapter ???
+This chapter presents the design and development of the SafeVision user interface. The interface was designed to support a human-in-the-loop workflow, where machine learning-based detection is combined with manual user verification and adjustment. Since the system is intended to extend Safe Media AI's existing redaction capabilities to visual media, the design also considered familiarity with the existing Safe Media AI interface in order to reduce the learning curve for users already accustomed to that platform. The chapter focuses on how the interface supports efficient interaction with detection results, provides clear visual feedback, and allows users to inspect, refine, and control automated outputs before redaction is applied.
 
 \section{Design Methodology and Principles}
 
-The development of the user interface followed an iterative design process where the layout and interaction patterns were gradually refined throughout the project. Instead of defining the complete interface at the beginning of the development process, the group focused on experimenting with different design ideas and improving them through successive iterations. Iterative design is widely recommended in user interface development because it allows teams to evaluate design decisions and refine solutions based on testing and practical experience \cite{hartson2012ux}. By following this approach, the interface could evolve together with the technical implementation of the system while gradually improving usability.
+The development of the user interface followed an iterative design process, where layout, interaction patterns, and workflow structure were gradually refined throughout the project. Instead of defining the complete interface at the beginning, design decisions were adjusted as functionality evolved and new usability needs were identified. Iterative design is widely recommended in user interface development because it allows teams to evaluate design decisions and improve solutions based on testing and practical experience \cite{hartson2012ux}. This approach allowed the design to evolve alongside the technical implementation while maintaining focus on usability and user control.
 
-\subsection{Iterative and Agile Design Process}
+\methodheading{Iterative and Agile Design Process}
 
-The project followed an agile development approach where design and implementation were carried out in parallel. As new features were introduced into the system, the interface was continuously adjusted to support the evolving functionality. This allowed the group to experiment with different layouts and interaction mechanisms while gradually building the final application.
+The project followed an agile development approach where design and implementation were carried out in parallel. As new features were introduced, the interface was continuously adjusted to support the expanding functionality of the system. This was important because SafeVision evolved from a basic image redaction prototype into a more complete tool supporting image and video workflows, detection configuration, manual refinement, and multiple redaction methods.
 
-Design processes that evolve alongside development are consistent with Agile UX practices, where interface decisions are refined through experimentation and incremental improvements rather than finalized at the beginning of a project \cite{gothelf2022leanux}. Agile frameworks such as Scrum further emphasize iterative development cycles that allow teams to continuously refine both technical solutions and interface designs during development \cite{schwaber2020scrum}.
+This approach aligns with Agile UX practices, where interface decisions are refined through incremental improvements rather than finalized early in development \cite{gothelf2022leanux}. Agile frameworks such as Scrum also emphasize iterative cycles that allow continuous refinement of both technical solutions and interface design \cite{schwaber2020scrum}.
 
-The design work initially began with wireframes created in Figma. Wireframing is commonly used in early interface design because it allows designers to quickly explore layout ideas and interaction flows before committing to full implementation \cite{hartson2012ux}. In this project, the wireframes were used to experiment with how the main workflow of the application should function, including uploading files, running detection, and applying redactions.
+The design process began with wireframes created in Figma to explore layout and interaction flows before implementation. Wireframing allows designers to quickly test ideas before committing to development \cite{hartson2012ux}. These wireframes were used to define the main workflow, including uploading files, running detection, reviewing detection results, and applying redaction.
 
-After the wireframes were established, a functional prototype was implemented. Prototyping allows designers to evaluate interaction patterns and identify potential usability issues early in the development process \cite{hartson2012ux}. The prototype, therefore, served as a practical testing environment where the group could explore different interaction mechanisms while gaining experience with the frontend technologies used in the project.
+A functional prototype was then implemented to evaluate interaction patterns and identify usability issues in a practical environment. After the prototype stage, the design was refined into a minimum viable product (MVP), where core system functionality was integrated into the interface. The interface was also influenced by Safe Media AI's existing system, allowing users familiar with that platform to encounter recognizable layout structures and interaction patterns. This helped support consistency and reduced the learning curve for potential users.
 
-Once the prototype stage was completed, the design was refined into a minimum viable product (MVP). At this stage the core features of the system were integrated into the interface, allowing the group to test the complete workflow of the application and further refine the interaction design.
+\methodheading{Core Design Principles}
 
-\subsection{Core Design Principles}
+Several design principles guided the development of the interface: simplicity, user control, visual feedback, and consistency. These principles were selected because SafeVision combines automated machine learning output with manual user verification, making it important that the interface remains understandable, predictable, and easy to control.
 
-Several design principles guided the development of the interface in order to improve usability and support efficient interaction with the system.
+Simplicity was prioritized to reduce cognitive load and allow users to focus on identifying and redacting sensitive information \cite{norman2013design}. The interface therefore emphasizes essential functionality while avoiding unnecessary complexity. This was especially important because users must inspect visual content carefully and should not be distracted by unrelated interface elements.
 
-One important consideration during development was simplicity. Interfaces that present only essential information and controls reduce cognitive load and make systems easier to learn and operate \cite{norman2013design}. For this reason, the interface was designed to focus on the primary workflow of identifying and redacting sensitive information while avoiding unnecessary complexity.
+User control over automated processes was also central. Since detection is performed by machine learning models, users must be able to verify, adjust, and override automated results when necessary \cite{hartson2012ux}. The interface supports this through manual highlighting, adjustment of detection settings, removal of incorrect detections, and customization of redaction methods.
 
-Another key principle was maintaining user control over automated processes. Interaction design research emphasizes that users should be able to verify and adjust automated system decisions whenever necessary \cite{hartson2012ux}. In this system, users are therefore able to manually highlight regions, adjust detection settings, and customize redaction methods to ensure that automated detection results can be reviewed and modified.
+Visual feedback was prioritized to help users understand system state and detection outcomes \cite{norman2013design}. Detection results are displayed directly on the media using labelled bounding boxes, enabling immediate interpretation of what the system has identified. Progress indicators and visible processing states further help users understand when the system is working.
 
-Visual feedback was also prioritized throughout development. Clear feedback mechanisms help users understand the current state of the system and the outcome of their actions \cite{norman2013design}. In the implemented interface, detection results are displayed directly on the document using bounding boxes so that users can immediately identify which regions have been detected before applying redaction.
+Consistency across components improves usability and learnability \cite{nielsen2020progressive}. Toolbars, panels, and controls follow predictable patterns, making the interface easier to navigate. In addition, alignment with familiar structures from Safe Media AI's existing system supports recognition for users already accustomed to that platform, while still allowing SafeVision to introduce functionality specific to visual media redaction.
 
-Finally, consistency across interface components was emphasized. Consistent layouts and predictable interaction patterns help users learn systems more quickly and reduce the effort required to navigate complex interfaces \cite{nielsen2020progressive}. For this reason, toolbars, side panels, and interaction controls follow similar patterns throughout the interface, ensuring that users can easily understand how different components of the system behave.
+\section{Interface Design and Components}
 
-\section{Early Designs, Prototype and MVP}
+The final SafeVision interface is the result of the design process described earlier in this chapter and documented in greater detail in Appendix~\ref{app:depth_ui_ux}. This section focuses on the final interface structure and how its components support the redaction workflow. The design applies the principles of simplicity, user control, visual feedback, and consistency by keeping upload, identification, verification, manual adjustment, and redaction within one main workspace.
 
-The design of the application did not undergo any major structural changes during development. However, it went through several iterations that gradually improved the user interface (UI) and user experience (UX). These improvements were primarily based on feedback from user testing sessions and discussions with the client.
-
-The first stage of the design process was carried out in Figma, where wireframes were created to explore the layout and interaction flow of the application. The purpose of these wireframes was to establish the basic structure of the interface and identify the most important features needed in the prototype. After validating the concept in Figma, the first working prototype was implemented in a separate repository before later transitioning to a new repository for the minimum viable product (MVP).
-
-\subsection{Initial Design}
-
-Based on the initial requirements and project scope, the system only needed to support a limited set of core functionalities: uploading an image, detecting sensitive information, and redacting detected content. Because of this limited scope, it was determined early in the design phase that the application did not require multiple pages, pop-up dialogs, or additional navigation views. Instead, all functionality could be contained within a single interface, allowing users to perform the entire workflow in one place.
-
-The initial prototype, therefore, focused on designing a single-page interface where the user could easily understand the available actions and complete the full workflow without switching contexts. The interface was structured around a central interaction area where the uploaded image would be displayed.
-
-Before an image is uploaded, the interface presents a minimal layout where the upload button is positioned at the center of the screen. This design choice emphasizes the primary action available to the user and provides a clear starting point for interacting with the system. Figure~\ref{fig:prototype_empty} illustrates the interface in its initial state before any image has been uploaded.
+The initial state of the interface is intentionally minimal, as shown in Figure~\ref{fig:final_empty_state}. Before files are uploaded, the user is presented with a clear upload action and an empty file panel. This supports simplicity by avoiding unnecessary controls before they become relevant. Once files are uploaded, the interface expands into the full editing workspace with a file panel, toolbar, central media viewer, and configuration panels.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/images/figmasketch3.png}
-\caption{Initial interface before an image is uploaded.}
-\label{fig:prototype_empty}
+\includegraphics[width=0.9\textwidth]{figures/images/chapter-6/uislutt01.png}
+\caption{Final interface in its initial state before files are uploaded.}
+\label{fig:final_empty_state}
 \end{figure}
 
-Once an image is uploaded, the layout adjusts to accommodate the available interaction features. The upload button is moved to the top of the interface so that users can easily upload another image if needed, while the central area becomes the main image viewer displaying the selected image.
-
-A file list is always present on the left side of the interface, showing the uploaded image. This allows users to keep track of the currently selected file. Below the image viewer, a set of control buttons becomes available for interacting with the system.
-
-These controls allow the user to run detection, redact detected information, and toggle the highlighting of detected areas. By placing these controls directly below the image viewer, the interface maintains a clear connection between the displayed image and the actions that can be performed on it. Figure~\ref{fig:prototype_loaded} shows the interface after an image has been uploaded.
+The left file panel provides an overview of uploaded images and videos. Each file item displays relevant information such as file name, file type, file size, selection state, and deletion control. During longer operations, each file can also display an individual progress indicator, as shown in Figure~\ref{fig:file_progress}. This design choice was introduced to improve visual feedback and system state awareness. Since SafeVision may process several files, users need to understand which file is selected, which task is running, and how far the processing has progressed. This directly supports the principle of visual feedback discussed earlier and helps reduce uncertainty during identification and redaction.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/images/figmasketch4.png}
-\caption{Prototype interface after an image has been uploaded, showing detection and redaction controls.}
-\label{fig:prototype_loaded}
+\includegraphics[width=0.55\textwidth]{figures/images/chapter-6/uikomp01.png}
+\caption{File item showing individual progress feedback during processing.}
+\label{fig:file_progress}
 \end{figure}
 
-The goal of this initial design was to provide a clear and straightforward workflow where users first upload an image, then run detection, and finally apply redaction if necessary. 
-
-\subsection{The Prototype}
-
-Since the group had limited experience with frontend development and had not previously worked with React and Vite, an early prototype was developed to experiment with the framework and explore possible interface designs before implementing the minimum viable product (MVP). The prototype was developed in a separate repository, allowing the group to freely experiment with different layouts and interaction patterns without affecting the main project. The goal of this stage was therefore not to build a fully functional system, but to gain familiarity with the frontend technologies and evaluate the overall interface structure.
-
-During the prototype phase, several interface components were introduced and tested. One of the key design decisions was the use of a permanent sidebar together with a top navigation bar. The sidebar provides an overview of uploaded images and enables quick access to files currently being worked on, while the top navigation bar contains the primary tools available in the system, such as downloading, printing, highlighting, annotations, and redaction options. This structure helped organize the available tools in a consistent and accessible manner.
+The central workspace is the main interaction area of the application. Uploaded images and videos are displayed in the middle of the screen, keeping the user's focus on the visual content being processed. This supports the goal of reducing cognitive load, as users can inspect detection results directly on the media rather than comparing separate lists or external outputs. When identification is completed, detected regions are displayed as labelled bounding boxes directly on top of the image or video frame, as shown in Figures~\ref{fig:image_detection_results} and~\ref{fig:video_detection_results}. This is essential for the human-in-the-loop workflow, since users must be able to verify automated results before redaction is applied.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/images/prototype1.png}
-\caption{Prototype interface showing the sidebar, top navigation bar, and image viewer.}
-\label{fig:prototype_overview}
+\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt02.png}
+\caption{Final image workspace with uploaded media displayed in the central viewer.}
+\label{fig:image_workspace}
 \end{figure}
-
-At this stage of development, some interface elements were included primarily for layout testing rather than full functionality. For example, the \textit{AI Mission} and \textit{Redact} buttons were present in the interface but were not yet connected to backend functionality. Instead, the prototype focused on testing the visual layout and interaction flow.
-
-The prototype also included a manual highlighting feature that allowed users to mark regions directly within the image viewer. Bounding boxes could be added to selected areas, giving users the ability to highlight regions of interest. This functionality allowed the group to evaluate how highlighted regions should be visually presented in the interface and how users could interact with them.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{figures/images/prototype3.png}
-\caption{Prototype example showing manually highlighted regions within the image viewer.}
-\label{fig:prototype_detection}
+\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt03.png}
+\caption{Detection results displayed directly on the image using labelled bounding boxes.}
+\label{fig:image_detection_results}
 \end{figure}
 
-Once the group had gained sufficient familiarity with the frontend framework and the general layout of the application, development transitioned to the MVP repository. While some interface states such as the empty upload state were not implemented in the prototype itself, the prototype played an important role in shaping the final interface structure.
+The use of overlays and labelled bounding boxes reflects the principle of visual feedback \cite{norman2013design}. Detection results are shown where the sensitive content appears, making the system output immediately understandable. This allows users to quickly assess whether the detected regions are correct, remove false positives, or add missing regions manually. Since machine learning models may produce inaccurate or incomplete detections, the interface does not treat automated results as final. Instead, it supports user control by allowing inspection and correction before redaction is performed \cite{hartson2012ux}.
 
-\subsection{MVP Design Iteration}
+The top toolbar contains the primary workflow actions, including undo, redo, download, print, identification, redaction, manual highlighting, annotation visibility, zoom controls, and clearing of highlights. These controls are placed consistently above the workspace so that the main workflow remains visible and predictable. During the final design iteration, the earlier label ``AI mission'' was renamed to ``Identify''. This change improved terminology by describing the action from the user's perspective rather than from the system's internal logic. The ordering of the toolbar actions also reflects the intended task sequence: identify sensitive regions, inspect and adjust them, and then apply redaction.
 
-After the prototype phase, development continued with the implementation of the minimum viable product (MVP). While the prototype primarily focused on experimenting with the frontend framework and interface layout, the MVP introduced the core functionality of the system and refined several aspects of the interface.
-
-The overall layout established during the prototype stage was largely preserved. The interface continues to use a permanent sidebar for file and page navigation, together with a top navigation bar containing the main tools available to the user. This structure was retained because it provides clear organization of functionality while keeping the central viewing area dedicated to the document or image being processed.
-
-In the MVP, several of the previously inactive interface elements were connected to their underlying functionality. In particular, the \textit{AI Mission} feature was implemented to allow the system to automatically detect faces within images. Detected faces are displayed as bounding boxes directly in the document viewer, providing immediate visual feedback to the user. This allows users to quickly identify which regions of the document contain faces that may require redaction.
+The side panel contains secondary and advanced settings, as shown in Figure~\ref{fig:options_panel_components}. Users can configure redaction mode, segmentation, adaptive scaling, multi-orientation detection, detection filters, scale, and video detection rate. These controls are important for flexibility, but they are not required for every basic workflow. Placing these settings in a dedicated side panel supports progressive disclosure, where advanced functionality remains available without overwhelming the main workspace \cite{nielsen2020progressive}. This balances simplicity for new users with control for more advanced users.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/images/mvp1.png}
-\caption{MVP interface showing the document viewer, navigation sidebar, and available tools.}
-\label{fig:mvp_overview}
+
+\begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uikomp05.png}
+    \caption{Redaction mode and processing settings.}
+    \label{fig:options_redaction_mode}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uikomp06.png}
+    \caption{Detection filters.}
+    \label{fig:options_detection_filters}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uikomp07.png}
+    \caption{Video detection rate.}
+    \label{fig:options_video_rate}
+\end{subfigure}
+
+\caption{Main components of the options panel. The panel provides access to redaction modes and processing settings, detection filters, and video detection rate configuration.}
+\label{fig:options_panel_components}
 \end{figure}
 
-The MVP also expanded support for document-based workflows by allowing users to upload and navigate multi-page PDF documents. Pages are displayed within the central viewer while the sidebar provides a structured overview of the document’s page hierarchy. This allows users to easily navigate between pages while maintaining the same interaction environment for detection and redaction tasks.
+Detection filters allow users to control which categories should be identified, such as faces, text, or vehicles. This supports user control over automated processing and helps reduce unnecessary visual clutter. Different images and videos may require different redaction priorities, so allowing users to configure detection categories makes the system more adaptable to specific use cases. This also supports the broader design goal of keeping automated detection helpful without removing user responsibility from the redaction process.
+
+The highlight style panel, shown in Figure~\ref{fig:highlight_styles}, supports customization of how detected and manually marked regions are displayed. Users can adjust label visibility, colors, fill opacity, stroke opacity, stroke width, and category-specific styles. This is especially important because SafeVision may be used on visually complex images or videos where a single highlight style may not always be readable. Customizable highlighting therefore supports both visual feedback and accessibility, especially during detailed inspection tasks.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/images/mvp2.png}
-\caption{Example of face detection results displayed within the document viewer.}
-\label{fig:mvp_detection}
+\includegraphics[width=0.45\textwidth]{figures/images/chapter-6/uikomp03.png}
+\caption{Highlight style panel for customizing labels, colors, opacity, and category-specific styles.}
+\label{fig:highlight_styles}
 \end{figure}
 
-By integrating automated detection together with manual interaction tools, the MVP provides a workflow where users can quickly identify sensitive information and review the detected regions before applying redaction. Therefore, this iteration represents the transition from a layout-focused prototype to a functional system capable of supporting the intended redaction workflow.
+The user preferences panel provides additional flexibility through appearance settings, export format, and keyboard shortcuts, as shown in Figure~\ref{fig:user_preferences}. Dark and light modes allow the interface to be adapted to different working conditions, while shortcut customization supports faster interaction for experienced users. At the same time, all important actions remain available through visible interface controls, making the system usable for users who do not rely on shortcuts. This supports both accessibility and learnability.
 
-\subsection{Final Design}
-Mer informativ layout
-Fjernet PDF la til Video
-Video editor
-Terms of Service
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/images/chapter-6/uikomp04.png}
+\caption{User preferences panel with appearance settings, export format, and keyboard shortcuts.}
+\label{fig:user_preferences}
+\end{figure}
 
-\section{Usability and Interaction Design}
+Video support extends the same workspace principles to temporal media. As shown in Figure~\ref{fig:video_workspace}, videos are displayed in the central viewer with playback controls, while the surrounding interface remains consistent with the image workflow. After identification, detected regions can be shown on the video frame, as illustrated in Figure~\ref{fig:video_detection_results}. This consistency helps users transfer knowledge from image redaction to video redaction, reducing the learning curve. At the same time, video introduces additional complexity because detections must be interpreted across frames, making clear visual feedback and playback control especially important.
 
-The interface was designed with a strong focus on usability and efficient interaction with the redaction workflow. Since document and image redaction requires careful inspection of visual content, the system aims to support users by providing clear controls, customizable settings, and responsive feedback during the editing process. The design therefore emphasizes flexibility, workflow efficiency, and visual clarity while maintaining a simple and consistent interface structure.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt04.png}
+\caption{Video workspace showing uploaded video content in the central viewer.}
+\label{fig:video_workspace}
+\end{figure}
 
-\subsection{Workflow and Interaction Efficiency}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt05.png}
+\caption{Detected vehicle regions displayed on a video frame.}
+\label{fig:video_detection_results}
+\end{figure}
 
-The interface workflow centers around the document viewer, where users inspect content and interact with detection and redaction tools. Supporting panels and toolbars provide quick access to common actions without obstructing the main viewing area.
+Overall, the final interface applies the design principles described in the previous subsections to the practical needs of SafeVision. Simplicity is reflected in the single workspace layout, user control is supported through editable detections and configurable settings, visual feedback is provided through overlays and progress indicators, and consistency is maintained through predictable toolbar and panel structures. The resulting design supports SafeVision's main goal: combining automated detection with user guided refinement so that sensitive visual content can be identified, verified, and redacted in an efficient and controlled workflow.
 
-Users can hide the side panel when additional workspace is required, or resize it by dragging the panel edge. This allows the interface to adapt to different working styles and screen sizes. The top toolbar contains the primary tools used during editing, including highlighting, annotation, detection, and redaction functions.
-
-To maintain usability on smaller screens, the toolbar automatically adjusts its layout based on available screen space. When the interface becomes crowded, less frequently used actions are grouped under a “more” menu, ensuring that the workspace remains uncluttered while still providing access to all tools.
-
-Undo and redo functionality is also included, allowing users to quickly revert or restore changes. This feature makes it easier to experiment with different redaction approaches and compare results without permanently modifying the document.
-
-\subsection{Customization and User Preferences}
-
-The system provides several customization options that allow users to tailor the interface and workflow to their preferences. User-defined keyboard shortcuts can be configured to improve efficiency and allow users to rely on familiar key combinations when performing repetitive tasks.
-
-Users can also adjust export settings depending on the type of media being processed. Images can be exported in either PNG or JPEG format, while video files are exported using the MP4 format to ensure compatibility with common media players.
-
-Visual customization options are also available. The interface supports both dark and light modes, allowing users to select the theme that best suits their working environment or visual comfort.
-
-\subsection{Detection and Redaction Controls}
-
-To provide flexibility in how sensitive information is handled, the system allows users to choose between multiple redaction methods. Available options include black box redaction, blur, and pixelation. Users can also adjust the intensity of these effects depending on the desired level of concealment.
-
-Detection filters enable users to control which types of elements the system attempts to detect. By filtering specific categories, users can focus only on the relevant types of sensitive information within a document or image.
-
-Each detection category is represented using color-coded bounding boxes. Users can customize these colors as well as the color used for manually created highlight regions. This helps visually distinguish between different detection types and manual annotations.
-
-\subsection{Visual Feedback and Interface Clarity}
-
-Clear visual feedback is an important aspect of the user experience when working with automated detection systems. Detection results are displayed directly on the document using bounding boxes, allowing users to quickly identify detected elements and review them before applying redaction.
-
-A preview system is included when modifying colors or redaction methods. Small preview panels show how the selected color or redaction effect will appear before it is applied, helping users make informed adjustments.
-
-Progress indicators are also used during processing operations to provide feedback on system activity. These indicators help users understand when tasks such as detection or export are in progress, reducing uncertainty and improving the overall interaction experience.
-
-Additional visual cues are used throughout the interface to highlight selected files and active elements, ensuring that users can easily identify the current focus of their work.
-
-\section{Accessibility Features}
-
-The interface was designed with accessibility considerations in mind to ensure that the system can be used by a wide range of users with different needs and working environments. Since document and image redaction tasks often involve prolonged visual attention and detailed inspection of content, the interface aims to provide flexible visual settings and multiple interaction methods that improve usability and reduce strain during extended use.
-
-\subsection{Visual Accessibility}
-
-Several visual accessibility features were implemented to improve readability and comfort while interacting with the system. The interface supports both dark mode and light mode, allowing users to select the theme that best suits their working environment or personal preference. Dark mode can reduce eye strain when working in low-light conditions, while light mode may provide better contrast in brightly lit environments.
-
-Users are also able to adjust highlight colors used for manual annotations and detection bounding boxes. By allowing users to customize these colors, the interface can better accommodate individuals with different visual preferences or color perception differences. Detection highlights use semi-transparent overlays to ensure that the underlying content remains visible while still clearly indicating detected regions.
-
-Zoom functionality is provided through the toolbar, allowing users to increase or decrease the scale of the document or image being processed. This makes it easier to inspect small details and verify detection results without losing the overall layout of the document.
-
-Together, these visual adjustments allow users to adapt the interface to their visual needs and working conditions.
-
-\subsection{Interaction Accessibility}
-
-The interface is designed to support multiple interaction methods in order to accommodate different user preferences and accessibility requirements. Keyboard shortcuts can be configured for common actions, enabling users to navigate and perform operations efficiently without relying exclusively on mouse input.
-
-Undo and redo functionality further improves accessibility by allowing users to easily revert mistakes or restore previous changes. This reduces the risk associated with editing sensitive documents and gives users greater confidence when performing redaction tasks.
-
-Interface elements are also organized in a consistent and predictable layout. The sidebar provides structured access to uploaded files and navigation controls, while the main toolbar contains the most frequently used tools. This predictable structure helps users quickly understand how to interact with the system and reduces the effort required to locate specific features.
-
-Additionally, panels within the workspace can be collapsed or resized, allowing users to adapt the layout depending on their screen size or personal workflow preferences. This flexibility ensures that the system remains usable across a variety of devices and display resolutions.
-
-\section{Final Interface Design and Components}
-
-noenoenoe

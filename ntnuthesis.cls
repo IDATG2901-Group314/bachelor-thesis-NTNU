@@ -26,6 +26,12 @@
   \renewcommand{\paging}{oneside}
 }
 
+% Heading for smaller categories
+\newcommand{\methodheading}[1]{%
+    \vspace{0.8em}
+    \noindent{\fontsize{13pt}{16pt}\selectfont\textbf{#1}}
+}
+
 % Title Page
 \DeclareOption{titlepage}{
     \AtBeginDocument{
@@ -140,6 +146,11 @@
 \LoadClass[a4paper,11pt,openright,\paging]{report}
 
 %% PACKAGE LOADING
+
+\RequirePackage{parskip}
+
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
 
 \RequirePackage[utf8]{inputenc}             % for special characters in input
 \RequirePackage[T1]{fontenc}                % modern font encoding

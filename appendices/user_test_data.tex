@@ -1,0 +1,237 @@
+\chapter{User Test Feedback Data}
+\label{appendix:user_test_feedback}
+
+This appendix summarizes the user-test feedback used in the evaluation of
+SafeVision. Instead of presenting each individual test form in full, the
+feedback was grouped into recurring themes. The tables show which features or
+interaction areas were commented on, the main feedback given by participants,
+and how the feedback influenced the system evaluation and design decisions.
+
+\section{First User Testing Phase}
+\label{appendix:user_test_phase_1}
+
+The first user testing phase focused on the early version of the system. The
+main purpose was to identify major usability issues related to workflow
+understanding, navigation, terminology, and manual redaction. The feedback was
+coded into the recurring themes below.
+
+\subsection*{Workflow and navigation}
+
+Several users were unsure what to do after uploading an image. In particular,
+participants did not always understand that detection should be started before
+redaction, and some users found it difficult to navigate from file upload to
+detection and then to redaction.
+
+\textbf{Participants:} ID001, ID002, ID003, ID004, ID006, ID009, Thomas.
+
+\textbf{Design implication:} The workflow needed clearer step ordering, stronger
+visual guidance after upload, and a button layout that better matched the
+expected task progression.
+
+\subsection*{Button naming and terminology}
+
+The term ``AI mission'' was unclear to several users. Participants suggested
+that the detection action should have a clearer and more intuitive name.
+
+\textbf{Participants:} ID003, ID004, ID006, Thomas.
+
+\textbf{Design implication:} The detection feature should use terminology that
+more directly communicates its purpose, such as ``Identify'' or ``Detect''.
+
+\subsection*{Manual redaction and editing tools}
+
+Several users did not notice that manual redaction tools existed, or did not
+fully understand that detected boxes could be edited. Some users also found it
+unclear when manual tools were active.
+
+\textbf{Participants:} ID001, ID002, ID005, ID007, ID008, Thomas.
+
+\textbf{Design implication:} Manual editing tools needed clearer labels, more
+visible interaction states, and better feedback when editing modes were active.
+
+\subsection*{Settings and side panels}
+
+Some users were unsure when and how detection or redaction settings should be
+changed. The relationship between settings and the current workflow step was
+not always clear.
+
+\textbf{Participants:} ID001, ID003, ID005, ID009.
+
+\textbf{Design implication:} Settings needed to be more visible and better
+connected to the workflow step where they were relevant.
+
+\subsection*{Progress and system feedback}
+
+Users reported confusion around progress bars and system state, especially
+when several files were involved or when processing took longer than expected.
+
+\textbf{Participants:} ID007, ID008.
+
+\textbf{Design implication:} Processing feedback should more clearly show what
+the system is doing, which file is being processed, and whether the system is
+still working.
+
+\subsection*{Tooltips and onboarding}
+
+Several users suggested tooltips, information boxes, or a short onboarding
+sequence to explain buttons and guide first-time use.
+
+\textbf{Participants:} ID002, ID003, ID006, ID009, Thomas.
+
+\textbf{Design implication:} Lightweight guidance could reduce first-time
+confusion without making the interface more complex.
+
+\subsection*{Positive feedback on automation and simplicity}
+
+Users generally reacted positively to automatic detection and redaction,
+especially when faces were detected quickly. Several users also liked that the
+system did not contain too many functions and became easier to use after the
+first attempt.
+
+\textbf{Participants:} ID001, ID002, ID003, ID004, ID006, ID007, ID008, ID009, Thomas.
+
+\textbf{Design implication:} Automatic detection should remain central to the
+system, while the interface should remain simple and focused.
+
+\section{Second User Testing Phase}
+\label{appendix:user_test_phase_2}
+
+The second user testing phase focused on a more developed version of SafeVision.
+At this stage, the system had undergone several improvements based on earlier
+feedback, and users were generally able to complete the main workflow. The
+feedback in this phase was therefore more focused on interaction details,
+processing feedback, editing precision, file handling, and additional features
+that could improve the practical use of the system.
+
+\subsection*{Filter and settings visibility}
+
+Users responded positively to being able to choose which filters should be
+active during detection and redaction. However, some participants found the
+filter and settings sections difficult to discover or did not immediately
+understand when these options should be used.
+
+\textbf{Participants:} ID010, ID011, ID012, ID014, Reell 001.
+
+\textbf{Design implication:} Filter settings should be made more visible and
+more clearly connected to the detection and redaction workflow.
+
+\subsection*{Manual editing and tool state}
+
+Several users commented on manual editing. Some users were unsure whether the
+manual tool was active, especially when the active state was only indicated by
+a highlighted button. Users also suggested more precise editing interactions,
+such as deleting selected boxes with Backspace, right-click deletion, resizing
+boxes, copying boxes, or drawing custom redaction areas.
+
+\textbf{Participants:} ID008, ID009, ID010, ID011, ID012, ID014, ID015, ID016, Reell 001.
+
+\textbf{Design implication:} Manual editing should provide clearer active-state
+feedback and support more flexible interactions for editing, deleting, and
+adjusting redaction regions.
+
+\subsection*{Overlapping detection boxes}
+
+Some users found it difficult to delete or adjust a box when it overlapped with
+another detection box. In particular, it was unclear which box was selected or
+which box would be affected by the next action.
+
+\textbf{Participants:} ID014, Reell 001.
+
+\textbf{Design implication:} The system should make selected regions clearer
+and provide better support for editing overlapping detections.
+
+\subsection*{Detection and redaction feedback}
+
+Some participants reported that detection or redaction appeared to become stuck,
+especially when progress stayed at 92\% for a longer period. This created
+uncertainty about whether the system was still processing or had failed.
+
+\textbf{Participants:} ID013, Reell 001.
+
+\textbf{Design implication:} Progress indicators should provide more reliable
+and informative feedback during longer processing tasks, especially when
+processing multiple files or videos.
+
+\subsection*{Detection quality and false positives}
+
+Detection was generally perceived as useful, but some incorrect detections were
+observed. For example, one test reported that shoelaces were detected as a
+license plate. The domain stakeholder also emphasized that automatic detection
+cannot be treated as fully reliable in all real-world cases.
+
+\textbf{Participants:} Skan-Kontroll, Reell 001.
+
+\textbf{Design implication:} Automated detection should remain combined with
+manual review and correction, since users need to verify and adjust results
+before final redaction.
+
+\subsection*{Redaction modes and preview}
+
+Users found the different redaction methods useful, especially the ability to
+choose between different types of anonymization. Some users suggested that it
+would be useful to preview the selected redaction mode before applying it, and
+to adjust the strength or intensity of certain effects.
+
+\textbf{Participants:} Skan-Kontroll, ID010, ID011, Reell 001.
+
+\textbf{Design implication:} Redaction modes should provide clearer previews
+and, where relevant, adjustable parameters such as intensity.
+
+\subsection*{Metadata handling}
+
+The domain stakeholder pointed out that metadata may also contain sensitive
+information. It was therefore considered important that the system makes it
+clear what happens to metadata during processing, and whether metadata is kept,
+removed, or selectively handled.
+
+\textbf{Participants:} Skan-Kontroll.
+
+\textbf{Design implication:} Metadata handling should be made transparent and
+treated as part of the privacy-preserving workflow.
+
+\subsection*{Download behaviour}
+
+One participant suggested that downloaded files should automatically receive a
+modified filename, for example by adding ``Anonymisert'' or ``Redacted'' to the
+original filename. This would make it easier to distinguish the processed file
+from the original.
+
+\textbf{Participants:} Reell 001.
+
+\textbf{Design implication:} Exported files should be clearly distinguishable
+from the original input files.
+
+\subsection*{Keyboard shortcuts}
+
+A Mac user noted that shortcuts should work with the Command key rather than
+requiring the user to manually change shortcuts from Control. This reflects
+platform-specific expectations for keyboard interaction.
+
+\textbf{Participants:} Reell 001.
+
+\textbf{Design implication:} Keyboard shortcuts should follow platform
+conventions where possible.
+
+\subsection*{Video support and future workflow needs}
+
+Video support was mentioned as important for realistic professional use cases.
+The domain stakeholder and several users considered video redaction relevant,
+especially in workflows involving larger amounts of visual material.
+
+\textbf{Participants:} Skan-Kontroll, ID010, ID011.
+
+\textbf{Design implication:} Video support is important for the practical value
+of the system and should remain a central part of further development.
+
+\subsection*{Overall impression}
+
+Overall, users described the system as useful, professional, fast, and promising.
+The final version was generally perceived positively, although users still
+identified several smaller improvements related to feedback, editing precision,
+and workflow clarity.
+
+\textbf{Participants:} Skan-Kontroll, ID015, ID016, ID017, Reell 001.
+
+\textbf{Design implication:} The system was perceived as practically useful, but
+manual user control should remain central so that users can handle edge cases
+and correct detection errors.

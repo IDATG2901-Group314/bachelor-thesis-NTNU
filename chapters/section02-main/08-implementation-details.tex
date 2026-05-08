@@ -1,12 +1,11 @@
 \chapter{Implementation Details}
-
-\section{Introduction to Implementation Approach}
+\label{implementation_details}
 
 \section{Frontend Implementation}
 
 The frontend of the system is implemented as a web-based application using React and TypeScript. It provides an interactive environment for uploading images, visualizing detection results, and performing redaction. The implementation emphasizes modularity, responsiveness, and user control, aligning with the system’s human-in-the-loop design.
 
-\subsection{Architecture and Structure}
+\methodheading{Architecture and Structure}
 
 The implementation presented in this section concretizes the architectural design described in Chapter 5 by mapping conceptual components to specific modules, files, and interaction logic in the codebase.
 
@@ -18,7 +17,7 @@ Shared functionality is implemented through a dedicated service layer located in
 
 The chosen structure directly reflects the architectural design described in Chapter 5, where separation of concerns and modularity were identified as key design principles. By implementing features as independent modules, the system supports easier maintenance, testing, and future extension.
 
-\subsection{State Management and Interaction Logic}
+\methodheading{State Management and Interaction Logic}
 
 State management is implemented using custom React hooks and centralized stores. Hooks such as \texttt{useDetectionsStore}, \texttt{useHighlightsStore}, and \texttt{useImages} manage application state related to detection results, annotations, and uploaded files.
 
@@ -26,7 +25,7 @@ This approach enables efficient synchronization between components and supports 
 
 The system also includes undo/redo functionality through history-aware hooks (e.g., \texttt{useUndoRedoHistory}), allowing users to safely experiment with edits without losing previous states.
 
-\subsection{Workspace and Image Interaction}
+\methodheading{Workspace and Image Interaction}
 
 A central part of the frontend is the workspace system, which provides an interactive canvas for image manipulation. Components such as \texttt{CanvasSurface}, \texttt{PageEditorSurface}, and \texttt{ImageWorkspace} enable rendering of images and overlaying of detection results.
 
@@ -34,7 +33,7 @@ Detected regions are represented as bounding boxes, which can be selected, resiz
 
 The system also supports zooming, panning, and precise editing through custom hooks (e.g., \texttt{useZoom}, \texttt{useCtrlDragPan}), improving usability when working with high-resolution images.
 
-\subsection{Detection Integration in the UI}
+\methodheading{Detection Integration in the UI}
 
 Detection results are integrated into the frontend through a dedicated service layer (\texttt{detectionApi.ts}). When a user uploads an image, it is sent to the backend, and the returned detections are stored in the detection state.
 
@@ -42,7 +41,7 @@ The UI provides filtering and categorization tools (e.g., \texttt{DetectionFilte
 
 Detected regions are visually distinguished using color-coded highlights, making it easier for users to identify different categories of sensitive information.
 
-\subsection{Redaction Workflow Implementation}
+\methodheading{Redaction Workflow Implementation}
 
 The redaction workflow is implemented through hooks such as \texttt{useRedact} and \texttt{useRedaction}, which coordinate the transformation of selected regions.
 
@@ -50,13 +49,13 @@ Users can apply redaction either automatically (based on detected regions) or ma
 
 The frontend ensures that redaction is applied only to user-selected regions, maintaining control and preventing unintended modifications. The final result can then be exported using utilities such as \texttt{canvasExporter.ts}.
 
-\subsection{File Handling and User Workflow}
+\methodheading{File Handling and User Workflow}
 
 File management is handled through the \texttt{file} module, which includes components such as \texttt{FilePanel} and \texttt{UploadDropzone}. Users can upload, organize, and switch between multiple images within the same session.
 
 Custom hooks (e.g., \texttt{useFileUpload}, \texttt{useFileSelection}) manage file operations and progress tracking. This enables batch processing workflows and provides visual feedback during long-running operations.
 
-\subsection{Client-Side Storage and Privacy Considerations}
+\methodheading{Client-Side Storage and Privacy Considerations}
 
 To support privacy requirements, the frontend uses client-side storage mechanisms such as IndexedDB to store temporary data, including highlights and user preferences.
 
@@ -64,29 +63,696 @@ Repositories such as \texttt{highlightsIndexedDbRepository} ensure that sensitiv
 
 \section{Backend Implementation}
 
-The backend of Safe Vision was implemented using a layered architecture consisting of an API layer and a computation backend. 
+The backend of Safe Vision is implemented as a layered architecture consisting of an API layer and a computation backend. While the overall architecture was introduced in Chapter~7, this section explains how the design is realized in the codebase.
 
-The API layer was implemented using FastAPI controllers, where each endpoint handles specific detection and redaction requests. These controllers are responsible for receiving input data, validating requests, and delegating processing to the underlying services.
+Controllers, services, and pipeline components are organized into separate modules, allowing request handling, application logic, and machine learning processing to remain decoupled.
 
-The computation backend consists of service and pipeline components that execute the core functionality of the system. This includes image decoding, preprocessing, running detection models, and applying redaction techniques.
+\methodheading{API Layer}
 
-The separation between these components was implemented directly in the codebase through a modular folder structure, where controllers, services, and pipeline modules are organized into distinct layers.
+The API layer handles requests from the frontend and acts as the main entry point to the backend. It is implemented in FastAPI, where each endpoint corresponds to a specific operation, such as detection or redaction.
 
-\subsection{API Layer}
-\subsection{Computation Backend}
+The application uses modular routing, with separate controllers for different processing tasks. Listing~\ref{lst:fastapi_routing} shows how middleware and routes are registered in the application.
 
-\section{AI/ML Integration Implementation}
-\subsection{Detection Engine Architecture}
-\subsection{Face Detection Module}
-\subsection{Text Detection Module}
-\subsection{QR and Barcode Detection Module}
+\begin{lstlisting}[caption={FastAPI application structure and routing}, label={lst:fastapi_routing}]
+app = FastAPI(
+    title="Automatic Image Redaction API",
+    lifespan=lifespan
+)
 
-\section{Image Processing Implementation}
-\subsection{Object Extractio and Mapping}
-\subsection{Entity Detection Implementation}
-\subsection{Bounding Box Processing}
-\subsection{Redaction Methods}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(detect_router, prefix="/api", tags=["Detection"])
+app.include_router(redact_router, prefix="/api", tags=["Redaction"])
+app.include_router(video_detect_router, prefix="/api", tags=["Video"])
+app.include_router(video_redact_router, prefix="/api", tags=["Video"])
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Detection endpoint with parallel execution}, label={lst:detect_endpoint}]
+@router.post("/detect")
+async def detect(file: UploadFile, types: str = Query(default="face")):
+    data = await file.read()
+    img_array = np.frombuffer(data, np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+    tasks = []
+
+    if "face" in types:
+        face_detector = get_face_detector()
+        tasks.append(asyncio.to_thread(run_pipeline_on_image, img, face_detector))
+
+    if "text" in types:
+        text_engine = get_text_ocr()
+        tasks.append(asyncio.to_thread(run_pipeline_on_image, img, text_engine))
+
+    results = await asyncio.gather(*tasks)
+
+    return {"live": results}
+\end{lstlisting}
+
+Listing~\ref{lst:detect_endpoint} shows how selected detection tasks are dispatched concurrently and aggregated into a single response. This reduces latency when multiple detection types are requested in the same call.
+
+For redaction requests, the API receives image data together with detection results, validates the input, and forwards it to the processing pipeline, where the selected redaction configuration is applied.
+
+
+\methodheading{Computation Backend}
+
+The computation backend performs the core processing tasks of the system, including detection and redaction of sensitive information. Unlike the API layer, it is responsible for image processing and machine learning inference rather than request handling.
+
+It is organized into two main components: the detection pipeline and the redaction processing module.
+
+\subsubsection{Detection Pipeline}
+The detection pipeline analyzes input images and identifies sensitive entities such as faces, text, barcodes, license plates, and objects. It supports multiple task-specific detectors within a shared processing flow.
+
+Processing begins with optional preprocessing, where the input image may be scaled or enhanced to improve detection performance, particularly for small or low-quality inputs.
+
+The preprocessed image is then passed to one or more task-specific detection models. When multiple detectors are selected, they can be executed concurrently to improve throughput.
+
+The outputs are subsequently aggregated and converted into a shared representation that standardizes bounding-box coordinates, confidence scores, and entity labels.
+
+\begin{lstlisting}[caption={Detection pipeline processing and bounding box normalization}, label={lst:run_pipeline}]
+def run_pipeline_on_image(img_proc, detector, *, total_scale=1.0):
+    detections = detector.detect(img_proc) or []
+
+    boxes_xyxy = []
+    scores = []
+
+    inv_scale = 1.0 / total_scale if total_scale != 0 else 1.0
+
+    for d in detections:
+        x1 = int(round(d.x1 * inv_scale))
+        y1 = int(round(d.y1 * inv_scale))
+        x2 = int(round(d.x2 * inv_scale))
+        y2 = int(round(d.y2 * inv_scale))
+
+        boxes_xyxy.append((x1, y1, x2, y2))
+        scores.append(float(d.score))
+
+    return boxes_xyxy, scores
+\end{lstlisting}
+
+Listing~\ref{lst:run_pipeline} shows how detections are rescaled to the original image dimensions and converted into a common output format.
+
+The final output of the detection pipeline is a structured representation of the detected entities, which is returned to the API layer for further processing or visualization.
+
+\subsubsection{Redaction Processing}
+
+The redaction processing module anonymizes sensitive image regions based on the output of the detection pipeline. It applies masking and transformation methods to the identified areas.
+
+It receives the original image together with the detected regions and prepares these inputs for redaction. Depending on the selected configuration, the system applies either bounding-box masking or segmentation-based masking. 
+When segmentation is enabled, Mobile SAM is used to generate more precise masks for complex shapes, as illustrated in Figure~\ref{fig:segmentation_comparison} in Chapter~11.
+
+Once the masking regions have been defined, the selected anonymization method is applied. Supported methods include blurring, pixelation, black-box masking, and inpainting, each representing a different trade-off between privacy, visual quality, and computational cost.
+
+\begin{lstlisting}[caption={Application of redaction methods}, label={lst:redaction_method}]
+def _apply_method(method, out, roi, mask, pixel_size, inpaint_radius, box_coords=None):
+    if method == "blur":
+        _apply_blur(roi, mask)
+    elif method == "pixelate":
+        _apply_pixelate(roi, mask, pixel_size)
+    elif method == "blackbox":
+        _apply_blackbox(roi, mask)
+    elif method == "inpaint":
+        _apply_inpaint_full_image(out, box_coords, mask)
+    else:
+        raise ValueError(method)
+\end{lstlisting}
+
+Listing~\ref{lst:redaction_method} shows how the available anonymization methods are applied through a shared interface.
+
+After processing, the image may be resized and encoded into a standard output format before being returned to the API layer. This supports compatibility with the frontend and efficient data transfer.
+
+
+
+
+\section{Machine Learning Model Development}
+
+The custom barcode and license plate detectors were developed in a separate
+computer vision repository before being integrated into the SafeVision backend.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.2\textwidth]{figures/images/chapter-8/cv_repos.png}
+\caption{Overview of the separation between the computer vision training repository and the SafeVision application repository. The CV repository handled dataset preprocessing, training, and evaluation, while SafeVision contains the deployed inference pipeline.}
+\label{fig:cv_repos}
+\end{figure}
+
+This separation improves reproducibility and keeps the production application
+independent from training-related dependencies and experimentation workflows.
+
+\methodheading{Overview of Training Pipeline}
+
+The training pipeline described in this section applies to both the barcode
+and license plate detection models. For clarity, the QR and barcode detection
+pipeline is used as the primary example, while the same process was applied to
+the license plate model.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/images/chapter-8/cv_pipeline_structure.png}
+\caption{Directory structure of the computer vision repository used for dataset
+preprocessing and model training.}
+\label{fig:cv_pipeline_structure}
+\end{figure}
+
+The repository is structured to separate preprocessing, dataset management,
+and training into independent modules. This modular design simplifies
+experimentation and allows preprocessing steps to be reused across multiple
+training runs.
+
+The dataset follows a COCO-style structure with dedicated training,
+validation, and test splits together with corresponding annotation files.
+Preprocessing is handled by scripts in the
+\texttt{dataset\_preprocess} module, while model training is executed through
+the \texttt{train.py} entry point.
+
+\methodheading{Dataset Preparation}
+
+The dataset preparation process consisted of collecting multiple datasets from
+different sources, converting them into a unified annotation format, and merging
+them into a single dataset for training the barcode detection model.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l l p{5.5cm}}
+\toprule
+\textbf{Dataset} & \textbf{Source} & \textbf{Description} \\
+\midrule
+archive\_1 
+& Kaggle \cite{barcode_qr_kaggle} 
+& Collection of real-world barcode and QR code images from diverse environments \\
+
+barcode\_bb, e8\_bb, multi\_bb 
+& Zenodo \cite{zenodo_barcode_datasets} 
+& Benchmark datasets with bounding box annotations for barcode detection, including multiple instances per image \\
+
+kaggle (InventBar, ParcelBar) 
+& Kaggle \cite{benchmark_barcode_kaggle} 
+& Benchmark datasets containing barcode images captured in industrial and logistics scenarios \\
+
+syn10k\_plus\_huawei 
+& University of Szeged \cite{syn10k_dataset} 
+& Synthetic barcode dataset designed to increase data diversity and improve generalization \\
+
+\midrule
+\textbf{Total} & 15731 & Combined into a unified dataset for training and evaluation \\
+\bottomrule
+\end{tabular}
+\caption{Overview of datasets used for training the barcode detection model.}
+\label{tab:barcode_datasets}
+\end{table}
+
+Due to the limited availability of datasets specifically designed for barcode and QR code detection, multiple sources were combined to construct a unified dataset (Table~\ref{tab:barcode_datasets}). Existing datasets are primarily focused on recognition rather than detection, meaning that many images
+either lacked bounding box annotations or required conversion to a detection format.
+
+Additionally, most available datasets focus on standard 1D barcodes and QR codes,
+with limited support for more complex or less common barcode types. As a result,
+dataset preparation required extensive preprocessing, including annotation
+conversion, filtering, and merging of multiple sources.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/images/chapter-8/dataset_preperation_pipeline.png}
+\caption{Dataset preparation pipeline illustrating the transformation from raw datasets to a unified, merged, and split dataset used for training.}
+\label{fig:dataset_preperation_pipeline}
+\end{figure}
+
+To ensure consistency across all data sources, each dataset was first converted
+into a unified annotation format. The datasets were then merged and divided into
+training, validation, and test subsets. As illustrated in
+Figure~\ref{fig:dataset_preperation_pipeline}, this process transformed
+raw datasets into a structured dataset suitable for training
+object detection models.
+
+To maintain a balanced representation of all data sources, the split was
+performed per dataset before the subsets were merged. This prevented larger
+datasets from dominating the final train, validation, and test distributions.
+Listing~\ref{lst:dataset_merge_split} shows the core splitting strategy used in
+the preprocessing script.
+
+\begin{lstlisting}[caption={Per-dataset splitting strategy used during dataset merging}, label={lst:dataset_merge_split}]
+def split_images_by_dataset(all_items):
+    by_dataset = defaultdict(list)
+
+    for item in all_items:
+        by_dataset[item["dataset_name"]].append(item)
+
+    train_items, val_items, test_items = [], [], []
+    rng = random.Random(RANDOM_SEED)
+
+    for dataset_name, items in by_dataset.items():
+        rng.shuffle(items)
+
+        n = len(items)
+        n_train = int(n * TRAIN_RATIO)
+        n_val = int(n * VAL_RATIO)
+
+        train_items.extend(items[:n_train])
+        val_items.extend(items[n_train:n_train + n_val])
+        test_items.extend(items[n_train + n_val:])
+
+    return train_items, val_items, test_items
+\end{lstlisting}
+
+This approach ensured that each dataset contributed samples to the training,
+validation, and test sets, while still keeping the final dataset structure
+compatible with the YOLOX training framework.
+
+The same dataset preparation workflow was also applied to the license plate detection model. However, since the license plate dataset was constructed from fewer and more uniform sources, the detailed example in this section focuses on the barcode detection dataset. The complete license plate dataset split is reported in Appendix~\ref{app:license_plate_results}.
+
+\methodheading{Data Augmentation}
+
+Data augmentation was applied during training using the built-in online
+augmentation mechanisms provided by the YOLOX framework. No separate offline
+augmentation pipeline was used.
+
+The augmentation strategy was intentionally kept relatively simple, as the
+training dataset already consisted of images from multiple sources, including
+synthetic and real-world data. This inherent diversity reduced the need for
+aggressive augmentation techniques.
+
+\begin{lstlisting}[caption={YOLOX augmentation configuration (excerpt)}, label={lst:yolox_aug}]
+self.mosaic_prob = 0.0
+self.mixup_prob = 0.0
+
+self.hsv_prob = 0.5
+self.flip_prob = 0.5
+
+self.degrees = 5.0
+self.translate = 0.05
+self.shear = 1.0
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/images/chapter-8/augmentations-example.png}
+\caption{
+Examples of geometric and photometric augmentations applied during training,
+including rotation, translation, color adjustment, and horizontal flipping.
+}
+\label{fig:data_augmentation_examples}
+\end{figure}
+
+The selected augmentations were designed to improve robustness against
+moderate variations in camera orientation, lighting conditions, and object
+placement while preserving the visual characteristics of barcodes and license
+plates.
+
+The augmentation configuration was implemented directly in the YOLOX
+experiment file. A simplified excerpt is shown in
+Listing~\ref{lst:yolox_aug}, while the full configuration is provided in
+Appendix~\ref{app:yolox_config}.
+
+
+\methodheading{Model Training}
+
+Model training was performed in YOLOX using pretrained weights from the
+official YOLOX repository \cite{yolox_github}. This reduced training time and provided a
+well-established starting point for custom detector development.
+
+All models used the YOLOX-S architecture. The shared training configuration
+included a base learning rate of \texttt{0.01 / 64}, 5 warmup epochs, a minimum
+learning rate ratio of \texttt{0.05}, SGD as optimizer, and 15 no-augmentation
+epochs.
+
+Training was conducted on a system equipped with an NVIDIA RTX 4080 GPU and
+32 GB of RAM. Consequently, some configuration choices, particularly input
+resolution and batch size, were selected not only based on validation
+performance but also to remain within the available memory budget and avoid
+training instability or out-of-memory failures.
+
+The primary differences between model versions concerned input resolution,
+batch size, maximum epochs, and augmentation settings. These were adjusted
+through empirical experimentation to balance detection performance, training
+stability, and hardware constraints.
+
+A summary of the training configurations is provided in
+Appendix~\ref{app:custom_model_evaluation}, while the complete configuration
+details are included in Appendix~\ref{app:yolox_config}.
+
+
+
+\section{AI/ML Integration}
+\label{ai_ml_integration}
+This section describes how machine learning models are integrated into the system to support detection of sensitive information. It outlines the structure of the detection engine and the strategy used to load and execute the individual models.
+
+\methodheading{Detection Engine Architecture}
+
+The detection engine combines several task-specific machine learning models within a common framework. Each model is responsible for detecting a distinct category of sensitive information, such as faces, text, barcodes, or license plates.
+
+An overview of the detection models and their capabilities is shown in Table~\ref{tab:detection_models}.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|l|l|X|} 
+\hline
+\textbf{Engine} & \textbf{Technology} & \textbf{Capabilities} \\ \hline
+RetinaFace      & CNN-based face detector & Face detection with high accuracy and robustness to scale and pose \\ \hline
+PaddleOCR       & OCR framework (detection + recognition) & Text detection and recognition in natural scenes \\ \hline
+YOLOX           & Real-time object detection (YOLO-based) & Barcode, license plate, and general object detection \\ \hline
+\end{tabularx}
+\caption{Overview of detection models used in the system.}
+\label{tab:detection_models}
+\end{table}
+
+Although the models serve different tasks, they operate on comparable image inputs and their outputs are converted into a shared representation. This simplifies downstream processing and makes it easier to extend the system with additional detectors.
+
+The detection engine is integrated with the processing pipeline described in Section~\ref{Preprocessing_subsection}, where preprocessing, inference, and post-processing are handled in sequence.
+
+\methodheading{Model Integration and Execution}
+
+The models follow a common integration pattern in order to keep the system simple and maintainable. Each detector is implemented in its own module, while model instances are loaded as shared resources to avoid repeated initialization.
+
+Lazy loading is used to defer model initialization until a detector is first requested. This is implemented through helper functions such as \texttt{get\_face\_detector()} in \texttt{backend/controllers/detect\_controller.py}, which create the model instance on first use and return the same instance for subsequent requests.
+
+\begin{lstlisting}[caption={Lazy loading of detection model}, label={lst:lazy_loading}]
+def get_face_detector():
+    global detector
+    if detector is None:
+        detector = load_model()
+    return detector
+\end{lstlisting}
+
+Listing~\ref{lst:lazy_loading} shows how model initialization is deferred until first use and how the same instance is reused across requests.
+
+This structure improves code organization and makes it possible to add new detectors without requiring major changes elsewhere in the backend.
+
+
+
+\section{Image Processing and Redaction Pipeline}
+\label{image_processing_and_redaction_pipeline}
+This section describes the processing steps applied to image data before and after model inference. While the detection pipeline (Section~8.3.2) focuses on identifying sensitive entities, this component is responsible for preparing input data, transforming detection results, and applying anonymization techniques. The implementation is primarily located in the pipeline modules under \texttt{pipeline/common}.
+
+
+\methodheading{Preprocessing}
+\label{Preprocessing_subsection}
+The preprocessing stage prepares input images before they are passed to the detection models. This includes optional scaling and enhancement operations, which can improve detection accuracy, particularly for small or low-resolution objects.
+
+Scaling is used to balance performance and accuracy, where downscaling can reduce computation time and upscaling can improve detection of small features. Preprocessing operations are shared across multiple detection modules and ensure that all models operate on a consistent input representation.
+
+In addition to manual scaling, the system supports adaptive scaling based on the requirements of individual detection models. When enabled, the image is automatically resized such that its resolution better matches the expected input size of the selected model.
+
+This is implemented through a model-aware preprocessing step, where the scaling factor is computed dynamically based on the model’s preferred input resolution. Listing~\ref{lst:adaptive_preprocessing} shows how adaptive scaling is integrated with the standard preprocessing pipeline.
+
+\begin{lstlisting}[caption={Model-aware preprocessing with adaptive scaling}, label={lst:adaptive_preprocessing}]
+def preprocess_for_model(
+    img_bgr,
+    h0,
+    w0,
+    model_name,
+    adaptive_scaling,
+    base_scale,
+    use_preprocess,
+):
+    if adaptive_scaling:
+        model_input = MODEL_INPUT_SIZES.get(model_name, 640)
+        scale = model_input / max(h0, w0)
+        scale = max(0.5, min(scale, 2.0))
+    else:
+        scale = base_scale
+
+    img_proc, total_scale, used_preprocess = preprocess_image(
+        img_bgr,
+        scale=scale,
+        use_preprocess=use_preprocess,
+    )
+
+    return img_proc, total_scale, used_preprocess
+\end{lstlisting}
+
+As shown in Listing~\ref{lst:adaptive_preprocessing}, the system dynamically adjusts image resolution depending on the selected model, while still reusing the same preprocessing pipeline.
+
+Adaptive scaling can improve detection accuracy, particularly for models that are sensitive to input resolution. However, it introduces additional computational cost due to image resizing. For this reason, it is implemented as an optional feature that can be enabled or disabled by the user. By default, adaptive scaling is enabled to prioritize detection accuracy, while still allowing performance-oriented configurations.
+
+
+\methodheading{Bounding Box Processing}
+
+After detection, the output from different models is normalized into a unified bounding box format. This involves validating coordinates, clamping values to image boundaries, and ensuring that all bounding boxes are well-formed.
+
+Bounding box processing also includes geometric transformations such as scaling and coordinate adjustment, which are necessary when preprocessing steps modify the image resolution. Additionally, bounding boxes may be expanded to include contextual regions, which is particularly useful for segmentation-based masking.
+
+These operations are implemented through utility functions that ensure robustness against invalid or out-of-bounds detections.
+
+
+
+
+\methodheading{Segmentation and Mask Generation}
+
+To enable more precise redaction, the system supports segmentation-based masking using Mobile SAM. The segmentation model is integrated as a separate component, with the implementation primarily located in \texttt{pipeline/common/redaction/anonymize.py}. The model is loaded lazily to avoid unnecessary initialization overhead.
+
+When segmentation is requested, the system extracts a region of interest around the detected bounding box and uses it as input to the segmentation model. The resulting binary mask represents the object more accurately than a rectangular bounding box, allowing for higher-quality anonymization.
+
+The implementation includes several safeguards to ensure stability. If the segmentation model is unavailable or fails to produce a valid mask, the system automatically falls back to bounding box masking. Listing~\ref{lst:segmentation_fallback} shows how this fallback mechanism is implemented in \texttt{anonymize.py}.
+
+\begin{lstlisting}[caption={Fallback from segmentation to bounding-box masking}, label={lst:segmentation_fallback}]
+segmenter = get_segmenter()
+
+if segmenter is None:
+    mask_mode = "box"
+\end{lstlisting}
+
+As shown in Listing~\ref{lst:segmentation_fallback}, the system ensures that redaction can always be performed, even when segmentation is not available. This is particularly important in constrained environments such as testing or deployment without model resources.
+
+The generated masks are further refined using morphological operations, such as opening, closing, and smoothing, to remove noise and improve visual quality. Listing~\ref{lst:mask_refinement} illustrates how mask refinement is implemented in \texttt{anonymize.py}.
+
+\begin{lstlisting}[caption={Mask refinement using morphological operations}, label={lst:mask_refinement}]
+kernel = np.ones((5, 5), np.uint8)
+mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+mask = cv2.GaussianBlur(mask, (9, 9), 0)
+\end{lstlisting}
+
+These operations ensure that segmentation masks are both accurate and visually smooth, reducing artifacts and improving the overall quality of the anonymized output.
+
+
+
+
+
+\methodheading{Redaction Methods}
+
+This stage of the pipeline applies anonymization to the detected regions. The functionality is implemented in \texttt{anonymize.py}, which provides a common interface for different redaction methods.
+
+The system supports blurring, pixelation, black-box masking, and inpainting. These methods are applied to selected regions using masks to blend the result with the original image.
+
+\begin{lstlisting}[caption={Applying redaction to detected regions}, label={lst:anonymize_call}]
+def anonymize(img, boxes, method="blur", mask_mode="segmentation"):
+    out = img.copy()
+
+    for box in boxes:
+        roi_data = _get_roi_and_mask(img, out, box, pad_ratio=0.05, mask_mode=mask_mode)
+        if roi_data is None:
+            continue
+
+        box_coords, roi, mask = roi_data
+
+        _apply_method(method, out, roi, mask, pixel_size=40, inpaint_radius=7, box_coords=box_coords)
+
+    return out
+\end{lstlisting}
+
+Listing~\ref{lst:anonymize_call} shows how redaction methods are applied to detected regions. For each bounding box, a region of interest and corresponding mask are extracted, after which the selected anonymization method is applied. This design enables flexible and consistent processing across different masking strategies.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Method} & \textbf{Visual Effect} & \textbf{Use Case} \\
+\hline
+Blur & Smooth distortion & Faces / privacy-friendly masking \\
+Pixelate & Block-based masking & Strong anonymization \\
+Blackbox & Full occlusion & Maximum privacy \\
+Inpaint & Background reconstruction & Aesthetic output \\
+\hline
+\end{tabular}
+\caption{Comparison of redaction methods.}
+\label{tab:redaction_methods}
+\end{table}
+
+Table~\ref{tab:redaction_methods} summarizes the available methods and their typical use cases.
+
+Blurring and pixelation reduce detail while keeping the general structure of the image. Black-box masking, on the other hand, completely hides the selected region. Inpainting works differently by filling the region using surrounding pixel information.
+
+The system supports both bounding box and segmentation masks, and allows different methods to be applied to different regions. This makes it possible to balance privacy and visual quality depending on the  case.
+
+
+
+\section{Video Implementation}
+
+\usepackage{multimedia}
+
+\begin{frame}{Min Video}
+    \centering
+    \movie[width=0.8\textwidth, showcontrols]{\includegraphics[width=0.8\textwidth]{bilde_placeholder.jpg}}{figures/images/chapter-10/highroad-test-video-2.mp4}
+\end{frame}
+
+\methodheading{Video Detection Integration}
+Video detection is done through POST /api/video/detect and is implemented through video_detect_controller.py together with additional functionality. Uploaded videos are first stored in a temporary working directory before OpenCV is used to open the file and read video metadata. Using this method safe vision can decode the video frame by frame by reading framerate and dimensions. Detection is not performed on every frame, which the video iteration is handled by iter_video_live and the wrapper extract_video_live, while detect_live_on_frame applies the detection to the selected frames.
+
+The frame-level detection function uses the same detection infrastructure as the image pipeline, including all preprocessing and models. This means that video does not use its own system for detecting but applies the same image-based detection already implemented in safevision, repeatedly to decoded frames. The result is returned as a manifest of all frames with a frame idex, frame-timestamp and a list of all detections. This manifest is later used to create bounding boxes for review and redaction just like for images.
+
+
+\methodheading{Tracking and Bounding Box Propagation}
+As previously stated, the video pipeline does not run full image detection on every frame by default. When safevision reuses the same detectors for images as for video it can be computationally expensive, and therefore there is implemented an option for the user to decide the programs detection frequency. This is handled through parameters such as detect_every and detect_fps. The detect_every parameter specifies detection on every Nth frame, while detect_fps is used to calculate the detect_every parameter. This is done with the helper function resolve_detect_every by taking the source video-framerate and the userinput for wanted detections per second. This makes the setting more consistent across videos with different frame rates and allows the user to better balance processing time against video-detection accuracy.
+
+Between detection frames, the bounding boxes are calculated using kalman_multi_tracker.py. On every frame the tracker predicts where each active bounding box is likely to be in the next frame, based on its previous position and movement. This means that a detected object will still be present and tracked in frames where the detector is not executed. If an object is detected after it has already been visible for some frames, the implementation can use the previously confirmed box and the later detection to fill intermediate frames. This helps prevent sensitive regions from being missing simply because they appeared between two detection frames. In the automatic tracking path, when the video reaches a frame where detection is executed after having tracked, the backend runs detect_live_on_frame(...) and matches new detections with the existing objects tracked. This is done separately for each box-entity type. If a new detection matches an existing track, the Kalman tracker corrects the predicted bounding box using the new detection. If a detection is made on the detected frame which does not match any existing track, this likely means a new sensitive object has appeared in the video and a new track is therefore created. Tracks that are not matched with any new detections live on in the background temporarily, and if they remain unmatched for too long, this means that the sensitive object is gone from the video and the tracking is therefore stopped.
+
+
+ Manual tracking is handled separately from the automatic Kalman-based tracking. For images, manual boxes are drawn and can be redacted directly, but in video a manual drawn box would either only affect a single frame where it was drawn or be a stationary box over a span of frames. Therefore, to make manual redaction usable for video, Safevision includes a dedicated manual tracking endpoint POST /api/video/track-manual. This endpoint takes the video and the existing manifest, Kalman-tracked or not, and adds its own tracked box throughout the frames. The implementation is mainly located in video_track_manual_controller.py and manual_single_tracker.py.
+ 
+Manual tracking is handled by track_manual_box_in_manifest, which initializes tracking from the selected frame and the selected region by the user. The manual tracker uses OpenCV TrackerViT, so it differs from the Kalman filter in that it is its own implemented model. It is used to track the selected region both forward and backward throughout the video. Manual tracks are assigned negative track IDs, so they do not collide with automatically generated track IDs.
+
+The manual tracker includes safeguards to reduce unstable tracking results. Functions such as _is_suspicious and _replay_safety_candidate are used when the model has low confidence in its tracking. These are used when there is sudden changes in size or aspect ratio, large jumps in position, weak overlap with the last trusted box, or abnormal growth of the tracked object near the frame border. When tracking gives low certainty, it can temporarily keep the last trusted box by only adding the new predicted area of the tracked object as a union, and then later replay tracking from a safer region. This makes the manual tracking much more reliable than applying a raw visual tracker output directly.
+
+
+\methodheading{Video Redaction Pipeline}
+
 
 \section{Deployment}
 
-\section{Implementation Challenges and Solutions}
+This section describes how the deployment architecture and infrastructure presented in Chapter~7 (Figure~\ref{fig:deployment_architecture}) are implemented in practice. The deployment setup ensures reproducibility, scalability, and efficient handling of both frontend and backend components.
+
+\methodheading{Continuous Integration and Deployment}
+
+The system uses GitHub Actions to implement both continuous integration (CI) and continuous deployment (CD) as part of the development workflow.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/images/chapter-8/github-actions-workflow.png}
+    \caption{Example of successful CI and CD workflow executions in GitHub Actions. The workflows were used to validate frontend and backend changes before deploying updated application artifacts.}
+    \label{fig:github_actions_workflow}
+\end{figure}
+
+\paragraph{Continuous Integration (CI)}
+The CI pipeline is triggered on every push or pull request to the main branch and is responsible for validating both frontend and backend components.
+
+For the frontend, the pipeline installs dependencies using npm, performs linting and type checking, runs tests, and builds the application to ensure that the code compiles correctly. For the backend, the pipeline installs Python dependencies, performs static analysis using Ruff, and executes unit tests using pytest.
+
+To enable testing without requiring machine learning model weights, a configuration flag (\texttt{ALLOW\_FAKE\_DETECTORS}) is used to bypass model loading during CI execution.
+
+An excerpt of the CI pipeline is shown in Listing~\ref{lst:ci_pipeline}.
+
+\begin{lstlisting}[caption={Excerpt from CI pipeline using GitHub Actions}, label={lst:ci_pipeline}]
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm test --if-present
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    env:
+      ALLOW_FAKE_DETECTORS: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - run: pip install -r requirements.txt
+      - run: ruff check .
+      - run: pytest -q
+\end{lstlisting}
+
+As shown in Listing~\ref{lst:ci_pipeline}, the CI pipeline is divided into separate jobs for frontend and backend components, ensuring that all parts of the system are validated before deployment.
+
+\paragraph{Continuous Deployment (CD)}
+The CD pipeline is triggered after successful CI execution and is responsible for building and deploying the application.
+
+The backend is built into a Docker container using Google Cloud Build, pushed to Artifact Registry, and deployed to Google Cloud Run as a managed service. The frontend is built and deployed as a static application to Google Cloud Storage.
+
+An excerpt of the deployment pipeline is shown in Listing~\ref{lst:cd_pipeline}.
+
+\begin{lstlisting}[caption={Excerpt from CD pipeline for deployment to Google Cloud}, label={lst:cd_pipeline}]
+- name: Build container image
+  run: |
+    gcloud builds submit \
+      --tag europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cv-backend/cv-api
+
+- name: Deploy to Cloud Run
+  run: |
+    gcloud run deploy cv-api \
+      --image europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cv-backend/cv-api \
+      --region europe-north1 \
+      --platform managed
+\end{lstlisting}
+
+As shown in Listing~\ref{lst:cd_pipeline}, the deployment pipeline builds a container image and deploys it to Google Cloud Run.
+
+\methodheading{Backend Deployment}
+
+The backend is containerized using Docker and deployed to Google Cloud Run. The container is built from a lightweight Python base image and includes all required dependencies for image processing and machine learning inference.
+
+\begin{lstlisting}[caption={Simplified Dockerfile for backend deployment}, label={lst:dockerfile}]
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# System dependencies for image processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies (CPU-only ML setup)
+COPY requirements-prod.txt .
+RUN pip install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch torchvision torchaudio && \
+    pip install -r requirements-prod.txt
+
+# Copy application
+COPY backend/ ./backend
+
+# Run API
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+\end{lstlisting}
+
+As shown in Listing~\ref{lst:dockerfile}, the container is built from a lightweight Python base image and includes system-level dependencies required for OpenCV and video processing. Machine learning libraries are installed using CPU-based configurations to ensure compatibility with the Cloud Run environment.
+
+This setup ensures a reproducible and portable runtime environment, where all dependencies are packaged within the container and can be deployed consistently across environments.
+
+The backend service is exposed through a FastAPI application running on port 8080, which is the default port expected by Cloud Run. The container is deployed as a managed service on Google Cloud Run, allowing automatic scaling based on incoming request load.
+
+In practice, the deployment process is integrated into the CD pipeline (Listing~\ref{lst:cd_pipeline}), where a new container image is built and deployed upon successful CI execution. This ensures that backend updates are consistently packaged and released through an automated workflow.
+
+\methodheading{Frontend Deployment}
+
+The frontend deployment was implemented as a static build and release workflow.
+During CI, the application was validated and built, and during CD, the generated
+build artifacts were uploaded as the deployed frontend version.
+
+The frontend application was built using the standard production build process,
+which generated a compiled \texttt{dist/} directory containing static HTML, CSS,
+and JavaScript assets. These files were treated as the release artifact of the
+frontend and were used as the basis for deployment.
+
+In practice, the CD workflow uploaded the contents of the \texttt{dist/}
+directory to the hosting environment, where the files were served as a static web
+application. This meant that frontend deployment did not require a separate
+application server, and updates could be released by replacing the previously
+hosted static assets with a new production build.
+
+The frontend was configured to communicate with the backend API through a
+deployment-specific base URL. This configuration was injected at build time,
+allowing the same codebase to be used across development and deployed
+environments while changing only the target API endpoint.
+
+Because the frontend was deployed as static assets, the deployment process was
+kept separate from the backend container release. This simplified frontend
+updates and made it possible to release interface changes without rebuilding the
+backend service.
+
+\methodheading{Model and Environment Configuration}
+
+Machine learning models are included as part of the backend deployment and selectively uploaded using a customized \texttt{.gcloudignore} configuration. This ensures that only required model weights are included, while unnecessary files such as datasets and training artifacts are excluded.
+
+Models are loaded lazily at runtime and reused across requests to reduce initialization overhead and improve performance. In cases where model resources are unavailable, fallback mechanisms are used to maintain system functionality.
+
+The system behavior is further controlled through environment variables, enabling flexible configuration across development, testing, and production environments. For example, the \texttt{ALLOW\_FAKE\_DETECTORS} flag is used in CI environments to disable model loading, allowing tests to run without requiring large model files.
+

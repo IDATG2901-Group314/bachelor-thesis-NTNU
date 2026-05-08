@@ -1,2 +1,438 @@
-\chapter{Literature Review}
-\label{chap:usage}
+\chapter{Theoretical and Technical Foundation}
+\label{chap:theoretical_foundation}
+
+This chapter presents the theoretical, legal, and technical foundation for
+SafeVision. It defines sensitive information in visual media, outlines the
+GDPR-related constraints that affect such data, and reviews redaction workflows,
+AI-based methods, and the model choices used in the system.
+
+
+\section{Sensitive Information in Visual Media}
+\label{sec:sensitive_information_in_vm}
+Images and videos are privacy-relevant forms of data because they may contain
+information that directly or indirectly identifies individuals or reveals 
+sensitive contextual details. Unlike structured text data, visual media often
+contains several layers of information at the same time, including identity,
+location, activities, and surrounding context \cite{zhao2023visual, li2024image}.
+This makes privacy protection in visual media difficult to handle reliably,
+since sensitive information may appear both as clearly visible identifiers and
+as less obvious contextual cues. In video, this challenge is extended by the temporal dimension,
+since sensitive regions must also be detected and anonymized consistently across consecutive
+frames \cite{bewley2016sort, wojke2017deepsort}.
+
+In the context of this project, sensitive information is not limited to
+traditional personal identifiers such as faces or written names. Sensitive 
+content may also include license plates, signs, documents, screens, barcodes, 
+QR codes, and similar visual elements. Prior work has shown that 
+privacy-sensitive information in images extends across multiple
+categories, including identity, location, and contextual attributes
+\cite{li2024image}.
+
+This distinction can be framed in terms of direct and indirect identifiers.
+Direct identifiers include faces, full-body images, license plates, and names
+that may immediately reveal identity. Indirect identifiers include contextual
+details such as house numbers, address signs, unique belongings, or embedded
+machine-readable content that may contribute to identification when combined
+with other available information. Privacy in visual media must therefore be
+understood not only in terms of isolated objects, but also in relation to the
+surrounding scene and context.
+
+Advances in computer vision have made it increasingly feasible to
+detect such information automatically. At the same time, they increase
+the risk of extracting sensitive content from visual media at scale
+\cite{cvprivacy2023, frompixelstoprivacy}. Systems designed for 
+privacy-preserving image processing must therefore be able to handle
+different types of sensitive content rather than relying on a single
+detection strategy.
+
+In this project, sensitive information is understood as any visual content or
+metadata that can directly or indirectly identify a person or reveal sensitive
+contextual information. This includes both visible elements in the
+visual content itself and associated metadata, since both may contribute to the
+disclosure of personal or contextual information. This definition is used as the 
+basis for the legal and technical discussion below.
+
+
+\section{GDPR and Legal Design Constraints}
+\label{gdpr_and_legal_design_constraints}
+The \textit{General Data Protection Regulation} (GDPR) provides the legal
+framework for processing personal data in the European Union. In this project,
+GDPR is relevant because uploaded images and videos may contain information
+that identifies individuals directly or indirectly. The system must therefore
+be designed to process such data in a legally responsible manner.
+
+Under GDPR, personal data is defined as ``any information relating to an
+identified or identifiable natural person'' (Article 4(1)) \cite{gdpr}. This
+definition is particularly important for visual media, where identification may
+result not only from explicit identifiers such as faces or names, but also from
+license plates, locations, contextual details, or combinations of multiple
+visual elements. Recital 26 further clarifies that identifiability should be
+assessed by considering all means reasonably likely to be used to identify a
+person, directly or indirectly \cite{gdpr}.
+
+GDPR also defines processing broadly as any operation performed on personal
+data, including collection, storage, use, transmission, and erasure (Article
+4(2)) \cite{gdpr}. For SafeVision, this means that several parts of the
+application fall within the scope of GDPR, including file upload, automated
+analysis, redaction, and temporary storage during processing.
+
+A related distinction concerns anonymization and pseudonymization. Recital 26
+states that pseudonymized data should still be treated as personal data if it
+can be linked back to an individual \cite{gdpr}. In practice, this means that
+visual redaction techniques such as blurring, masking, or pixelation do not
+automatically guarantee true anonymization if identity can still be inferred
+from surrounding context or other available information. This is particularly
+relevant in visual media, where indirect identifiers may remain visible even
+after obvious sensitive regions have been obscured.
+
+These legal definitions affect system design directly. Because the application
+processes potentially identifiable visual data, it should minimize retained
+data, restrict processing to what is necessary for detection and redaction, and
+avoid unnecessary storage of uploaded files. It should also support
+transparency by making clear how uploaded media is handled and by allowing
+users to retain control over the final redaction result.
+
+For this reason, GDPR in this project is not treated only as a legal
+background framework, but as a set of design constraints that shape both the
+technical implementation and the user workflow. These constraints are closely
+related to the choice of redaction strategy discussed in the following section.
+
+\section{Existing Redaction Workflows}
+
+Redaction workflows for visual media generally fall into three categories:
+manual, automated, and hybrid. These approaches involve different trade-offs
+between precision, efficiency, scalability, and user control. In video, they
+must also account for temporal consistency across frames.
+
+\methodheading{Manual Redaction}
+
+Manual redaction relies on a user to identify sensitive regions and apply
+masking, blurring, or pixelation. Its main strength is contextual judgment and
+high user control. However, it is time-consuming, difficult to scale, and prone
+to human oversight, especially when large volumes of data must be reviewed
+\cite{orekondy2017connecting}.
+
+\methodheading{Automated Redaction}
+
+Automated redaction uses computer vision methods to detect sensitive regions
+and redact them with limited user involvement. This improves efficiency and
+consistency, particularly for repetitive tasks and large datasets. However,
+fully automated approaches introduce the risk of false negatives and false
+positives, which may either expose sensitive content or remove non-sensitive
+information unnecessarily \cite{zhao2023visual}.
+
+\methodheading{Hybrid Redaction with User Control}
+\label{subsec:hybrid_redaction_user_control}
+
+Hybrid redaction combines automated detection with user review and correction.
+The system first proposes sensitive regions, after which the user can inspect,
+modify, approve, or reject the result before final redaction is applied. This
+approach combines the efficiency of automation with human judgment, and is used
+in existing redaction tools such as CaseGuard Studio and VIDIZMO Redactor
+\cite{caseguard_redaction, vidizmo_redaction}.
+
+SafeVision is based on this hybrid approach. It enables automatic detection of
+common sensitive content while preserving user control over the final
+anonymized output.
+
+
+\section{Existing AI-Based Methods for Visual Redaction}
+
+Existing AI-based redaction systems typically combine detection, recognition,
+and redaction methods rather than relying on a single model. This reflects the
+fact that visual anonymization requires different forms of analysis depending
+on whether the target region is a face, text element, structured object, or
+irregular visual region.
+
+\methodheading{Face Detection Methods}
+
+Face detection is one of the most established components in visual redaction
+systems. Earlier approaches often relied on handcrafted features and classical
+detectors, while more recent systems use deep learning-based models that are
+better suited to unconstrained real-world images \cite{zhao2018review,
+deng2020retinaface}. In redaction workflows, the main purpose of face detection
+is to localize facial regions so that they can later be blurred, masked, or
+otherwise anonymized.
+
+Modern face detection methods are valuable in redaction systems because they
+handle variation in pose, lighting, occlusion, and image quality more reliably
+than earlier approaches. Face detection has therefore become a standard
+component in both fully automated and hybrid visual redaction systems.
+
+\methodheading{Text Detection, Recognition, and Classification}
+
+Text-related redaction is usually implemented as a multi-stage pipeline. Scene
+text detection methods are first used to localize text regions in the image,
+after which optical character recognition (OCR) is applied to extract the text
+content itself \cite{zhou2017east, du2020ppocr}. In more advanced systems, the
+recognized text may then be further analyzed in order to determine whether it
+contains entities that should be anonymized.
+
+This layered structure differs from standard object detection because textual
+content must often be both localized and interpreted. Existing image redaction
+systems that handle documents, signs, labels, or other embedded text therefore
+commonly combine text detection with OCR, and in some cases also with
+additional text analysis.
+
+\methodheading{Object Detection for Structured Entities}
+
+Object detection methods are commonly used in visual redaction systems to
+localize structured entities using bounding boxes. In practice, such approaches
+are often applied to categories such as license plates, ID cards, barcodes, QR
+codes, and other objects that can be detected as visually distinct regions
+\cite{ge2021yolox}.
+
+Compared with image classification, object detection is better suited to
+redaction workflows because it provides spatial localization of the relevant
+region. Existing systems frequently use one-stage or two-stage object detection
+frameworks depending on the desired balance between speed, accuracy, and
+deployment complexity. For categories that are not well covered by generic
+pretrained models, custom-trained detectors may also be required.
+
+\methodheading{Video Tracking and Temporal Consistency}
+
+Video redaction differs from image redaction because sensitive regions must be
+handled consistently across consecutive frames. Otherwise, frame-by-frame
+processing may produce unstable bounding boxes, flickering redaction, or missed
+frames. Video anonymization therefore often combines detection with tracking,
+where detections are associated across frames based on motion, overlap, or
+appearance \cite{bewley2016sort, wojke2017deepsort}. In other cases,
+single-object tracking is used to follow a selected region over time
+\cite{opencv_vittrack, lukezic2017csrt}. These approaches improve visual
+stability and reduce the need for full detection in every frame.
+
+
+\methodheading{Segmentation and Inpainting Methods}
+
+While bounding-box detection is often sufficient for practical redaction,
+segmentation methods can provide more precise localization by identifying the
+pixels belonging to the target region rather than a rectangular approximation
+\cite{he2017mask, kirillov2023segment}. This is useful in cases where more
+selective anonymization is needed or where coarse masking would remove too much
+surrounding visual information.
+
+A related class of methods is inpainting, where the detected region is replaced
+with generated or reconstructed content rather than being blurred or covered.
+Such methods can improve visual continuity, but they also introduce trade-offs
+related to interpretability, computational cost, and the predictability of the
+final anonymization result. In practice, segmentation and inpainting are often
+used as refinement methods rather than as the primary detection strategy.
+
+Together, these method categories show why AI-based visual redaction is usually
+implemented as a composite pipeline. Different region types must be localized,
+interpreted, and anonymized in different ways, which motivates the
+multi-component design used in SafeVision.
+
+
+\section{Model and Technology Choices in SafeVision}
+
+Based on the method categories described in the previous section, SafeVision was
+implemented as a multi-stage pipeline combining pretrained and custom-trained
+models. The selected components were chosen based on their technical suitability,
+integration feasibility, and ability to support the detection and anonymization
+tasks required by the system.
+
+An additional constraint throughout the project was that the selected models and
+frameworks needed to be available for free use and compatible with the
+licensing and deployment requirements of the project. This excluded a number of
+otherwise relevant technologies and directly influenced the model choices
+presented in this section. As a result, the final selection reflects not only
+technical considerations, but also practical constraints related to licensing
+and deployment.
+
+
+\methodheading{RetinaFace for Face Detection}
+
+Face detection in SafeVision is implemented using RetinaFace, a deep
+learning-based face detector designed for robust localization under challenging
+real-world conditions, including variation in pose, occlusion, and lighting
+\cite{deng2020retinaface}. These properties are important in a redaction system where 
+uploaded images may vary substantially in quality and composition.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/images/chapter-2/retinaface_example.png}
+\caption{Qualitative example of face detection using RetinaFace in a crowded
+real-world scene. The figure illustrates robust localization of many small and
+partially occluded faces. Adapted from \cite{deng2020retinaface}.}
+\label{fig:retinaface_example}
+\end{figure}
+
+RetinaFace also provides facial landmarks in addition to bounding boxes. This
+supports downstream anonymization steps where more precise localization is
+useful. RetinaFace was therefore selected as the face detector in SafeVision.
+
+
+\methodheading{PaddleOCR and Text Classification}
+
+SafeVision handles text-related anonymization through a pipeline consisting of
+text detection, text recognition, and subsequent text classification. For text
+detection and recognition, the system uses PaddleOCR \cite{du2020ppocr}, which
+provides an integrated OCR framework for extracting textual content from natural
+images.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/images/chapter-2/paddle_ocr_example.png}
+\caption{Qualitative example of text detection and recognition using PaddleOCR
+in a real-world scene. The figure illustrates how textual regions can be both
+localized and read from natural images. Adapted from \cite{du2020ppocr}.}
+\label{fig:paddle_ocr_example}
+\end{figure}
+
+PaddleOCR was selected because it provides an end-to-end pipeline for
+localizing and recognizing text under varied visual conditions
+\cite{du2020ppocr}. This made it more suitable than generic object detection
+alone, since text-based redaction depends on both identifying where text is
+located and extracting the content for further analysis.
+
+After OCR, the recognized text is further processed using a fine-tuned named
+entity recognition (NER) model developed in this project, based on the
+XLM-RoBERTa base architecture \cite{conneau2020xlmroberta}. This was necessary 
+because OCR only extracts textual content, whereas selective redaction also 
+requires identifying which parts of the text belong to potentially sensitive
+entity categories. The combination of OCR and NER-based analysis therefore
+supports more selective and context-aware text redaction in SafeVision.
+
+
+\methodheading{YOLOX for General and Custom Object Detection}
+
+Object detection in SafeVision is based on YOLOX \cite{ge2021yolox}. YOLOX was
+selected because it combines strong detection performance with a simple and
+flexible framework for custom training. Its one-stage architecture makes it
+well suited for deployment and iterative experimentation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/images/chapter-2/yolox_example.png}
+\caption{Qualitative example of object detection using YOLOX. The figure
+illustrates localization of multiple object categories in natural scenes using
+bounding boxes and confidence scores. Adapted from \cite{yolox_github}.}
+\label{fig:yolox_example}
+\end{figure}
+
+Within SafeVision, YOLOX is used in two different ways. First, existing YOLOX
+models support detection of more general object categories relevant to the
+redaction workflow. Second, YOLOX was used as the basis for custom-trained
+models targeting license plates and barcodes, where project-specific training
+was necessary. This made it possible to maintain a consistent detection
+framework while extending the system to object categories that were not
+sufficiently covered by the existing model setup.
+
+The use of YOLOX also benefited from the availability of pretrained weights and
+well-documented training workflows in the official framework repository
+\cite{yolox_github,ge2021yolox}. This reduced training time and made it feasible to 
+develop custom object detectors within the constraints of the project.
+
+
+\methodheading{Video Processing and Tracking in SafeVision}
+
+SafeVision handles video as a sequence of frames, where anonymization must
+remain temporally consistent across time rather than being treated as a set of
+independent image outputs. For this reason, the system combines frame-level
+detection with tracking.
+
+At user-selected frames, SafeVision applies the same detection pipeline used
+for still images. Between such frames, tracking is used to propagate and
+stabilize sensitive regions across consecutive frames, which reduces the need
+for repeated full detection and helps maintain visually consistent anonymization.
+
+For AI-generated detections, SafeVision uses a multi-entity tracking approach
+based on a Kalman filter and entity-specific association across frames
+\cite{bewley2016sort}. The tracker predicts bounding boxes over time and
+matches new detections to existing tracks using a combination of
+intersection-over-union and motion consistency. It also maintains track
+history and supports interpolation across detection gaps, which makes it
+possible to backfill intermediate frames when detections are temporally sparse.
+
+For manually selected regions, SafeVision uses a dedicated object-tracking
+component based on OpenCV tracking methods. The implementation uses the ViT
+tracker from OpenCV Zoo when available, with CSRT as a fallback
+\cite{opencv_vittrack, lukezic2017csrt}. Manual tracking is applied forward and
+backward from the selected frame, allowing a user-defined bounding box to be
+propagated through the surrounding sequence. Additional safety checks are used
+to detect unstable tracker output, including low confidence, implausible
+changes in size or aspect ratio, large center jumps, and weak overlap with the
+last trusted region.
+
+Tracking is therefore used in SafeVision as a supporting mechanism for video
+anonymization rather than as a replacement for detection.
+
+
+\methodheading{Segmentation and Inpainting for Redaction Refinement}
+\label{subsec:segmentation-and-inpainting-for-redaction-refinement}
+
+To improve redaction quality beyond coarse bounding-box masking, SafeVision also
+includes refinement components for segmentation and region replacement. For
+segmentation, the system uses MobileSAM \cite{mobilesam}, a lightweight
+segmentation model derived from the Segment Anything approach
+\cite{kirillov2023segment}, in order to produce more precise masks for selected
+regions before redaction is applied.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/chapter-2/mobile_sam.png}
+\caption{Comparison between segmentation results produced by the original SAM
+and MobileSAM. The examples illustrate that MobileSAM can provide similar object
+masks while using a more lightweight model. Adapted from \cite{mobilesam}.}
+\label{fig:mobile_sam}
+\end{figure}
+
+MobileSAM was selected because it enables more selective anonymization than
+bounding-box-based redaction while remaining easier to integrate than heavier
+segmentation models. Its compact size was also an important
+consideration, since SafeVision is developed as a web application where
+lightweight and deployable components are preferable. In SafeVision,
+segmentation is used as an optional refinement step rather than the primary
+detection mechanism.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/images/chapter-2/inpaint.png}
+\caption{Illustration of image inpainting, where a selected region is replaced
+with generated background content instead of being masked directly. Adapted from
+\cite{rombach2022high}.}
+\label{fig:inpaint_example}
+\end{figure}
+
+For region replacement, the system uses a Stable Diffusion inpainting model
+based on the \texttt{runwayml/stable-diffusion-inpainting} checkpoint
+\cite{sd_inpaint_model,rombach2022high}. This allows selected regions to be
+replaced with generated content instead of being blurred or masked directly.
+Inpainting was nevertheless treated as a complementary refinement method rather
+than the default strategy, since visually cleaner output does not necessarily
+produce a more reliable form of anonymization.
+
+
+\methodheading{Why Hybrid User Review Was Retained}
+
+Although SafeVision uses several strong AI-based components, the system was not
+designed as a fully autonomous redaction pipeline. Automated approaches still
+face practical limitations related to missed detections, false positives, and
+context-dependent cases \cite{orekondy2017connecting, zhao2023visual}.
+
+User review was therefore retained as a central design principle in SafeVision.
+Automatic detection reduces manual workload, while the user remains
+able to inspect, modify, and approve the final result before redaction is
+completed. This reduces reliance on fully automated decisions in cases where 
+mistakes may expose sensitive information.
+
+\section{Synthesis and Design Implications}
+
+The reviewed theory and methods show that visual redaction requires a
+multi-component approach. Faces, embedded text, structured objects, and
+irregular regions differ in how they must be detected, interpreted, and
+anonymized. This motivated the use of specialized components in SafeVision,
+rather than a single general-purpose model.
+
+For video, this also introduces a temporal requirement: sensitive regions must
+be handled consistently across consecutive frames, which motivates the use of
+tracking mechanisms in addition to frame-level detection.
+
+The review also shows that fully automated redaction remains limited by false
+negatives, false positives, and context-dependent privacy risks. SafeVision was
+therefore designed as a hybrid system: automated detection reduces manual work,
+while user review preserves control over the final anonymized output.
+
+These implications shaped the system requirements, architecture,
+implementation, and evaluation presented in the following chapters.

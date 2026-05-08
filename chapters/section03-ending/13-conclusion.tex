@@ -1,3 +1,13 @@
 \chapter{Conclusion}
 
-You definitely should use the \texttt{ntnuthesis} \LaTeX{} document class for your thesis.
+This thesis has presented SafeVision, a hybrid system for detecting and redacting sensitive information in visual media. The aim of the project was to design and develop a prototype that could automatically identify privacy-relevant content in images, while also supporting user review and control of the anonymization process. The project was grounded in a legal and privacy-focused understanding of sensitive information, and used this as a basis for developing a practical solution for detecting and removing such content from visual media.
+
+To address this, SafeVision was implemented as an end-to-end system consisting of a React and TypeScript frontend, a FastAPI backend, and integrated machine learning components for detection, text analysis, tracking, and redaction. The system supports automatic detection of faces, text, license plates, barcodes, and selected object categories, while also allowing users to review and adjust detections before final redaction is applied. Although the original scope focused mainly on still images, the project was also extended with support for video processing.
+
+The results show that the project achieved its main goals. SafeVision demonstrates that it is possible to combine automated analysis with user-guided refinement in a way that improves both usability and reliability. The project also expanded beyond the original scope by including video support and additional detection capabilities, which strengthened the final prototype and increased its practical relevance.
+
+At the same time, the project highlighted some important limitations. Performance was affected by infrastructure constraints, since the deployed solution was tested in a CPU-based Google Cloud environment with limited computational resources. In addition, automatic detection and visual redaction cannot guarantee complete anonymization in every situation, especially when sensitive information appears indirectly through context or when video processing requires stable anonymization across frames.
+
+In conclusion, SafeVision provides a useful foundation for privacy-preserving processing of images and video. The project demonstrates both the potential and the challenges of combining computer vision, redaction, and user control in a single system. Future work could focus on improving detection performance, strengthening video processing, and deploying the system in a more computationally capable environment.
+
+

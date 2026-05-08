@@ -1,0 +1,252 @@
+\chapter{Training Configuration Details}
+\label{app:yolox_config}
+
+\section{QR and Barcode Detection Model}
+
+\begin{lstlisting}[caption={YOLOX experiment file for QR and barcode detection}, label={lst:yolox_barcode}]
+"""
+YOLOX experiment configuration for QR and barcode detection.
+
+This configuration defines the training setup used for the custom
+barcode detection model. The model is based on the YOLOX-S architecture
+and trained on a merged dataset containing both real and synthetic data.
+
+The configuration includes dataset paths, training parameters, and
+augmentation settings used during training.
+"""
+
+from yolox.exp import Exp as MyExp
+from yolox.data import COCODataset, TrainTransform, ValTransform
+import os
+
+
+class Exp(MyExp):
+    def __init__(self):
+        super(Exp, self).__init__()
+
+        # Experiment name
+        self.exp_name = "barcode_merged_yolox_s"
+
+        # --------------------------------------------------
+        # Model configuration (YOLOX-S)
+        # --------------------------------------------------
+        self.depth = 0.33
+        self.width = 0.50
+        self.num_classes = 1  # Single class: barcode / QR / visual code
+
+        # --------------------------------------------------
+        # Dataset configuration
+        # --------------------------------------------------
+        self.data_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../../../barcodeV2/dataset_merged")
+        )
+
+        # Annotation files (COCO format)
+        self.train_ann = "instances_train2017.json"
+        self.val_ann = "instances_test2017.json"  # Used for evaluation
+
+        # Image directories
+        self.train_name = "train2017"
+        self.val_name = "test2017"
+
+        # --------------------------------------------------
+        # Training configuration
+        # --------------------------------------------------
+        self.max_epoch = 200
+        self.data_num_workers = 4
+
+        # Higher resolution improves detection of small barcodes
+        # but increases GPU memory usage
+        self.input_size = (960, 960)
+        self.test_size = (960, 960)
+
+        self.print_interval = 20
+        self.eval_interval = 1
+
+        # --------------------------------------------------
+        # Data augmentation configuration
+        # --------------------------------------------------
+        # Mosaic and MixUp disabled due to already diverse dataset
+        self.mosaic_prob = 0.0
+        self.mixup_prob = 0.0
+
+        # Moderate online augmentations
+        self.hsv_prob = 0.5        # Color jitter
+        self.flip_prob = 0.5       # Horizontal flip
+
+        # Geometric transformations (kept small to preserve structure)
+        self.degrees = 5.0
+        self.translate = 0.05
+        self.shear = 1.0
+
+    def get_dataset(self, cache=False, cache_type=None):
+        """
+        Returns the training dataset using COCO format.
+        """
+        return COCODataset(
+            data_dir=self.data_dir,
+            json_file=self.train_ann,
+            name=self.train_name,
+            img_size=self.input_size,
+            preproc=TrainTransform(
+                max_labels=120,
+                flip_prob=self.flip_prob,
+                hsv_prob=self.hsv_prob,
+            ),
+            cache=cache,
+            cache_type=cache_type,
+        )
+
+    def get_eval_dataset(self, testdev=False, legacy=False, **kwargs):
+        """
+        Returns the evaluation dataset.
+        """
+        return COCODataset(
+            data_dir=self.data_dir,
+            json_file=self.val_ann,
+            name=self.val_name,
+            img_size=self.test_size,
+            preproc=ValTransform(legacy=legacy),
+        )
+\end{lstlisting}
+
+\section{License Plate Detection Model}
+
+\begin{lstlisting}[caption={YOLOX experiment file for license plate detection}, label={lst:yolox_licenseplate}]
+"""
+YOLOX experiment configuration for license plate detection.
+
+This configuration defines the training and evaluation setup for the
+license plate detection model. The model is based on YOLOX-S and trained
+on a custom dataset with COCO-style annotations.
+
+Compared to the barcode model, this configuration uses more aggressive
+data augmentation (e.g., mosaic) to improve generalization.
+"""
+
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
+import os
+import torch
+from yolox.exp import Exp as MyExp
+from yolox.data import COCODataset, ValTransform
+from yolox.evaluators import COCOEvaluator
+
+
+class Exp(MyExp):
+    def __init__(self):
+        super().__init__()
+
+        # Experiment name
+        self.exp_name = "yolox_s_license_plate"
+
+        # --------------------------------------------------
+        # Model configuration (YOLOX-S)
+        # --------------------------------------------------
+        self.depth = 0.33
+        self.width = 0.50
+        self.num_classes = 1  # Single class: license plate
+
+        # --------------------------------------------------
+        # Dataset configuration
+        # --------------------------------------------------
+        self.data_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../../../license_plate_detection/dataset")
+        )
+
+        self.train_ann = "train.json"
+        self.val_ann = "test.json"  # Used only for evaluation
+
+        # --------------------------------------------------
+        # Training configuration
+        # --------------------------------------------------
+        self.input_size = (960, 960)
+        self.test_size = (960, 960)
+
+        self.max_epoch = 200
+        self.no_aug_epochs = 15
+
+        # Learning rate schedule
+        self.basic_lr_per_img = 0.01 / 64.0
+        self.min_lr_ratio = 0.05
+        self.warmup_epochs = 5
+
+        self.data_num_workers = 2
+        self.print_interval = 20
+        self.eval_interval = 1
+
+        # --------------------------------------------------
+        # Data augmentation configuration
+        # --------------------------------------------------
+        # Mosaic enabled to improve generalization
+        self.mosaic_scale = (0.5, 1.5)
+        self.mosaic_prob = 0.8
+
+        # MixUp disabled
+        self.mixup_prob = 0.0
+        self.enable_mixup = False
+
+        # Standard augmentations
+        self.hsv_prob = 0.5
+        self.flip_prob = 0.5
+
+        # Geometric transformations
+        self.degrees = 5.0
+        self.translate = 0.05
+        self.shear = 1.0
+
+        # Multi-scale training
+        self.random_size = (14, 24)
+
+        # --------------------------------------------------
+        # Evaluation settings
+        # --------------------------------------------------
+        self.test_conf = 0.01
+        self.nmsthre = 0.65
+
+        self.output_dir = "./YOLOX_outputs"
+
+    def get_eval_loader(self, batch_size, is_distributed, testdev=False, legacy=False):
+        """
+        Creates the evaluation data loader.
+        """
+        image_folder = "test2017" if self.val_ann == "test.json" else "val2017"
+
+        valdataset = COCODataset(
+            data_dir=self.data_dir,
+            json_file=self.val_ann,
+            name=image_folder,
+            img_size=self.test_size,
+            preproc=ValTransform(legacy=legacy),
+        )
+
+        if is_distributed:
+            batch_size = batch_size // torch.distributed.get_world_size()
+            sampler = torch.utils.data.distributed.DistributedSampler(
+                valdataset, shuffle=False
+            )
+        else:
+            sampler = torch.utils.data.SequentialSampler(valdataset)
+
+        return torch.utils.data.DataLoader(
+            valdataset,
+            batch_size=batch_size,
+            sampler=sampler,
+            num_workers=self.data_num_workers,
+            pin_memory=True,
+        )
+
+    def get_evaluator(self, batch_size, is_distributed, testdev=False, legacy=False):
+        """
+        Returns the COCO evaluator used for model evaluation.
+        """
+        return COCOEvaluator(
+            dataloader=self.get_eval_loader(batch_size, is_distributed, testdev, legacy),
+            img_size=self.test_size,
+            confthre=self.test_conf,
+            nmsthre=self.nmsthre,
+            num_classes=self.num_classes,
+            testdev=testdev,
+        )
+\end{lstlisting}

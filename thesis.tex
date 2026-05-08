@@ -2,10 +2,16 @@
 
 \usepackage{float}  % helps asserting figures between paragraphs
 \usepackage{caption} 
-
-% --- START PÅ KODE-INNSTILLINGER ---
+\usepackage{tabularx}
 \usepackage{xcolor}
+\usepackage{array}
 \usepackage{listings}
+\usepackage{longtable}
+\usepackage{pdfpages}
+\usepackage{tabularx}
+\usepackage{array}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+% --- START PÅ KODE-INNSTILLINGER ---
 
 \definecolor{vscode-bg}{RGB}{30,30,30}
 \definecolor{vscode-keyword}{RGB}{86,156,214}
@@ -37,8 +43,8 @@
 \setlength{\parindent}{0pt}
 \flushbottom
 
-\title{SafeVision: Automatic Detection and Redaction of Sensitive Content in Images}
-\shorttitle{An NTNU Thesis Document Class}
+\title{SafeVision}
+\shorttitle{Automatic Detection and Redaction of Sensitive Content in Visual Media}
 \author{Bachelor’s thesis in Computer Science}
 \shortauthor{CoPCSE$@$NTNU}
 \date{CC-BY \ntnuthesisdate}
@@ -65,14 +71,14 @@
 
 \input{chapters/section01-intro/01-introduction}
 \input{chapters/section01-intro/02-literature-review}
-\input{chapters/section01-intro/03-requirements-analysis-and-system-design}
+\input{chapters/section01-intro/03-development-process}
 
-\input{chapters/section02-main/04-development-process}
+\input{chapters/section02-main/04-requirements-analysis-and-system-design}
 \input{chapters/section02-main/05-system-architecture-and-design}
 \input{chapters/section02-main/06-user-interface-design}
 \input{chapters/section02-main/07-technologies-and-methodologies}
 \input{chapters/section02-main/08-implementation-details}
-\input{chapters/section02-main/09-system-evaluation}
+\input{chapters/section02-main/09-testing}
 \input{chapters/section02-main/10-sustainability-analysis}
 
 \input{chapters/section03-ending/11-results}

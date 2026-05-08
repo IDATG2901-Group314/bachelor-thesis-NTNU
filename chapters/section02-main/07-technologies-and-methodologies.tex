@@ -1,265 +1,367 @@
-
-
-
-
 \chapter{Technologies-and-Methodologies}
+\label{chap:technologies_and_methodologies}
 
-\section{Introduction to Technology Stack}
+This chapter describes the technologies used to support SafeVision's processing of both still images and video, including frontend interaction, backend processing, machine learning integration, and deployment infrastructure.
 
 \section{Frontend Technologies}
 
+The frontend of the SafeVision system was developed as a web-based application using modern JavaScript technologies. The technology stack was selected to support interactive processing of both still images and video, efficient user workflows, and privacy-aware handling of sensitive data.
+
+\methodheading{Core Frontend Framework}
+
+The frontend is implemented using React in combination with TypeScript. React was chosen due to its component-based architecture \cite{react_components}, which enables modular and reusable user interface development by decomposing complex interfaces into smaller components. In addition, React’s rendering model is based on the concept of a virtual DOM \cite{react_virtual_dom}, which allows efficient updates by re-rendering only the parts of the interface that change \cite{virtual_dom_overview}, thereby improving performance in dynamic applications. This combination is particularly suitable for SafeVision, where interactive visualization of still images and video frames, together with real-time updates of detection results, requires efficient rendering and modular UI components.
+
+TypeScript was used to introduce static typing to the codebase, providing improved reliability by catching errors during development \cite{typescript_benefits} and enhancing maintainability through clearer interfaces between components. This is particularly beneficial in larger systems where multiple modules interact and evolve over time.
+
+To streamline the development workflow, Vite was selected as the build tool and development server \cite{vite}. Vite provides fast hot module replacement and efficient production builds through native ES module support, enabling rapid iteration during development and improved runtime performance in the deployed application.
+
+In addition, React’s extensive ecosystem provides access to a wide range of third-party libraries and tools, supporting faster development and easier integration of additional functionality.
+
+\methodheading{User Interface and Styling}
+
+The user interface was implemented using modern CSS techniques, with Tailwind CSS as the primary styling framework. Tailwind CSS is a utility-first framework \cite{tailwind_css} that enables developers to construct user interfaces directly within component markup, reducing the need for separate CSS files and improving development efficiency. This approach allows rapid iteration and fine-grained control over styling \cite{utility_first_css}, which is particularly useful in interactive applications.
+
+As illustrated in Figure~\ref{fig:tailwind_comparison}, Tailwind CSS differs from traditional CSS by applying utility classes directly within the markup rather than relying on separate style sheets. This reduces context switching during development and enables faster iteration when modifying user interface components. This is particularly beneficial in SafeVision, where interactive editing of detected regions requires rapid UI updates and precise control over visual elements. This approach also promotes consistency in styling by encouraging the reuse of predefined utility classes, reducing variability in design across components.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.45\textwidth}
+\textbf{Traditional CSS}
+\begin{lstlisting}[language=HTML]
+<button class="btn-primary">Continue</button>
+\end{lstlisting}
+
+\begin{lstlisting}
+.btn-primary {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #374151;
+  background-color: #111827;
+  color: #f9fafb;
+}
+\end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+\textbf{Tailwind CSS}
+\begin{lstlisting}[language=HTML]
+<button class="h-10 px-4 rounded-xl text-sm 
+font-medium border border-gray-700 
+bg-neutral-900 text-gray-100 
+hover:border-gray-400 transition">
+  Continue
+</button>
+\end{lstlisting}
+\end{minipage}
+
+\caption{Comparison between traditional CSS and Tailwind CSS. The traditional approach separates styling into external stylesheets, while Tailwind CSS applies utility classes directly in the markup, enabling faster iteration and more localized styling.}
+\label{fig:tailwind_comparison}
+\end{figure}
+
+The frontend was designed to support a human-in-the-loop workflow, where automated detection is combined with manual user control. Interactive interfaces play a key role in such systems \cite{human_in_loop_ai}, as they allow users to review and refine automated outputs. The interface therefore includes components for image visualization, control panels, and editing tools, enabling users to inspect detected regions and apply redaction methods while maintaining clarity and responsiveness, which are central usability principles \cite{usability_nielsen}.
+
+The interface supports advanced user interactions such as zooming, panning, and direct manipulation of bounding boxes. These interactions are implemented using custom event handling and contribute to a more precise and efficient editing workflow, particularly when working with high-resolution images.
+
+In addition to styling and layout, efficient rendering of visual elements is essential for interactive applications.
+
+\methodheading{Canvas-Based Rendering}
+
+The frontend utilizes HTML5 canvas-based rendering to support interactive visualization and manipulation of both still images and video frames. Canvas rendering enables efficient drawing and updating of graphical elements such as bounding boxes and overlays, which is essential for real-time interaction with detection results. Compared to standard DOM-based rendering, the canvas approach provides better performance for frequent graphical updates and fine-grained control over rendering behavior. This approach allows users to modify, resize, and reposition detected regions directly within the interface, supporting the human-in-the-loop workflow of the system. The same rendering approach is used to display overlays for video detections on individual frames, allowing consistent interaction patterns across image and video workflows.
+
+\methodheading{State Management}
+
+State management is handled using React’s built-in hooks and context mechanisms, enabling shared application state across components. Centralized state handling ensures consistent synchronization of updates throughout the interface \cite{react_state_management}. This is particularly important in SafeVision, where user interactions such as modifying bounding boxes, filtering detection results, or adjusting redaction settings require immediate and consistent updates across multiple UI components.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.6cm,
+    every node/.style={font=\small},
+    state/.style={
+        rectangle, 
+        rounded corners, 
+        draw=black, 
+        minimum width=3.2cm, 
+        minimum height=0.8cm, 
+        align=center
+    },
+    arrow/.style={->, thick}
+]
+
+% Nodes
+\node[state] (upload) {User Upload};
+\node[state, below of=upload] (image) {Frontend State: Visual Media};
+\node[state, below of=image] (api) {API Call to Backend};
+\node[state, below of=api] (results) {Detection Results};
+\node[state, below of=results] (boxes) {Frontend State:\\ Bounding Boxes};
+
+\node[state, below left=1.2cm and 1.8cm of boxes] (edit) {User Edits};
+\node[state, below right=1.2cm and 1.8cm of boxes] (auto) {Auto Results};
+
+\node[state, below of=boxes, yshift=-2cm] (updated) {Updated State};
+\node[state, below of=updated] (redact) {Redaction Applied};
+\node[state, below of=redact] (output) {Final Output};
+
+% Arrows (main flow)
+\draw[arrow] (upload) -- (image);
+\draw[arrow] (image) -- (api);
+\draw[arrow] (api) -- (results);
+\draw[arrow] (results) -- (boxes);
+
+% Branches
+\draw[arrow] (boxes) -- (edit);
+\draw[arrow] (boxes) -- (auto);
+
+% Merge
+\draw[arrow] (edit) -- (updated);
+\draw[arrow] (auto) -- (updated);
+
+% Final flow
+\draw[arrow] (updated) -- (redact);
+\draw[arrow] (redact) -- (output);
+
+\end{tikzpicture}
+
+\caption{State management and data flow in the frontend application. The figure illustrates how visual media data and detection results are stored, updated, and transformed throughout the user workflow, including backend communication and user-driven modifications.}
+\label{fig:state-management-flow}
+
+\end{figure}
+
+\methodheading{Client-Side Storage and Privacy Considerations}
+
+To support privacy-by-design principles, the SafeVision frontend utilizes a combination of client-side storage mechanisms, primarily localStorage and IndexedDB. These technologies enable persistent storage of application data directly within the user’s browser, reducing the need to transmit sensitive information to external servers and aligning with data minimization principles defined in GDPR \cite{gdpr_reference}.
+
+LocalStorage is used for lightweight configuration data, such as user preferences and interface settings. This includes information such as theme selection, UI layout configurations, and user consent status. These data elements are small in size and require simple key-value storage, making localStorage a suitable and efficient solution.
+
+In contrast, IndexedDB is used for storing larger and more complex data structures, such as image annotations and video processing results. IndexedDB provides an asynchronous and structured storage model, allowing efficient handling of larger datasets without blocking the main application thread. This is particularly important in SafeVision, where annotation data may include multiple bounding boxes and metadata associated with high-resolution images and video frames.
+
+Figure~\ref{fig:indexeddb_storage} illustrates the structure of client-side storage used in the application. The system maintains multiple logical databases and object stores to separate concerns such as image annotations and video-related data, improving maintainability and scalability.
+
+\begin{figure}[H]
+\centering
+\includegraphics[height=0.4\textheight]{figures/images/chapter-7/storage-solution.png}
+\caption{Overview of client-side storage in the application using IndexedDB.}
+\label{fig:indexeddb_storage}
+\end{figure}
+
+As shown in Table~\ref{tab:storage_overview}, the storage design separates lightweight configuration data from larger annotation data. This distinction ensures efficient use of browser storage mechanisms while maintaining responsiveness and scalability in the application.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4cm}|p{3cm}|p{7cm}|}
+\hline
+\textbf{Storage Key / Store} & \textbf{Storage Type} & \textbf{Purpose} \\
+\hline
+workspace:consent:gdpr:v1 & localStorage & Stores whether the user has accepted the terms and conditions, ensuring compliance with GDPR requirements. \\
+\hline
+workspace:user-preferences:v1 & localStorage & Persists user interface preferences such as theme, highlight styles, and interaction settings across sessions. \\
+\hline
+workspace:sidebar:width & localStorage & Stores the current width of the sidebar to maintain a consistent layout between sessions. \\
+\hline
+workspace:patch-notes:seen-version & localStorage & Tracks which version of patch notes the user has already viewed to avoid repeated notifications. \\
+\hline
+image-highlights & IndexedDB & Stores bounding box annotations for images, including manually adjusted and automatically detected regions. \\
+\hline
+video-annotations & IndexedDB & Stores structured detection results for video frames, enabling persistence of annotations across sessions. \\
+\hline
+\end{tabular}
+\caption{Overview of client-side storage keys and their purposes in the SafeVision frontend.}
+\label{tab:storage_overview}
+\end{table}
+
+\methodheading{API Communication}
+
+Communication between the frontend and backend is performed through HTTP-based API requests following REST principles. RESTful architectures \cite{rest_fielding} provide a standardized and scalable approach to communication between distributed systems, enabling a clear separation between client and server responsibilities. A structured service layer is used to manage these interactions, improving maintainability and the separation of concerns.
+
+Together, these technologies provide a flexible and efficient foundation for developing an interactive, responsive, and privacy-aware frontend application.
+
 \section{Backend Technologies and Languages}
 
-The backend system was developed in Python, which was used for the computer vision components, the machine learning pipeline, and the FastAPI-based communication layer between the frontend and backend. This choice provided a consistent technology stack across the backend while also taking advantage of Python’s extensive library ecosystem for machine learning and image processing.
+The backend system was developed in Python, which was used for the computer vision components, the machine learning pipeline, and the FastAPI-based communication layer between the frontend and backend. This choice provided a consistent technology stack across the backend while also taking advantage of Python’s extensive library ecosystem for machine learning, image processing,
+and frame-based video processing.
 
 Machine learning components in the image redaction system follow a structured development pipeline consisting of data preparation, model training, and deployment. This process is applied to all detection models used in the system, including face detection, text detection, and QR/barcode detection.
 
 
-\subsection{FastAPI Application and Routing}
-The backend was implemented using FastAPI as the main application framework. FastAPI was used to define the API structure, handle incoming requests, configure CORS, and register the main routing components for image and video processing. This provided a clear and modular backend architecture, where different processing tasks were separated into dedicated controllers.
+\methodheading{FastAPI Application and API Structure}
 
-FastAPI's built-in concurrency support was utilized to improve the backend's ability to handle multiple requests efficiently. This contributed to better responsiveness and enabled detection and redaction operations to be processed in a scalable and non-blocking manner.
+The backend of SafeVision was implemented using FastAPI as the main application
+framework. FastAPI was selected because it provides a lightweight and efficient
+way to define REST-based APIs, while also supporting asynchronous request
+handling. This made it well suited for a system that performs visual media processing and machine learning inference, where responsiveness and scalability are
+important.
 
-In addition, a lifecycle function was used to preload machine learning models during application startup, reducing latency for incoming requests.
+FastAPI also provides automatic request validation and clear endpoint
+definitions, which simplified the implementation of the backend API and improved
+maintainability during development.
 
-\begin{figure}[H]
-\begin{lstlisting}[caption={FastAPI application structure and routing}, label={lst:fastapi_routing}]
-app = FastAPI(
-    title="Automatic Image Redaction API",
-    lifespan=lifespan
-)
+Support for asynchronous execution was another important factor. Since detection
+tasks may involve multiple independent models, the backend was designed to
+support concurrent processing where possible. This contributes to better
+responsiveness and improves the system’s ability to handle computationally
+intensive tasks efficiently.
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-app.include_router(detect_router, prefix="/api", tags=["Detection"])
-app.include_router(redact_router, prefix="/api", tags=["Redaction"])
-app.include_router(video_detect_router, prefix="/api", tags=["Video"])
-app.include_router(video_redact_router, prefix="/api", tags=["Video"])
-\end{lstlisting}
-\end{figure}
+\methodheading{Backend Processing Utilities}
 
-As shown in Listing~\ref{lst:fastapi_routing}, the FastAPI application was structured with middleware configuration and modular routing. This design enables clear separation between detection and redaction workflows for both image and video processing.
+In addition to the FastAPI application layer, the backend relies on a set of
+processing utilities that support image decoding, preprocessing, concurrent
+execution, output normalization, and temporary file management. These utilities
+were selected to make the backend pipeline more reusable and to reduce repeated
+logic across detection and redaction endpoints.
 
-\subsection{Detection and Redaction API Endpoints}
-The backend API was organized into dedicated endpoints for detection and redaction. Separate controllers were implemented for image detection, image redaction, video detection, and video redaction. This separation improved maintainability and made it easier to distinguish between different processing workflows in the system.
+For image handling, the backend uses OpenCV and NumPy to decode uploaded image
+files into array representations suitable for inference and image processing.
+This provides efficient low-level support for reading, transforming, and
+encoding image data in the detection and redaction pipeline.
 
-\begin{figure}[H]
-\begin{lstlisting}[caption={Simple example detection endpoint}, label={lst:detect_endpoint}]
-@router.post("/detect")
-async def detect(file: UploadFile, types: str = Query(default="face")):
-    data = await file.read()
-    img_array = np.frombuffer(data, np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+Model-specific preprocessing is handled through shared utility functions that
+apply scaling, adaptive scaling, and optional preprocessing before inference.
+This was important because the integrated detection models have different input
+characteristics, and a shared preprocessing layer made it easier to support
+multiple models without duplicating preparation logic across endpoints.
 
-    tasks = []
+To improve responsiveness, the backend uses Python's \texttt{asyncio} utilities
+to execute independent detection tasks concurrently where possible. This is
+particularly relevant when multiple detectors are applied to the same image, as
+it reduces waiting time compared with strictly sequential execution. At the same
+time, synchronization mechanisms are used where necessary to avoid unsafe
+concurrent access to shared processing resources in the redaction pipeline.
 
-    if "face" in types:
-        face_detector = get_face_detector()
-        tasks.append(asyncio.to_thread(run_pipeline_on_image, img, face_detector))
+Another important utility layer concerns output normalization and validation.
+Since the integrated models produce results in different formats, shared
+processing logic is used to convert them into a unified representation before
+they are returned through the API. This includes validation and adjustment of
+bounding box coordinates to ensure that downstream components receive
+well-formed results.
 
-    if "text" in types:
-        text_engine = get_text_ocr()
-        tasks.append(asyncio.to_thread(run_pipeline_on_image, img, text_engine))
+For video processing, the backend extends the same utility-based approach to frame-based media handling. OpenCV is used to open uploaded video files, read frames sequentially, access video properties such as frame rate and frame dimensions, and write temporary processed video output. This allows videos to be handled as sequences of image frames, while still relying on the same low-level image representation used by the rest of the backend.
 
-    results = await asyncio.gather(*tasks)
+The backend also uses FFmpeg as a final video-output utility. While OpenCV is
+practical for writing processed frames during computation, FFmpeg is used
+through the helper function \texttt{remux\_to\_h264\_aac(...)} to finalize the
+processed video output and improve playback compatibility in browser and
+media-player environments.
 
-    return {"live": results}
-\end{lstlisting}
-\end{figure}
+Because video processing involves larger files and intermediate outputs, the backend uses temporary file and directory handling based on Python’s standard file-management utilities. Uploaded videos, temporary processed files, and final outputs are isolated in request-specific working directories and cleaned up after detection or redaction has completed.
 
-As shown in Listing~\ref{lst:detect_endpoint}, the detection endpoint receives an image from the client, decodes it, and delegates processing to multiple detection pipelines. These pipelines are executed concurrently using asynchronous execution, improving performance and reducing response time.
-
-This design follows a controller-service pattern, where the API layer handles request logic while computational tasks are assigned to specialized detection components.
-
-\subsection{Computer Vision and Model Services}
-A dedicated service layer was used to manage the computer vision and machine learning models required by the system. Shared detector instances were reused across requests in order to avoid repeated model loading and reduce processing overhead. This design supported efficient execution of face detection, text detection, barcode detection, license plate detection, and general object detection.
-
-\section{Machine Learning Pipeline}
-
-Machine learning components in the image redaction system follow a structured development pipeline consisting of data preparation, model training, and deployment. This process is applied to all detection models used in the system, including face detection, text detection, and QR/barcode detection.
-
-Figure \ref{fig:ml_pipeline} illustrates a general machine learning pipeline commonly used in data-driven systems.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/images/chapter-7/machine-learning-pipeline.png}
-\caption{General machine learning pipeline consisting of data preparation, model training, and deployment phases (adapted from \cite{ml_pipeline_source}).}
-\label{fig:ml_pipeline}
-\end{figure}
-
-The pipeline consists of three main phases.
-
-The first phase, data preparation, includes collecting datasets, cleaning the data, and splitting it into training, validation, and test sets. In this project, this stage involved combining multiple public  datasets and standardizing their annotations.
-
-The second phase, modeling, corresponds to the training and evaluation of machine learning models. 
-
-The final phase, deployment, corresponds to integrating the trained model into the backend detection pipeline of the image redaction system, where the model performs inference on uploaded images.
-
-\section{QR and Barcode Detection Methodology}
-The automatic detection of QR codes and barcodes is a critical component of the image redaction system. These elements often contain sensitive information and must therefore be reliably detected before the redaction stage can be applied.
-
-Traditional barcode libraries primarily focus on decoding barcodes rather than detecting their location within an image \cite{zxing}. Because the goal of this project is to detect barcode regions in arbitrary images, an object detection approach was required.
-
-For this reason, an object detection model based on the YOLOX architecture \cite{yolox2021} was selected and trained on a custom dataset containing QR code and barcode regions.
-
-\subsection{Detection Technology Selection}
-Several approches for QR and barcode detection were evaluated during the development of the system
-
-One commonly used library is ZXing \cite{zxing}, which is widely adpoted for barcode decoding. However, ZXing is primarily designed to read barcodes once they are already localized in the image. Since the project is developed in collaboration with an industry partner, such licensig restrictios were not suitable.
-
-For these reasons, an detection model based on the YOLOX architecture was selected. YOLOX is a modern real-time object detection framework that provides a good balance between detectio accuracy and inference speed \cite{yolox2021}.
-
-\subsection{Dataset Preparation}
-Training an object detection model requires a large and diverse labeled dataset \cite{shorten2019augmentation}. Since no single dataset contained enough images of both QR codes and 1D barcodes in realistic environments, multiple publicly available datasets were combined to construct a unified training dataset.
-
-The raw datasets consisted of images collected from several sources, including the Finder Patterns QR Code dataset \cite{finderpatterns_dataset}, the InventBar and ParcelBar benchmark barcode datasets \cite{kamnardsiri2022barcode}, and additional barcode and QR image datasets available on Kaggle \cite{barcodeqr_dataset}. In total, the raw datasets contained 15,680 images, as summarized in Table~\ref{tab:raw_datasets}.
-
-During the development process, the dataset was incrementally expanded as additional labeled data sources were incorporated. An initial version of the dataset contained approximately 2,323 labeled images. After integrating additional datasets and applying preprocessing steps, the final dataset used for training consisted of 4,633 labeled images.
-
-Before constructing the final dataset, several preprocessing steps were applied. Duplicate images across datasets were removed using MD5 hashing to prevent data leakage between training and evaluation sets. Images without annotations were also removed since object detection training requires labeled bounding boxes.
-
-The final dataset contained bounding box annotations in YOLO format representing a single object class, barcode region, which includes both QR codes and 1D barcodes.
-
-The original dataset was first divided into training, validation, and test subsets. 
-The test set was kept unchanged and was not used during training or augmentation. 
-The baseline model (v1) was trained on the original training and validation sets using the standard online data augmentation provided by YOLOX. 
-For the augmented model (v2), additional offline data augmentation was applied only to the training and validation sets, while the test set remained unchanged. 
-Both models were therefore evaluated on the same test set containing 407 images to ensure a fair comparison.
-
-The dataset was split into training, validation, and test sets using a fixed random seed to ensure reproducibility. The final dataset split consisted of 3,106 training images, 1,120 validation images, and 407 test images, as shown in Table~\ref{tab:dataset_split}.
+Table~\ref{tab:backend_processing_utilities} summarizes the main backend
+processing utilities and their technical roles in the system.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{lc}
-\hline
-Dataset & Images \\
-\hline
-Archive dataset & 1371 \\
-Barcode and QR dataset & 952 \\
-BarcodeDatasets & 430 \\
-FinderPatterns dataset & 1602 \\
-QR-DN1.0 dataset & 11325 \\
-\hline
-Total & 15680 \\
-\hline
-\end{tabular}
-\caption{Overview of the raw datasets used to construct the barcode detection dataset.}
-\label{tab:raw_datasets}
-\end{table}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{p{3.2cm} p{3.5cm} p{7cm}}
+\toprule
+\textbf{Utility area} & \textbf{Technology} & \textbf{Purpose} \\
+\midrule
+Image and video decoding and processing & \texttt{OpenCV}, \texttt{NumPy} & Decode uploaded image files and video frames, convert visual data into array representations, and support low-level processing in detection and redaction workflows. \\
 
-\begin{table}[H]
-\centering
-\begin{tabular}{lc}
-\hline
-Dataset Split & Images \\
-\hline
-Training & 3106 \\
-Validation & 1120 \\
-Test & 407 \\
-\hline
-Total & 4633 \\
-\hline
+Video output finalization & \texttt{FFmpeg} & Finalize processed video files through \texttt{remux\_to\_h264\_aac(...)} to improve playback compatibility across clients. \\
+
+Preprocessing support & Shared preprocessing utilities & Apply scaling, adaptive resizing, and optional preprocessing before inference for different detection models. \\
+
+Concurrent execution & Python \texttt{asyncio} & Run independent detection tasks concurrently to improve backend responsiveness. \\
+
+Synchronization & Python \texttt{asyncio.Lock} & Prevent unsafe concurrent execution in shared parts of the redaction pipeline. \\
+
+Output normalization & Shared normalization logic & Convert heterogeneous model outputs into a unified response format for frontend integration and downstream processing. \\
+
+Temporary workspace handling & \texttt{tempfile}, \texttt{pathlib}, \texttt{shutil} & Manage request-specific temporary files and directories for video upload, intermediate processing, output generation, and cleanup. \\
+\bottomrule
 \end{tabular}
-\caption{Final dataset split used for training and evaluation of the detection model.}
-\label{tab:dataset_split}
+\caption{Overview of backend processing utilities used in the SafeVision backend.}
+\label{tab:backend_processing_utilities}
 \end{table}
 
 
 
+\section{Machine Learning Technologies and Development Environment}
 
-\subsection{Data Augmentation Strategy}
-To improve model generalization and reduce overfitting, data augmentation was applied to the training dataset. Data augmentation increases the diversity of the training data by introducing controlled variations that simulate real-world image conditions.
-
-An offline augmentation pipeline was first applied to generate additional training samples. 
-This included transformations such as brightness and contrast adjustments, Gaussian noise, 
-Gaussian blur, and small geometric transformations. 
-
-To ensure that the augmented data remained realistic, images containing very small bounding 
-boxes were skipped during augmentation. This was done to avoid introducing distorted samples 
-that could negatively affect the training process.
+SafeVision relies on a separate machine learning development environment for
+dataset preparation, model training, and evaluation of custom models. This
+environment was maintained in a dedicated repository, while the deployed
+SafeVision application was implemented in a separate repository focused on
+inference, redaction, API handling, and frontend interaction.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=14cm]{figures/images/chapter-7/augmentations-example03.png}
-\caption{Examples of different augmentation techniques applied to the dataset.}
-\label{fig:augmentation_examples}
+\includegraphics[width=1.0\textwidth]{figures/images/chapter-8/cv_repos.png}
+\caption{Separation between the machine learning development repository and the
+SafeVision application repository. The development repository was used for
+dataset preparation, training, and evaluation, while the SafeVision repository
+contains the deployed inference and redaction system.}
+\label{fig:cv_repos}
 \end{figure}
 
-In addition to the offline augmentation pipeline, the built-in augmentation mechanisms of YOLOX were used during training. These include mosaic augmentation and random flipping \cite{yolox2021}, which help the model learn to detect objects under varying spatial configurations.
+This separation was motivated not only by workflow considerations, but also by
+technical differences between the two environments. Model development required
+heavier machine learning dependencies, dataset-processing scripts, training
+utilities, and evaluation workflows that were not needed in the deployed
+application. Keeping these concerns separate reduced dependency conflicts and
+made it easier to manage different library versions, requirements files, and
+virtual environments for training and deployment.
 
-\subsection{Model Training Strategy}
-The object detection model used in this project is based on the YOLOX-S architecture \cite{yolox2021}. This model was selected because it provides a good balance between detection accuracy and computational efficiency, making it suitable for integration into real-time image processing systems.
+The machine learning environment was used for the development of the custom
+YOLOX-based object detection models for barcode and license plate detection, as
+well as the text analysis components used for selective text redaction. In the case 
+of text processing, this included a fine-tuned named entity recognition model adapted 
+for Norwegian and English text. These components required a different development
+setup from the production backend, where the main goal was stable inference rather
+than iterative experimentation.
 
-The model was trained on a custom dataset containing annotated regions of barcodes and QR codes. The dataset was divided into training, validation, and test subsets in order to enable reliable model evaluation and prevent overfitting.
-
-During the development process, several training configurations were explored. Initial experiments were conducted using an input resolution of ($640 \times $640) pixels and shorter training schedules (50 epochs) in order to establish a baseline model.
-
-In later experiments, the training configuration was refined to improve detection performance. The input resolution was increased to ($960 \times $960) pixels to improve the detection of small barcode and QR code regions. The model was trained using a batch size of 16 and mixed precision (FP16) to improve GPU training efficiency.
-
-Training was performed for a maximum of 200 epochs with early stopping using a patience of 20 epochs. This allowed the training process to terminate automatically when the validation performance stopped improving, thereby reducing the risk of overfitting.
-
-Two main training experiments were conducted. The first model was trained using the initial dataset with only oline augmetation. In the second experiment, the model was fine-tuned using offline augmented dataset generated through the augmentation pipeline described in the previous section. This allowed the impact of data augmentation on model performance to be evaluated.
-
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\begin{tabular}{lc}
-\hline
-Parameter & Value \\
-\hline
-Model architecture & YOLOX-S \\
-Input resolution & 960 × 960 \\
-Batch size & 16 \\
-Maximum epochs & 200 \\
-Early stopping & 20 epochs patience \\
-Precision mode & FP16 \\
-Number of classes & 1 (barcode\_region) \\
-\hline
-\end{tabular}
-\caption{Training configuration used for the final YOLOX model.}
-\label{tab:training_config}
-\end{table}
+\includegraphics[width=0.7\textwidth]{figures/images/chapter-7/requirements.png}
+\caption{Excerpts from \texttt{requirements.txt} and \texttt{requirements-prod.txt}, 
+showing the difference in dependency set size.} 
+\label{fig:requirements_comparison}
+\end{figure}
 
+The specific training, preprocessing, and integration steps are described in
+Chapter~\ref{chap:implementation_details}. The present section instead focuses
+on the technological and environmental choices that supported machine learning
+development across the two repositories.
 
 \section{Deployment and Infrastructure}
 
-In addition to the core application technologies, the project relied on modern deployment and infrastructure practices to support development, testing, and delivery. Docker was used to containerize the application and provide a consistent runtime environment across development and deployment stages. GitHub Actions was used to automate parts of the CI/CD workflow, while Google Cloud was used as the cloud platform for hosting and deployment. GitHub also served as the main platform for version control and team collaboration.
-
-\subsection{Containerization with Docker}
-Docker was used to package the application and its dependencies into containers. This simplified deployment and reduced environment-specific issues by ensuring that the system could run consistently across different machines and stages of development.
-
-\subsection{Continuous Integration and Continuous Deployment}
-CI/CD practices were implemented using GitHub Actions to automate testing, building, and deployment of the system. 
-
-The CI pipeline was triggered on each push and pull request to the main branch, where both frontend and backend components were validated. This included dependency installation, static code analysis, automated testing, and build verification to ensure system stability.
-
-The CD pipeline was triggered after successful CI execution and was responsible for building a container image, deploying the backend to Google Cloud Run, and updating the frontend application in Google Cloud Storage. This ensured that new changes could be reliably deployed with minimal manual intervention.
+The project relied on a small set of deployment and infrastructure technologies
+to support delivery, automation, and collaboration. Docker was used for
+containerization, GitHub Actions for CI/CD automation, Google Cloud for hosting
+and deployment, and GitHub for version control and team collaboration.
 
 \begin{table}[H]
-\begin{lstlisting}[caption={CD pipeline for deployment to Google Cloud}, label={lst:cd_pipeline}]
-- name: Build container image
-  run: |
-    gcloud builds submit \
-      --tag europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cv-backend/cv-api
+\centering
+\begin{tabular}{p{3.2cm} p{4cm} p{6.5cm}}
+\toprule
+\textbf{Technology} & \textbf{Role} & \textbf{Purpose in the project} \\
+\midrule
+Docker & Containerization & Package the backend and its dependencies into a consistent runtime environment. \\
 
-- name: Deploy to Cloud Run
-  run: |
-    gcloud run deploy cv-api \
-      --image europe-north1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cv-backend/cv-api \
-      --region europe-north1 \
-      --platform managed
-\end{lstlisting}
+GitHub Actions & CI/CD automation & Automate validation, build, and deployment workflows. \\
+
+Google Cloud & Cloud platform & Host and deploy the backend and frontend application components. \\
+
+GitHub & Version control and collaboration & Support branch-based development, code sharing, and team coordination. \\
+\bottomrule
+\end{tabular}
+\caption{Deployment and infrastructure technologies used in the project.}
+\label{tab:deployment_infrastructure_tech}
 \end{table}
 
-As shown in Listing~\ref{lst:cd_pipeline}, the deployment pipeline builds a container image and deploys it to Google Cloud Run.
+Docker was used to package the backend application and its dependencies into a
+consistent runtime environment. This reduced environment-specific issues and
+simplified deployment across development and production stages.
 
-\subsection{Cloud Deployment on Google Cloud}
-Google Cloud was used as the deployment platform for the system. This provided a scalable and accessible environment for hosting the application and testing its behavior in a cloud-based setting.
+GitHub was used for version control, code sharing, and collaboration throughout
+the project. This supported branch-based development, change tracking, and team
+coordination. In addition, GitHub Actions was used to implement CI/CD. The CI
+workflow was used to validate changes through automated checks, while the CD
+workflow was used to build and deploy updated application artifacts.
 
-\subsection{Version Control and Collaboration}
-GitHub was used for version control, code sharing, and collaboration throughout the project. This supported team-based development by enabling branch-based workflows, change tracking, and code integration.
+Google Cloud was used as the deployment platform for the SafeVision system. It
+provided the cloud environment used to host the deployed application
+components.

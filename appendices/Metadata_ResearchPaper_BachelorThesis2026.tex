@@ -1,0 +1,135 @@
+\chapter{Metadata Preservation, Editing, and Provenance Handling}
+\label{app:metadata-handling}
+
+\textit{Supplementary research notes for deferred SafeVision metadata functionality.}
+
+\section*{Abstract}
+This appendix examines how metadata handling could be added to SafeVision as a future system feature and therefore will be written as a research paper for Safe Media AI. The main SafeVision implementation focused on visible sensitive content in images and videos, such as faces, text, license plates, barcodes, people, and vehicles. Metadata handling was excluded from the final implementation as a scope decision, not because it is technically impossible. The appendix describes why metadata matters, how it could be integrated into the redaction and export pipeline, which technical tools are relevant, and what risks should be considered. It also discusses stakeholder interest in whether metadata can help distinguish AI-generated media from camera-captured or manually edited media.
+
+\section{Motivation}
+SafeVision was developed to support detection and redaction of sensitive information in visual media. The implemented system therefore focused on visible content, such as faces, text, license plates, barcodes, people, and vehicles. Metadata handling was not implemented as part of the final system. This was a scope decision rather than a technical impossibility.
+
+A key consideration is that metadata can represent both a privacy risk and a source of operational, legal, or archival value. In some workflows, timestamps, creator fields, copyright information, camera data, or color profiles may have documentation value. In other workflows, the same fields may reveal sensitive information and should be removed or modified before sharing. A complete metadata feature should therefore be designed around explicit user control rather than automatic removal only.
+
+Another motivation came from stakeholder interest in whether metadata could help distinguish AI-generated images or videos from camera-captured or manually edited media. This question is increasingly relevant because synthetic visual content is becoming more realistic and harder to assess through visual inspection alone. Metadata can support this task when a file contains provenance information, such as C2PA Content Credentials. However, ordinary EXIF, IPTC, or XMP fields should not be treated as a reliable AI-detection method, because they can be edited, removed, or regenerated during normal processing.
+
+Export behavior is also relevant. When an image or video is redacted, the application often creates a new output file rather than modifying the original file in place. Depending on the export method, original metadata may be stripped, regenerated, or partially preserved. Browser canvas export, for example, creates a new image representation and specifies 96 dpi resolution metadata for formats that support it [6]. Metadata should therefore not be assumed as safely removed or reliably preserved. The safer design is to treat metadata handling as a deliberate export policy.
+
+\section{Relevant Metadata Categories}
+A metadata feature would need to handle several categories of information. The most relevant categories are summarized below.
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{EXIF metadata:} Commonly stores camera and capture information, including camera model, lens settings, exposure values, timestamps, GPS coordinates, orientation, and device identifiers. EXIF is especially relevant for privacy because GPS and camera serial fields can identify location or equipment.
+    \item \textbf{IPTC metadata:} Often used in journalism, publishing, and archival workflows. It may include captions, keywords, creator information, copyright notices, contact fields, and editorial metadata. This can be valuable for documentation but may also reveal internal or personal information.
+    \item \textbf{XMP metadata:} An extensible XML-based metadata format used by many editing and asset-management tools. XMP can mirror or extend EXIF and IPTC fields and is often used to store editing, rights, workflow, and provenance information.
+    \item \textbf{ICC profiles:} Color profiles that describe how colors should be interpreted. Unlike many metadata fields, ICC profiles are usually not privacy-sensitive. Removing them may change the visual appearance of the exported image, so preserving ICC profiles can be important for visual consistency.
+    \item \textbf{Video container metadata:} Video files may contain metadata at the container, stream, chapter, and program level. This can include creation time, encoder information, device information, GPS fields, title, author, and software tags. The exact metadata support depends on the format, such as MP4, MOV, or MKV.
+\end{itemize}
+
+\section{Proposed System Design}
+The implementation could add a metadata policy layer at export time. This layer would run after visual redaction has been completed and before the final media file is made available to the user. The layer would decide which metadata fields are copied, edited, removed, or reported.
+
+A metadata-aware export pipeline would consist of five steps:
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item Read the original media and extract metadata into a structured internal representation.
+    \item Run the existing detection, review, and redaction workflow on the visible media content.
+    \item Generate the redacted output image or video.
+    \item Apply a selected metadata policy to the exported output.
+    \item Validate the final file by reading back the metadata and confirming that the policy was applied.
+\end{enumerate}
+
+The policy should be selected by the user or by an organization-level default. The default policy should prioritize privacy while keeping technical quality stable. A reasonable default would remove GPS, device-identifying, author, and workflow fields, while preserving ICC color profiles where possible. This preserves visual consistency without unnecessarily retaining privacy-sensitive information.
+
+\section{Metadata Export Policies}
+\begin{table}[htbp]
+\centering
+\caption{Metadata export policy options for SafeVision.}
+\label{tab:metadata-export-policies}
+\small
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|}
+\hline
+\rowcolor{black!75}\color{white}\textbf{Policy} & \color{white}\textbf{Description} & \color{white}\textbf{Best suited for} & \color{white}\textbf{Risk / trade-off} \\
+\hline
+Privacy-first export & Remove descriptive and identifying metadata, remove GPS, preserve ICC if possible. & External sharing and public release. & May remove useful documentation fields. \\
+\hline
+Preserve documentation & Preserve selected EXIF/IPTC/XMP fields while removing GPS and direct identifiers. & Internal archives and controlled sharing. & Requires careful field selection and validation. \\
+\hline
+Remove all metadata & Export with no copied metadata except what the encoder automatically creates. & High-risk sharing where provenance is not needed. & May remove color profiles, rights data, or audit information. \\
+\hline
+Edit before export & Allow users to modify fields such as creator, copyright, caption, keywords, and date. & Professional or archive workflows. & Requires UI support and metadata validation. \\
+\hline
+Sidecar export & Store metadata in a separate XMP or JSON report rather than embedding it in the redacted media. & Audit trails and documentation without public embedding. & Sidecar files must be managed securely. \\
+\hline
+\end{tabularx}
+\end{table}
+
+A metadata sidecar is useful when the system should keep a record of what was removed or changed without embedding this information in the shared media file. ExifTool supports copying metadata from one file to another and generating sidecar-style metadata outputs, including XMP workflows [4].
+
+\section{Image Metadata Implementation}
+For images, metadata handling can be implemented in the backend. Python libraries provide practical support for reading, writing, and modifying different metadata types. Pillow supports image saving options such as EXIF and ICC profile preservation for several formats [1]. Piexif can load, dump, insert, remove, and transplant EXIF data for JPEG, WebP, and TIFF files [2]. IPTCInfo3 can read and modify IPTC metadata in JPEG images [3]. For broader metadata support, ExifTool is often the most robust option because it supports EXIF, IPTC, XMP, ICC profiles, and many file formats [4, 5].
+
+A typical image workflow would read metadata before redaction, apply redaction to pixel data, and then write only the selected metadata back to the exported image. GPS fields could be removed, ICC profiles could be preserved, and selected IPTC or XMP fields could be retained or edited.
+
+Validation is important. Metadata standards overlap, and the same logical field may appear in multiple places. For example, a creator field may exist in IPTC and XMP. A correct implementation should check the exported file after writing, rather than assuming that the requested policy was applied successfully.
+
+\section{Video Metadata Implementation}
+Video metadata handling is possible but more complex than image metadata handling. Video files have container-level metadata and may also contain stream-level metadata. FFmpeg provides options for setting metadata values and for controlling metadata mapping between input and output files [7, 8]. ExifTool can also inspect and edit metadata in many video formats [4].
+
+Video metadata handling should be implemented as part of the export stage after video redaction or transcoding. A privacy-focused export could remove input metadata, while a documentation-focused export could preserve or rewrite selected fields such as title, copyright, or case reference.
+
+The exact implementation would depend on the final video pipeline. If Safe Media AI chooses to transcode video during redaction, then metadata can be rewritten during that same export step. If the system attempts stream copying, fewer processing steps may be needed, but metadata behavior must still be verified. FFmpeg concepts such as \texttt{-map\_metadata -1} for preventing inherited metadata and \texttt{-metadata key=value} for setting selected fields illustrate how these policies can be expressed in a video export pipeline [7, 8].
+
+\section{Metadata and AI-Generated Media Provenance}
+Interest from the SkannKontroll user test raised an additional use, whether metadata can help distinguish AI-generated images and videos from camera-captured or manually edited media. This is a relevant motivation for future metadata work, but it must be framed carefully. Ordinary metadata can provide clues, but it cannot reliably prove whether media is AI-generated.
+
+The strongest metadata-based approach is not ordinary EXIF or IPTC inspection, but verifiable provenance. The Coalition for Content Provenance and Authenticity (C2PA) provides an open technical standard for establishing the origin and edit history of digital content [9]. Content Credentials are based on this standard and can describe how a file was created or edited [10]. The C2PA technical specification also describes how C2PA manifests can be embedded in assets, including AI/ML-related assets [11].
+
+Watermarking is another approach. Google DeepMind describes SynthID as an invisible watermark for AI-generated images and video segments that are added when content is created and designed to survive common modifications such as cropping, filtering, frame-rate changes, and lossy compression [12]. Google support documentation states that if a SynthID watermark is detected, all or part of the media was created or edited by Google AI models. It also states that if a SynthID watermark is not detected, the media may still have been created by other AI systems [13].
+
+These findings suggest that metadata handling is most useful as provenance support, not as a definitive AI-generation detector. A system should not claim to detect AI-generated media based only on ordinary metadata. Instead, it could check for C2PA or Content Credentials metadata, preserve provenance data during export, warn users when provenance metadata is missing, and avoid accidentally stripping useful authenticity information during redaction. This would support stakeholders who need to evaluate whether media may be AI-generated, while avoiding misleading certainty.
+
+\section{Suggested User Interface}
+A metadata feature should be understandable to non-technical users. The interface should not only provide technical field names but also explain the effect of each policy. A practical design could include a metadata panel during export.
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Export policy selector:} Options such as removing all metadata, preserving ICC only, preserving selected fields, editing selected fields, or generating report.
+    \item \textbf{Sensitive field warnings:} GPS coordinates, camera serial numbers, author fields, internal software tags, and project identifiers should be highlighted.
+    \item \textbf{Provenance section:} If C2PA or similar provenance data is detected, the interface should show that provenance exists and ask whether it should be preserved.
+    \item \textbf{Preview before export:} The user should see which metadata fields will be kept, removed, modified, or unsupported.
+    \item \textbf{Export report:} A small report could document the policy used and the result of metadata validation after export.
+\end{itemize}
+
+\section{Risks and Limitations}
+Metadata handling introduces several technical and workflow-related risks. First, metadata standards overlap. The same information may appear in EXIF, IPTC, and XMP fields, sometimes with inconsistent values. ExifTool notes that EXIF and IPTC standards include mandatory tags and that some tags may be created or removed automatically when writing metadata [5]. This means that metadata changes should always be validated after export.
+
+Second, metadata policies can be misunderstood by users. A user may choose to preserve metadata for documentation purposes without realizing that this also preserves fields such as GPS coordinates, camera serial numbers, or internal software tags. To reduce this risk, the system should not only offer general options such as preserve metadata or remove metadata, but also show which fields will be kept, removed, or modified before export.
+
+Third, metadata support differs between formats. JPEG, PNG, WebP, TIFF, MP4, MOV, and MKV do not handle metadata identically. A metadata policy must therefore be format-aware and should avoid promising that every field can be preserved across every export format. If a field cannot be embedded reliably, the system should offer a sidecar report instead.
+
+Fourth, provenance metadata and watermarking are not universal. C2PA Content Credentials are only useful when the media contains valid credentials and when the workflow preserves them. SynthID can support verification for content generated or edited by Google AI systems, but the absence of a SynthID watermark does not rule out AI generation by other systems [13]. Provenance inspection should therefore be presented as supporting evidence, not as a definitive AI-generation detector.
+
+\section{Conclusion}
+Metadata handling was outside the final SafeVision implementation, but it remains a valuable future feature for Safe Media AI. The main requirement is not simply to remove metadata, but to give users explicit control over whether metadata should be removed, preserved, modified, or reported. This is important because metadata can contain sensitive information, but it can also carry documentation, archival, color-management, and provenance value.
+
+Future implementation should add metadata handling as a separate export-policy step. For images, this could be implemented using Pillow, Piexif, IPTCInfo3, and ExifTool depending on the required metadata types. For video, FFmpeg and ExifTool are suitable tools for inspecting and writing container metadata. The implementation should validate metadata after export and provide users with clear explanations of what has changed.
+
+The real user questions about AI-generated media strengthens the motivation for this feature. Metadata cannot reliably determine AI generation on its own, but provenance standards such as C2PA Content Credentials and watermarking systems such as SynthID can provide useful signals when present.
+
+
+\section*{References}
+\begin{enumerate}
+    \item[{[1]}] Pillow documentation, ``Image file formats,'' describing image save options and format-specific metadata support. \url{https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html}
+    \item[{[2]}] Piexif documentation, ``Functions,'' describing EXIF load, dump, insert, remove, and transplant operations. \url{https://piexif.readthedocs.io/en/latest/functions.html}
+    \item[{[3]}] IPTCInfo3 documentation, ``IPTC Metadata for Python 3,'' describing reading and modifying IPTC metadata in JPEG images. \url{https://james-see.github.io/iptcinfo3}
+    \item[{[4]}] Phil Harvey, ExifTool application documentation, describing reading, writing, deleting, copying, and exporting metadata. \url{https://exiftool.org/exiftool_pod.html}
+    \item[{[5]}] ExifTool documentation, ``Writing Meta Information,'' describing metadata writing behavior and mandatory EXIF/IPTC tags. \url{https://exiftool.org/writing.html}
+    \item[{[6]}] MDN Web Docs, ``HTMLCanvasElement: toBlob() method,'' describing canvas export behavior and 96 dpi metadata. \url{https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob}
+    \item[{[7]}] FFmpeg documentation, ``ffmpeg,'' describing stream selection and mapping behavior. \url{https://ffmpeg.org/ffmpeg.html}
+    \item[{[8]}] FFmpeg documentation, ``ffmpeg-all,'' describing metadata setting and deletion using the metadata option. \url{https://ffmpeg.org/ffmpeg-all.html}
+    \item[{[9]}] Coalition for Content Provenance and Authenticity, ``C2PA: Verifying Media Content Sources,'' describing the C2PA standard for origin and edit history of digital content. \url{https://c2pa.org/}
+    \item[{[10]}] Content Credentials, ``Verify Media Authenticity,'' describing Content Credentials and their relationship to C2PA. \url{https://contentcredentials.org/}
+    \item[{[11]}] C2PA Technical Specification, describing C2PA manifests and asset assertions. \url{https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html}
+    \item[{[12]}] Google DeepMind, ``SynthID,'' describing invisible watermarking for AI-generated images and video. \url{https://deepmind.google/models/synthid/}
+    \item[{[13]}] Google Support, ``Verify Google AI-generated images, videos, and audio with SynthID,'' describing what SynthID detection and non-detection mean. \url{https://support.google.com/gemini/answer/16722517}
+\end{enumerate}

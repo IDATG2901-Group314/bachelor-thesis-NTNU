@@ -1,0 +1,332 @@
+\chapter{Qualitiy Assurance}
+\label{chap:testing_system_evaluation}
+
+\section{Testing Strategy}
+
+A layered testing strategy was used to evaluate SafeVision. At the lowest level, unit tests were written for utility functions, state management, and isolated processing logic. On top of this, integration-oriented tests were used for workflows where several hooks, components, or services had to work together. Finally, user-oriented evaluation was performed through manual exploratory testing and structured user tests on realistic image and video scenarios in order to assess both practical usability and end-to-end workflow behaviour.
+
+This combination was chosen because no single testing method was sufficient on its own. Unit tests gave fast feedback and were useful for regression prevention, while integration tests validated interactions across components and services. Manual and user-based testing were necessary for evaluating workflows involving file handling, media rendering, and user-controlled redaction, where visual feedback and interaction design play a central role.
+
+In addition to verifying correctness and usability, the user-oriented evaluation was also used to better understand practical user needs. Feedback from the main domain stakeholder, Skan-Kontroll, helped clarify which aspects of the system were most important in a realistic workflow, such as processing speed, workflow simplicity, reliable detection, and the ability to manually inspect and correct results before redaction. Additional feedback from users with experience in image and video editing provided insight into interaction expectations, editing precision, and which features were perceived as necessary or merely useful additions.
+
+Although this testing strategy provided broad verification, it also had some limitations. Coverage was stronger in logic-heavy parts of the system than in large UI components and external service layers. Some backend tests depend on third-party machine learning and API libraries, making them more difficult to execute in lightweight environments. In addition, media-related frontend tests may still produce environment-specific warnings because browser simulation frameworks do not fully reproduce all real browser and video behaviour.
+
+Nevertheless, by combining automated verification with practical user evaluation, the testing process provided a solid level of confidence in both system correctness and usability within the scope of this project.
+
+\section{Frontend Testing}
+
+Frontend testing was conducted using Vitest in combination with React Testing Library within a JSDOM-based environment. This setup was well suited to the React and Vite architecture of SafeVision, allowing both isolated logic and component-level interactions to be tested in a lightweight and reproducible manner.
+
+The test suite focused on functionality central to the application workflow. This included application shell rendering, GDPR consent handling, file upload and selection workflows, undo/redo functionality, detection state management, highlight state management, zoom controls, responsive media query behaviour, and sidebar interactions. In addition, dedicated tests were implemented for image editing utilities, canvas export functionality, video playback state, and video manifest handling. Since SafeVision supports both static image processing and temporal video workflows, testing also covered frame-based operations and state synchronization across video interactions.
+
+In total, the frontend test suite consisted of 38 test files containing 164 passing tests. Coverage analysis showed 47.82\% statement coverage, 38.77\% branch coverage, 51.37\% function coverage, and 50.10\% line coverage. Coverage was strongest in state management, shared hooks, and utility-driven logic, particularly in areas such as zoom handling, consent management, user preferences, and video manifest processing. These components form the backbone of application behaviour and were prioritized because of their importance for system stability. Table~\ref{tab:frontend_coverage} summarizes frontend test coverage across the major application modules, while a complete frontend coverage report is provided in Appendix~\ref{appendix:frontend_coverage_full}.
+
+Lower coverage was observed in larger UI components and media-heavy modules, particularly within image and video rendering workflows. This is largely due to the complexity of browser APIs, asynchronous rendering behaviour, and canvas/video interactions, which are inherently more difficult to test automatically than deterministic application logic. Despite this, core interaction flows involving editing, file management, and state transitions were consistently validated through automated tests.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lcccc}
+\hline
+\textbf{Module} & \textbf{Statements} & \textbf{Branches} & \textbf{Functions} & \textbf{Lines} \\
+\hline
+Overall Coverage      & 47.82\% & 38.77\% & 51.37\% & 50.10\% \\
+Application Core      & 65.45\% & 45.83\% & 17.64\% & 70.58\% \\
+Detection Features    & 50.70\% & 30.43\% & 52.00\% & 47.16\% \\
+File Management       & 60.72\% & 29.05\% & 63.23\% & 62.96\% \\
+User Preferences      & 50.98\% & 41.66\% & 36.84\% & 56.81\% \\
+Workspace Components  & 66.66\% & 66.66\% & 63.63\% & 64.28\% \\
+Workspace Hooks       & 32.02\% & 13.00\% & 52.17\% & 35.06\% \\
+Image Processing      & 21.48\% & 4.87\%  & 18.75\% & 22.03\% \\
+Video Processing      & 22.72\% & 18.69\% & 19.29\% & 24.65\% \\
+Shared Hooks / State  & 71.16\% & 44.96\% & 80.48\% & 75.00\% \\
+Storage / Persistence & 41.48\% & 48.03\% & 41.66\% & 44.67\% \\
+UI Components         & 41.75\% & 49.03\% & 40.00\% & 40.00\% \\
+\hline
+\end{tabular}
+\caption{Frontend test coverage grouped by major application modules. }
+\label{tab:frontend_coverage}
+\end{table}
+
+The distribution of coverage reflects the architectural priorities of the system. Logic-heavy modules achieved higher coverage due to their deterministic behaviour and ease of isolation, while interactive rendering layers achieved lower coverage because they depend heavily on simulated browser behaviour. Although full coverage was neither practical nor necessary within the scope of this project, the implemented test suite provided strong regression protection for the most critical frontend functionality.
+
+
+\section{Backend Testing}
+
+Backend testing was conducted using \texttt{pytest} together with FastAPI's \texttt{TestClient} and the \texttt{pytest-cov} coverage plugin. This setup made it possible to test both isolated backend logic and full API endpoint behaviour in a controlled and reproducible way. The backend test strategy combined unit-oriented tests for internal processing logic with integration-oriented tests for route handling, request validation, and service-level workflows.
+
+Particular emphasis was placed on the parts of the backend most central to system correctness and reliability. This included API controllers, detection and redaction services, core processing pipelines, frame-based video processing, runtime configuration, and FFmpeg-related startup validation. Endpoint-level tests were executed through the FastAPI application using a test client, allowing route registration, validation behaviour, error handling, and response formats to be verified without deploying the backend as a running service. Lower-level functions and processing modules were tested in isolation, often with mocked dependencies to avoid unnecessary reliance on heavy runtime components.
+
+The backend test suite covered both image-based and video-based workflows. Detection endpoints, redaction endpoints, and video-processing controllers were tested for both valid and invalid inputs. In cases where backend functionality depended on larger processing pipelines or external model calls, mocking was used to isolate controller and service behaviour from the underlying implementation. This made the tests faster, more deterministic, and better suited for regression testing. The same approach was also used for startup and lifecycle testing, where environment-dependent operations such as FFmpeg verification were simulated rather than executed directly.
+
+In addition to the automated backend test suite, selected API endpoints were also verified manually using Postman. While local API calls were useful during development and debugging, the final manual verification was primarily performed against the deployed backend in order to confirm correct request handling, multipart file upload behaviour, and response structure in a production-like environment. Figure~\ref{fig:postman_detect_backend} shows an example of such manual verification for the deployed detection endpoint.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.80\textwidth]{figures/images/chapter-10/postman_example.png}
+    \caption{Manual verification of the deployed \texttt{/api/detect} endpoint in Postman, showing multipart image upload and the returned structured JSON response.}
+    \label{fig:postman_detect_backend}
+\end{figure}
+
+Coverage analysis showed strong overall backend verification. The backend reached 99\% total statement coverage, with especially high coverage in controllers, startup logic, shared processing modules, and central service layers. Several of the most important files for application behaviour, including \texttt{main.py}, the controller modules, \texttt{detector\_service.py}, \texttt{frame\_live.py}, \texttt{video\_live.py}, and \texttt{pipeline\_core.py}, achieved full coverage. This indicates that the most critical backend paths for request handling, orchestration, and media processing were thoroughly exercised by the automated test suite. A complete per-file backend coverage report is provided in Appendix~\ref{appendix:backend_coverage_full}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lc}
+\hline
+\textbf{Backend Module Group} & \textbf{Coverage} \\
+\hline
+Overall Backend Coverage & 96\% \\
+Application Entry / Startup & 100\% \\
+Controllers / API Routes & 100\% \\
+Core Pipeline Modules & 100\% \\
+Video Processing Core & 100\% \\
+Detection Service Layer & 100\% \\
+Text Analysis (PII detector) & 94\% \\
+Tracking Utilities & 96--99\% \\
+\hline
+\end{tabular}
+\caption{Summary of backend test coverage across key module groups}
+\label{tab:backend_coverage}
+\end{table}
+
+Although backend coverage was very high overall, the few modules with lower individual coverage were still exercised through the surrounding backend architecture. Since these components are invoked by higher-level services, pipelines, and API routes, much of their practical behaviour was verified indirectly through integration-oriented tests. Consequently, lower isolated file coverage in these cases does not mean that the functionality was left untested, but rather that it was validated primarily as part of larger execution flows.
+
+Overall, the backend testing process provided strong confidence in the correctness and robustness of SafeVision's server-side functionality. The combination of route-level verification, service and pipeline testing, targeted mocking of environment-dependent dependencies, and manual API verification made it possible to validate both internal logic and realistic request flows while keeping the test suite efficient and maintainable.
+
+\section{User Testing}
+\label{sec:user-testing}
+
+User testing was conducted in multiple phases throughout the development period, with each batch corresponding to a different stage of system maturity and providing progressively more targeted insights. The initial tests, conducted in mid-March, were designed to gather both qualitative feedback on how users perceived and interacted with the system and quantitative data on usability challenges and problematic aspects. These early sessions offered a broad understanding of user behaviour and highlighted key areas of difficulty. In subsequent phases, the design and execution of the tests were refined, allowing for more focused data collection and a clearer evaluation of specific usability issues and system improvements.
+
+\noindent\textbf{Initial testing phase (March 10--11)}
+
+The initial testing phase focused on evaluating the early version of the system and identifying major usability challenges. Participants were asked to complete core tasks such as uploading images, running detection, and applying redaction.
+
+The results revealed several issues related to workflow clarity and system feedback. In particular, users found it difficult to understand the progression of the detection process and were often uncertain about the system’s current state. Navigation between different stages of the workflow also caused confusion.
+
+These findings highlighted the need for clearer feedback mechanisms and a more structured interaction flow, which informed the improvements introduced in the subsequent phase.
+
+\medskip
+
+\noindent\textbf{Follow up testing phase (March 19--20)}
+
+The follow-up testing phase focused on refining the user testing approach rather than evaluating changes to the system itself. Based on experiences from the initial phase, adjustments were made to encourage participants to verbalize their thoughts more actively and to provide more critical feedback during interaction.
+
+This was achieved by placing greater emphasis on prompting users to reflect on difficulties, uncertainties, and negative aspects of the system while performing tasks. As a result, the data collected in this phase provided more detailed insights into usability issues that were not fully captured in the initial tests.
+
+The findings reinforced several of the previously identified challenges, particularly related to workflow clarity and system feedback, while also revealing additional issues in more specific interaction scenarios. These insights provided a stronger foundation for identifying necessary system improvements in subsequent development stages.
+
+\medskip
+
+\noindent\textbf{Intermediate testing phase (April 07--09)}
+
+The intermediate testing phase focused on evaluating a more developed version of the system across a wider range of use cases. At this stage, the system had undergone several refinements based on previous findings.
+
+The results showed that core functionality was generally stable and that users were able to complete the main workflow without major issues. Usability had improved compared to earlier phases, although some edge cases and interaction details still caused minor difficulties.
+
+These findings indicated that the system was approaching a stable state, while also identifying specific areas for final adjustments.
+
+\medskip
+
+\noindent\textbf{Final testing phase (April 27--29)}
+The final testing phase evaluated the system in its most complete and refined state. The goal was to assess overall usability and determine whether the system supported the intended workflow effectively.
+
+The results showed that most users were able to complete tasks successfully with minimal guidance. The system was generally perceived as understandable and functional, and earlier usability issues had largely been resolved. Some minor challenges were still observed, but these did not significantly impact task completion.
+
+Overall, the system demonstrated a solid level of usability within the scope of the project, indicating that the implemented improvements had a positive effect.
+
+\methodheading{System Changes Based on User Testing}
+
+Based on findings from the initial testing phases and feedback from relevant user groups, several changes were implemented to improve the usability and clarity of the system. The changes were aimed not only at resolving usability issues, but also at better aligning the system with practical user needs. Feedback from Skan-Kontroll emphasized that the system needed to support efficient processing, clear workflow progression, and reliable manual control over detection results. Feedback from users with image and video editing experience further highlighted the importance of predictable interaction patterns, editing precision, and clear feedback during longer processing tasks.
+
+The most frequently observed usability issues are summarized in Table~\ref{tab:user_test_summary}. The results show that challenges related to detection feedback, workflow understanding, and navigation were among the most common problems experienced by users.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\hline
+\textbf{Usability Issue} & \textbf{Users (\%)} \\
+\hline
+Difficulty navigating to detection & 5 (50\%) \\
+Unclear detection/scanning feedback & 7 (70\%) \\
+Confusion about workflow steps & 6 (60\%) \\
+Uncertainty about system state & 4 (40\%) \\
+Difficulty understanding terminology & 3 (30\%) \\
+Issues with redaction process & 4 (40\%) \\
+\hline
+\end{tabular}
+\caption{Summary of recurring usability issues identified across initial testing phases}
+\label{tab:user_test_summary}
+\end{table}
+
+In response to these findings, several interface and interaction changes were introduced. One of the main adjustments was a restructuring of the interface flow. The order of key action buttons was modified to better reflect the natural progression of tasks, making it easier for users to understand what to do next. In addition, the feature previously labeled as ``AI mission'' was renamed to ``Identify'' in order to provide clearer and more intuitive terminology.
+
+To improve system feedback, loading indicators were introduced for individual files during processing. This included both the identification step and the redaction process, allowing users to better understand the current state of the system and reducing uncertainty during longer operations.
+
+The impact of these changes was evaluated in subsequent testing phases. A summary of the results after the implementation of these improvements is presented in Table~\ref{tab:user_test_after}.
+
+\section{Performance Tests}
+\label{sec:performance_tests}
+
+As part of the quality assurance process, performance tests were conducted to
+evaluate the runtime behavior of the SafeVision system. These tests focused on
+the latency of detection and redaction operations across different execution
+environments and scenario configurations. By comparing local CPU, local GPU,
+and deployed cloud execution, the evaluation provides a practical view of how
+the system performs under different operational conditions.
+
+Inpainting was excluded from the performance tests because the evaluation was
+limited to the redaction methods used most consistently in the core workflow.
+
+\medskip
+
+\noindent\textbf{Test Setup}
+
+Performance was measured as total API response time per image. The reported
+latency therefore includes request handling, image upload, backend processing,
+and response generation. Detection and redaction were measured separately, using
+the scenario sets summarized in Table~\ref{tab:det_red_scenarios}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{0.8\textwidth}{X X}
+\toprule
+\textbf{Detection scenarios} & \textbf{Redaction scenarios} \\
+\midrule
+\texttt{face\_only} & \texttt{blur\_box} \\
+\texttt{text\_only} & \texttt{pixelate\_box} \\
+\texttt{barcode\_only} & \texttt{blackbox\_box} \\
+\texttt{license\_plate\_only} & \texttt{blur\_segmentation} \\
+\texttt{object\_only} & \texttt{pixelate\_segmentation} \\
+\texttt{all\_enabled} & \texttt{blackbox\_segmentation} \\
+\bottomrule
+\end{tabularx}
+\caption{Detection and redaction scenarios included in the performance tests.}
+\label{tab:det_red_scenarios}
+\end{table}
+
+For segmentation-based redaction, only segmentation-compatible detections were
+included. In addition, the number of segmentation candidates was capped in
+order to avoid unrepresentative worst-case behavior on densely detected images.
+
+The performance measurements were collected across three execution
+environments, summarized in Table~\ref{tab:performance_environments}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{2.6cm} p{4.3cm} p{3.2cm} p{4.2cm}}
+\toprule
+\textbf{Environment} & \textbf{Hardware / Runtime} & \textbf{Memory} & \textbf{Characteristics} \\
+\midrule
+Local CPU & AMD Ryzen 7 5800X3D (8 cores, 16 threads) & 32 GB RAM & CPU-only local execution used as the baseline environment. \\
+
+Local GPU & NVIDIA GeForce RTX 4080 & 16 GB dedicated GPU memory & Local GPU-accelerated execution for PyTorch-based detectors. OCR remained CPU-based. \\
+
+Cloud & Google Cloud Run (2 vCPU) & 8 GiB memory & Deployed CPU-based API environment with concurrency set to 1 and a minimum of 1 instance. \\
+\bottomrule
+\end{tabular}
+\caption{Execution environments used in the performance tests.}
+\label{tab:performance_environments}
+\end{table}
+
+
+\noindent\textbf{Detection Performance}
+
+Figure~\ref{fig:detect_latency_by_environment} shows the mean detection latency
+across the three environments. The local GPU environment achieved the lowest
+latency overall for the most computationally demanding scenarios, particularly
+for \texttt{face\_only} and \texttt{all\_enabled}. This indicates that the
+PyTorch-based detection pipelines benefited substantially from GPU
+acceleration.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\textwidth]{figures/images/chapter-9/detect_latency_by_environment.png}
+    \caption{Mean detection latency across local CPU, local GPU, and cloud environments.}
+    \label{fig:detect_latency_by_environment}
+\end{figure}
+
+The results do not, however, show a uniform ranking across all scenarios. For
+lighter detection tasks such as \texttt{barcode\_only},
+\texttt{license\_plate\_only}, and \texttt{object\_only}, the deployed cloud
+environment produced lower mean latency than the local CPU environment, and in
+some cases also lower latency than the local GPU environment. Since the
+measurements represent end-to-end API response time rather than isolated model
+inference time, these differences are likely influenced by a combination of
+runtime overhead, workload characteristics, and environment-specific execution
+conditions rather than hardware category alone.
+
+For the more computationally demanding scenarios, the cloud environment showed
+substantially higher latency than both local environments, especially for
+\texttt{face\_only} and \texttt{all\_enabled}. For \texttt{text\_only}, the
+difference between local CPU and local GPU was smaller, which is consistent
+with the OCR component remaining CPU-based in the tested local GPU
+configuration. \\
+
+
+
+\noindent\textbf{Redaction Performance}
+
+Figure~\ref{fig:redact_latency_by_environment} shows the mean redaction latency
+across the three environments. For the box-based methods
+(\texttt{blur\_box}, \texttt{pixelate\_box}, and \texttt{blackbox\_box}), the
+results were relatively similar between the local CPU and local GPU
+environments. This indicates that the redaction stage itself benefited less
+from GPU acceleration than the detection stage. In these scenarios, the cloud
+environment produced lower mean latency than both local environments.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/images/chapter-9/redact_latency_by_environment.png}
+    \caption{Mean redaction latency across local CPU, local GPU, and cloud environments.}
+    \label{fig:redact_latency_by_environment}
+\end{figure}
+
+For the segmentation-based methods
+(\texttt{blur\_segmentation}, \texttt{pixelate\_segmentation}, and
+\texttt{blackbox\_segmentation}), the pattern was different. In all three
+segmentation scenarios, the cloud environment showed substantially higher
+latency than both local environments, while the local CPU and local GPU
+results remained relatively close. This indicates that segmentation-based
+redaction introduced a much higher computational cost than box-based
+redaction, particularly in the deployed cloud setting.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.2\textwidth]{figures/images/chapter-9/redact_latency_distribution.png}
+    \caption{Distribution of redaction latency across scenarios and environments.}
+    \label{fig:redact_latency_distribution}
+\end{figure}
+
+The difference between box-based and segmentation-based redaction is further
+illustrated in Figure~\ref{fig:redact_latency_distribution}, which shows that
+the segmentation scenarios had both higher latency and greater variation than
+the box-based scenarios. This was especially visible in the cloud environment,
+where segmentation-based redaction produced the largest spread and the highest
+outlier values.
+
+Although segmentation-based redaction was significantly slower, the average
+number of segmentation-compatible regions remained low and consistent across
+environments. This suggests that the increased latency was primarily caused by
+the segmentation process itself rather than by a large number of processed
+regions. \\
+
+\noindent\textbf{Discussion of Performance Results}
+
+The results show that GPU acceleration had the greatest effect on
+detection performance, especially for the PyTorch-based detection pipelines.
+The effect was smaller for text detection, since OCR remained CPU-based in the
+tested local GPU setup. For redaction, the main distinction was not between CPU
+and GPU, but between box-based and segmentation-based methods. Segmentation
+introduced a significantly higher processing cost in all environments.
+
+The cloud-based measurements were consistently higher for the most demanding
+scenarios. These results should be interpreted in light of the cloud runtime
+configuration and the fact that the tests measured end-to-end API response time
+rather than isolated model inference time. The reported values therefore reflect
+both processing cost and deployment-related overhead.
+
+\section{Security Evaluation}

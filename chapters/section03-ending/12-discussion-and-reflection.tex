@@ -1,1 +1,208 @@
 \chapter{Discussion and Reflection}
+
+%------------------------- 12.1 -------------------------
+
+\section{Achievement Assessment}
+
+This section assesses the extent to which the SafeVision project achieved its intended goals, as well as the additional outcomes, limitations, and unexpected lessons that emerged during the development process. The assessment is based on the project goals, implemented system functionality, evaluation results, and the scope decisions made throughout the project.
+
+\noindent\textbf{Main Goals Achieved}
+
+The main goal of SafeVision was to develop a system for detecting and anonymizing sensitive information in still images. This goal was achieved through an end-to-end workflow where users can upload an image, run automatic detection, review the detected regions, and apply redaction.
+
+The system detects several types of privacy-relevant visual content, including faces, visible text, license plates, people, vehicles, and other objects that may reveal sensitive information. These detections are shown directly in the user interface, allowing users to inspect the results before applying redaction.
+
+Another important goal was to combine automation with user control. This was achieved through a workflow where users can review and modify detections before applying redaction. The design implications of this choice are discussed further in Section~\ref{sec:system-design-user-control}.
+
+The project also achieved the goal of building a working technical architecture. The system was implemented with a React and TypeScript frontend, a Python FastAPI backend, and separate machine learning components. The implications of this architecture for practical adoption are discussed further in Section~\ref{sec:implementation-adoption-considerations}.
+
+\noindent\textbf{Achievements Beyond the Original Scope}
+
+The project expanded beyond its original scope in several areas. These additions strengthened the final prototype by extending the system from a basic still-image redaction workflow into a broader tool for detecting and anonymizing different types of sensitive visual information.
+
+\begin{itemize}
+    \item \textbf{Video Support:} The original scope focused on still images, but the system was later extended with video upload, frame-based detection, and visualization of detected regions in video content. This expanded the prototype beyond static images and demonstrated that the same detection and review principles could be applied to moving visual media.
+
+    \medskip
+
+    \item \textbf{Inpainting as a Redaction Method:} The initial redaction workflow focused on direct anonymization methods such as masking, blurring, and pixelation. Inpainting was later explored as an additional method for replacing selected regions with generated background content, expanding the range of redaction options available in the system. 
+
+    \medskip
+
+    \item \textbf{Market and Needs Mapping:} Beyond technical implementation, the project included mapping of market needs and existing redaction workflows. Input from real users, including users who work with images in practical settings, provided meaningful insight into existing redaction needs, system speed, and expectations for user control. This helped clarify the practical relevance of SafeVision and supported the decision to combine automated detection with user-controlled review.
+
+    \medskip
+
+    \item \textbf{Custom Detection of Barcodes, QR Codes, and License Plates:} 
+    Based on the definition of sensitive information established in Chapter~\ref{chap:theoretical_foundation}, the detection scope was expanded beyond faces and visible text to include barcodes, QR codes, and license plates. These elements were considered relevant because they may function as indirect identifiers or link to traceable information, such as vehicles, locations, owners, documents, tickets, or external records. Custom detection models were therefore developed and integrated for these categories, strengthening SafeVision’s ability to detect sensitive content beyond the most obvious visual identifiers.
+
+    \medskip
+
+    \item \textbf{NER-Based Text Classification:} The text pipeline was extended beyond OCR by adding named entity recognition classification for extracted text. This allowed the system to distinguish between general text and potentially sensitive entities, such as names or addresses.
+\end{itemize}
+
+%------------------------- 12.2 -------------------------
+
+\section{System Design and User Control}
+\label{sec:system-design-user-control}
+
+A central design choice in SafeVision was to keep the user involved in the redaction process instead of treating automated detection as a final decision. This follows the hybrid redaction approach discussed in Section~\ref{subsec:hybrid_redaction_user_control}, where automated detection is used to reduce manual effort while user review is retained to handle uncertainty and context-dependent sensitivity.
+
+This choice is reflected in the system requirements and workflow. Manual editing of detection results was defined as a functional requirement in Table~\ref{tab:functional_requirements}, and the detection and redaction scenarios in Figures~\ref{fig:sequence_detection} and~\ref{fig:sequence_redaction} show that redaction is performed only after the user has had the opportunity to inspect the proposed detections. This was important because visual sensitivity cannot always be determined from object category alone. A detected object may be sensitive in one context but irrelevant in another, and the system therefore needs to support correction rather than only prediction.
+
+The interface was designed to make this review process visible and understandable. Detection results are shown directly on the media using bounding boxes and category labels, as described in Chapter~\ref{user_interface_and_usability}. The options panel, detection filters, and highlight settings allow users to control which detections are shown and how they are handled before redaction is applied. These interface choices help make the system output more transparent, since the user can see what the system has detected before deciding what should be anonymized.
+
+The main trade-off is that user control improves reliability and trust, but does not remove manual work entirely. The workflow depends on both model performance and the usability of the review tools. This was also visible in the user testing described in Section~\ref{sec:user-testing}, where feedback showed that configurable filters and direct editing were useful, while issues such as unclear progress feedback, readability, and editing overlapping boxes could affect the review process.
+
+This made user control both a strength and a design responsibility. SafeVision can reduce repetitive manual redaction work, but it still needs to communicate detections clearly enough for users to make informed decisions before exporting the final result.
+
+%------------------------- 12.3 -------------------------
+
+\section{Technical Limitations and Challenges}
+
+Although SafeVision achieved its main goals, several technical limitations and
+practical challenges affected the system throughout development and deployment.
+These were mainly related to licensing constraints, infrastructure limitations,
+computational performance, and the resource demands of model training.
+
+One important constraint was that the project had to rely on technologies,
+datasets, and models that were free to use and also permitted commercial use.
+This restricted the range of candidate tools and models that could be considered
+for integration. As a result, some potentially relevant alternatives were
+excluded due to licensing limitations rather than technical suitability alone.
+
+Infrastructure choices also introduced limitations. Because Safe Media AI AS
+wanted the system to be deployed on Google Cloud, and because the project was
+carried out within limited cloud credits, the deployed solution was designed to
+run on CPU-based infrastructure. The implementation was made flexible so that it
+can automatically use a GPU if one is available, while falling back to CPU
+otherwise. However, since user testing was conducted on the deployed cloud
+version, the CPU-only deployment had a noticeable impact on processing speed.
+
+This was particularly evident for computationally demanding operations such as
+segmentation and inpainting. The inpainting method used in the system is better
+suited for GPU execution, and several settings had to be reduced in order to
+make it feasible to run in the deployed environment. Even with these
+adaptations, processing time remained relatively high. Similar limitations
+applied to segmentation, where the available infrastructure restricted practical
+performance.
+
+Training custom models also proved demanding. Model training was performed on
+the group’s own machines, and in some cases the training process terminated due
+to out-of-memory errors, even on systems with 32 GB of RAM. This illustrates
+the computational demands of the training workflow. These constraints may have
+limited the extent to which models could be further improved, for example by
+training for longer, experimenting with larger configurations, or using higher
+input resolutions.
+
+Automatic detection itself cannot guarantee complete anonymization. The system
+may produce false positives, where non-sensitive regions are detected, or false
+negatives, where sensitive information is missed. This is especially important
+when sensitive information appears as contextual details rather than clearly
+defined object categories. A sign, document, barcode, or background detail may
+be sensitive in one situation but harmless in another.
+
+Video processing introduced additional challenges that were not present in the
+still-image workflow. Sensitive regions must remain covered across consecutive
+frames, even when objects move, disappear, or become partially occluded. The
+implemented video support demonstrates the feasibility of the approach, but
+temporal consistency and processing efficiency remain less mature than in the
+image workflow.
+
+Redaction precision is another limitation. Bounding-box-based redaction is
+simple and reliable, but it may cover more of the image than necessary.
+Segmentation and inpainting can produce more visually refined results, but they
+also introduce additional complexity and may not always be suitable for
+privacy-critical redaction. In a privacy-focused system, the redaction method
+must prioritize reliable anonymization over visual appearance.
+
+An additional challenge was the team’s limited prior experience with React,
+Vite, and frontend GUI development in general. Since these technologies had not
+been a central part of the group’s earlier coursework, part of the development
+process involved learning new frameworks and interaction patterns alongside
+implementing the system itself. This likely increased development time,
+particularly in the frontend, but also contributed to a broader understanding of
+modern web-based interface development.
+
+The project scope and available development time also influenced the final system. Although SafeVision reached a functional prototype stage, some components could not be refined as extensively as intended. This was especially relevant for video processing, performance optimization, and further experimentation with alternative model configurations and redaction strategies.
+
+Overall, SafeVision involves a trade-off between detection coverage, redaction
+quality, processing speed, and infrastructure cost. These limitations do not
+remove the value of the system, but they show that practical deployment of
+privacy-preserving visual processing depends not only on model quality, but also
+on licensing conditions, available compute resources, and system-level
+engineering choices.
+
+%------------------------- 12.4 -------------------------
+
+\section{Future Development Opportunities}
+
+Future development should focus on features that were either outside the final implementation or only partially developed. One important direction is more advanced video redaction.
+
+Video support was added beyond the original scope, and the system includes backtracking to reduce jitter and improve consistency between frames. As shown in Chapter~\ref{user_interface_and_usability}, the system also allows users to control the video detection rate, which affects how frequently detections are performed. These mechanisms make video redaction more stable, but they do not fully solve temporal consistency in all cases. A lower detection rate can reduce processing time, while a higher detection rate may improve detection coverage but increase processing time. Future work could add stronger tracking methods to keep redaction stable across frames without relying primarily on repeated detection. This would help reduce missed detections and unnecessary processing when sensitive objects move through a video.
+
+Support for more specialized sensitive content could also be expanded. For example, PDF417 codes on flight tickets were considered during the project, but creating a dedicated dataset and labeling it for this use case was too narrow and time consuming compared with the broader value of detecting common barcode and QR code formats. Future work could extend the detection categories to include PDF417 codes, identity documents, tickets, forms, and other domain-specific identifiers.
+
+Metadata preservation is another possible extension. As explored in Appendix~\ref{app:metadata-handling}, metadata may be relevant in workflows where authenticity, traceability, documentation, or auditability must be preserved after redaction. This was not included in the final system because the project focused on visual detection and redaction rather than file metadata handling. Future work could investigate how metadata should be preserved, removed, or modified depending on privacy and documentation requirements.
+
+The redaction workflow could also be expanded with more flexible manual editing tools. User testing indicated that users may need more control when sensitive regions do not fit rectangular bounding boxes or when automatic detections require correction. Future versions could therefore include circular or polygonal redaction areas, improved box editing controls, and clearer user-guided feedback for detection results. These improvements would reduce repetitive manual corrections and make the workflow more adaptable to user-specific definitions of sensitive content.
+
+Performance and deployment optimization should also be considered. Future versions could benefit from GPU deployment, model optimization, asynchronous batch processing, and more selective use of expensive components such as segmentation and inpainting. This would be especially relevant for larger files, video processing, and high-volume organizational workflows.
+
+Finally, further evaluation with real users and larger datasets would be valuable. This would make it possible to assess how well the hybrid workflow performs in practical redaction scenarios and whether the balance between automation, privacy, and user control should be adjusted. User feedback could also provide insight into how sensitive information is interpreted in different contexts, helping guide future extensions to detection categories, sensitivity rules, and configurable redaction settings.
+
+%------------------------- 12.5 -------------------------
+
+\section{Ethical Dimsensions}
+
+Nevne kort til kap 2
+
+Hvorfor automatisk viktig
+Hvorfor er human touch viktig
+Hvorfor det er beste løsning når det kombineres
+
+The SafeVision system was developed to detect and redact sensitive information in images and videos. Visual media may contain direct identifiers such as faces, names, and license plates, but also indirect identifiers such as locations, buildings, unique objects, or contextual details (Section~\ref{sec:sensitive_information_in_vm}). This makes privacy protection in visual media challenging, since even media that appears anonymized may still reveal more information than necessary.
+
+An important ethical consideration is that automated anonymization cannot guarantee complete privacy protection in all situations. Detection models may miss relevant regions, and visual redaction methods such as blur or masking do not necessarily result in full anonymization if identifying context remains visible. SafeVision should therefore be understood as a privacy-supporting tool, not as a guarantee that all sensitive information has been removed.
+
+For this reason, user control was retained as an important part of the system design. By allowing users to review and adjust detections before final redaction, the system combines automation with human judgment. This reduces the risk of unnoticed errors and makes the anonymization process more transparent and accountable.
+
+Another ethical challenge is balancing privacy protection against preserving useful visual information. Over-redaction may remove important non-sensitive content, while under-redaction may expose personal data. This trade-off becomes even more demanding in video, where anonymization must remain stable across frames to avoid brief exposure of sensitive regions.
+
+Overall, the project shows that privacy-preserving visual processing depends not only on model accuracy, but also on careful system design, transparency about limitations, and human oversight in the final review of results.
+
+
+%------------------------- 12.6 -------------------------
+
+\section{Reflection of Use of Artificial Intelligence}
+\label{sec:reflection-ai-use}
+
+The use of artificial intelligence tools during the project was helpful, but the usefulness varied depending on the task. For smaller and more clearly defined problems, AI tools often saved time. This included tasks such as identifying syntax errors, explaining compiler messages, finding missing imports, correcting spelling mistakes, and suggesting clearer formulations in the report. In these cases, AI worked well as a support tool because the problem was limited and the suggested output could be checked quickly.
+
+The usefulness was lower for more complex programming and debugging tasks. In some cases, the group spent a significant amount of time going back and forth with AI tools without reaching a working solution. This was especially the case when the issue depended on project specific context, several files, or details that were not fully included in the prompt. In retrospect, some of these problems could probably have been solved faster by inspecting the code directly, using debugging tools, or discussing the issue within the group.
+
+A recurring challenge was that AI-generated code was not always suitable for the project. Some suggestions were unnecessarily complicated, added more code than needed, or solved a slightly different problem than the one being worked on. This made it necessary to review the output carefully before using it. It was not always clear whether these problems were caused by weak prompts, missing context, or limitations in the AI tool itself. Regardless of the cause, the experience showed that AI suggestions should not be treated as ready made solutions.
+
+The project also showed that using AI effectively requires judgment from the user. Good results depended on asking specific questions, providing enough context, and being able to evaluate whether the answer was technically correct. When the group understood the problem well, AI could be useful for discussing alternatives or speeding up smaller tasks. When the group did not yet understand the problem fully, AI could sometimes make the process more confusing by suggesting solutions that looked plausible but did not fit the system.
+
+For writing and documentation, AI tools were generally more useful. They helped identify spelling mistakes, improve sentence structure, and suggest clearer ways to present technical explanations. However, AI also had a tendency to add unnecessary words or extra information when reformulating sentences, which sometimes made the text longer or less precise than intended. The group therefore had to simplify and adjust the suggestions so that the final text matched the intended meaning, the actual implementation, and the writing style of the report. This was particularly important in a thesis where technical accuracy and honest reflection are central.
+
+The main lesson from using AI in the project is that it can be valuable as a support tool, but it does not remove the need for technical understanding. It was most useful when used for narrow, verifiable tasks, and less reliable when used for open ended debugging or larger code changes. In future projects, the group would use AI more deliberately by limiting it to tasks where the output can be checked quickly, while relying more on direct debugging, testing, and group discussion for complex implementation problems.
+
+%------------------------- 12.7 -------------------------
+
+\section{Project Reflection}
+
+The project was carried out with steady collaboration and regular communication within the group. As described in Chapter~3, the group followed a structured working rhythm with sprint planning, regular coordination, meetings, and task tracking. These routines helped maintain progress throughout the project and made it easier to divide work across frontend development, backend implementation, machine learning, testing, deployment, and documentation.
+
+A positive aspect of the project was that the group worked consistently over time. Regular communication made it easier to identify problems early, discuss technical decisions, and support each other when implementation challenges appeared. This was especially important because SafeVision combined several different technical areas, and progress in one part of the system often depended on progress in another.
+
+At the same time, the project could have benefited from closer involvement with Safe Media AI AS throughout the development process. As discussed in Section~\ref{sec:stakeholder-involvement-external-feedback}, feedback from the commissioner influenced several project decisions. This feedback was useful, especially in relation to video functionality, backtracking, and possible solutions for manual tracking. More frequent involvement could have helped the group validate technical choices earlier and avoid spending time on directions that were less important for the final system.
+
+Another important lesson concerns the research phase. Early in the project, the group focused heavily on finding usable models, comparing technologies, and integrating them into the prototype. However, the scope of what should be considered sensitive information in visual media was not fully established before some implementation decisions were made. Chapter~\ref{chap:theoretical_foundation} later showed that this definition is broader than faces and visible text, and also includes indirect identifiers such as license plates, barcodes, QR codes, signs, and contextual visual details. A more structured research phase at the beginning could have clarified the detection scope earlier and made it easier to prioritize datasets, model training, and custom object categories.
+
+This also affected how time was distributed. User testing and interface improvements provided useful feedback, as described in Section~\ref{sec:user-testing}, but some of this effort could have been balanced more carefully against the machine learning goals of the project. In retrospect, more time could have been allocated to dataset development, model improvement, PDF417 detection, and video tracking. Video support expanded the project beyond the original image focused scope, but the added complexity of tracking, temporal consistency, and performance meant that the video workflow did not reach the same maturity as the still image workflow. Since the core contribution of the project was a system for machine learning based detection and redaction, these areas could have further strengthened the technical contribution.
+
+The project demonstrated the value of iterative development, but also showed that early technical choices can have significant consequences later. Dataset availability, model licensing, deployment limitations, processing speed, and model performance all influenced what was realistic to implement. Future projects of a similar type would benefit from spending more time early on defining the problem space, validating priorities with stakeholders, and deciding which technical areas should receive the most development effort.
+
+The main lesson from the project is that technical implementation and problem understanding must develop together. The group succeeded in building a functional system and maintaining good internal collaboration, but a clearer early research and prioritization phase could have made the development process more focused and reduced the need to revisit implementation decisions later in the project.
