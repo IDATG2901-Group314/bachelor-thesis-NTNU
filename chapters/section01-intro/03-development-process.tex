@@ -1,31 +1,48 @@
 \chapter{Development Process}
+\label{chap:devprocess}
 
-This chapter describes how the project was carried out in practice. It presents the chosen development methodology of the project, the weekly work rhythm which was followed, the role of feedback, the main project phases, and the tools and challenges that was used in the development.
+This chapter describes how the project was carried out in practice. It presents the chosen development methodology of the project, the weekly work rhythm that was followed, the role of feedback, the main project phases, and the tools that were used in the development.
 
-\section{Project Team and Development Methodology}
+%------------------------- 3.1 -------------------------
+
+\section{Group Background and Project Organization}
+\label{sec:group-background-and-project-organization}
+
+This bachelor thesis is carried out by three students enrolled in the Bachelor’s program in Data Engineering at the Norwegian University of Science and Technology (NTNU). Throughout the study program, the group members have acquired foundational knowledge in programming, software engineering, databases, and system architecture. The project allows this knowledge to be applied in a practical context while also emphasizing structured collaboration, version control, and agile working methodologies.
+
+The project reflects the group’s technical interests while also providing practical experience with \acrshort{ml} and computer vision. The group’s motivation stems from a shared interest in these fields, which were among the most engaging topics in the study program. This project made it possible to work with training and fine-tuning \acrshort{ml} models, while also developing computer vision solutions related to privacy and security in visual media. Through experimentation, evaluation, and iterative refinement, theoretical concepts were applied to real-world challenges related to privacy and automated redaction. In this way, the work contributed to both academic development and practical competence building.
+
+Responsibility was divided among the group members to structure the workload, including Scrum coordination, product responsibility, documentation, and development. Henrik Weflen Gjermundsen had responsibility as Scrum Master and backend developer, Karwan Shekhe had responsibility as product manager and backend developer, and An Hoang Chu had responsibility as documentation manager and frontend developer. These roles gave the group an initial structure which helped communication, meeting notes and product direction. All members contributed as developers, and tasks were redistributed as the project required support across frontend, backend, testing, research and report writing. The projectplan Appendix~\ref{appsec:group} further describes the formal role distribution and group routines in detail.
+
+
+
+
+The project involved both collaboration with Safe Media AI and supervision from NTNU. SafeVision was developed with representatives from Safe Media AI, Jon Yngve Hardeberg and Yasin Hessnawi. The project was supervised by Tom Røise, a university lecturer at the Department of Information Technology and Informatics at NTNU in Gjøvik, who provided guidance on methodological choices, technical challenges, and the overall direction of the project.
+
+
+%------------------------- 3.2 -------------------------
+
+
+
+%------------------------- 2.3 -------------------------
+
+\section{Development Methodology}
 \label{sec:project-team-and-methodology}
 
-The project group consisted of three students with defined roles in the project plan, including Scrum coordination, product responsibility, documentation and development. Henrik had responsibility as Scrum Master and backend developer, Karwan had responsibility as product manager and backend developer, and Hoang had responsibility as documentation manager and frontend developer. These roles gave the group an initial structure which helped communication, meeting notes and product direction. In practice, the roles functioned as areas of responsibility rather than strict boundaries. All members contributed as developers, and tasks were redistributed as the project required support across frontend, backend, testing, research and report writing. The formal role distribution and group routines are described in the project plan, see Appendix~\ref{app:project-plan}.
+The development process was based on the Scrumban methodology, which is also described in the project plan in Appendix~\ref{appsec:pfar}. Scrumban combines Scrum-based sprint structure with Kanban-based workflow visualization and task-flow management \cite{bhavsar2020scrumban}. This approach suited the project because the work involved technical uncertainty and changing priorities throughout the development period. The team needed to adjust continuously as available technologies were explored and new input was received from the project owners. A fixed plan would have been too rigid for this kind of project, while an unstructured process would have made coordination and progress tracking difficult.
 
-The development process in this project was based on Scrumban methodology. Scrumban combines Scrum-based sprint structure with Kanban-based workflow visualization and task-flow management \cite{bhavsar2020scrumban, schwaber2020scrumguide, scrumorg2021kanbanguide}. This approach was chosen because the project had technical uncertainty and changing priorities throughout its lifetime. Therefore, there was a need for continuous adjustment as the team learned about available technologies and received new input from the project owners. A fixed plan would have been too rigid for this kind of project, while an unstructured plan would also have made coordination and progress tracking difficult. The choice of Scrumban was also described in the project plan, see Appendix~\ref{app:project-plan}.
-
-Using Scrum, the work was organized into mostly one-week sprints throughout the project period, with some longer sprints later once the direction of the final project became clearer. This gave the group short and manageable planning periods in the early phases and made it possible to adapt when the work shifted from research and prototyping to integration and refinement. The sprint structure was supported by regular meetings, task distribution and weekly logging, which made progress easier to keep track of and helped keep the project aligned between the group members, the supervisor and Safe Media AI AS. These routines were based on the project plan, see Appendix~\ref{app:project-plan}.
-
-Kanban contributed to flexible development by giving the team continuous visibility of the workflow. Tasks were created as issues through the Jira board and followed a flow where they moved from planning to active work, testing, review and completion. In this way, it became easier to reprioritize when new tasks appeared, when the group received feedback from the supervisor or Safe Media AI AS, or when blockers came up during development. Kanban therefore supported a more adaptive process than a sprint plan alone could have provided.
-
-In practice, the methodology was implemented through short sprint cycles, frequent internal coordination and regular reviews. Together, Scrum and Kanban provided a structured and adaptable development process. This was important in a project where technical choices, feature priorities and implementation details had to be adjusted throughout. The use of Scrumban made it possible to maintain progress and direction, while still leaving room for change.
+Scrum was used to create a structured and adaptable development process. The work was organized into mostly one-week sprints, with some longer sprints later once the direction of the final project became clearer. This gave the group manageable planning periods in the early phases and made it possible to adapt when the work shifted from research and prototyping to integration and refinement. As outlined in the project plan in Appendix~\ref{appsec:pfar}, the sprint structure was supported by regular meetings, task distribution, and weekly logging, which made progress easier to track and helped keep the project aligned between the group members, the supervisor, and Safe Media AI.
 
 \begin{figure}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-    node distance=0.8cm and 0.6cm,
     proc/.style={
         draw,
         rounded corners=2pt,
         fill=blue!10,
         align=center,
-        minimum width=2.5cm,
+        minimum width=2.9cm,
         minimum height=1cm,
         font=\small
     },
@@ -34,8 +51,8 @@ In practice, the methodology was implemented through short sprint cycles, freque
         rounded corners=2pt,
         fill=gray!10,
         align=center,
-        minimum width=2.2cm,
-        minimum height=1.3cm,
+        minimum width=2.1cm,
+        minimum height=1cm,
         font=\small
     },
     ext/.style={
@@ -43,57 +60,51 @@ In practice, the methodology was implemented through short sprint cycles, freque
         rounded corners=2pt,
         fill=green!10,
         align=center,
-        minimum width=2.9cm,
-        minimum height=1cm,
+        minimum width=3.0cm,
+        minimum height=0.9cm,
         font=\small
     },
     arrow/.style={-{Latex[length=2.2mm]}, thick},
     feedback/.style={-{Latex[length=2.2mm]}, thick, dashed}
 ]
 
-% Top process
-\node[proc] (planning) {Sprint\\planning};
-\node[proc, below=of planning] (backlog) {Sprint backlog\\and task selection};
+% Feedback sources
+\node[ext] (internal) at (1.4,4.2) {Internal team\\coordination};
+\node[ext] (supervisor) at (5.0,4.2) {Supervisor\\feedback};
+\node[ext] (commissioner) at (8.6,4.2) {Safe Media AI AS\\feedback};
 
-% Kanban columns
-\node[column, below left=1.2cm and 5.0cm of backlog] (todo) {To do};
-\node[column, right=of todo] (progress) {In progress};
-\node[column, right=of progress] (test) {To test};
-\node[column, right=of test] (review) {Review};
-\node[column, right=of review] (done) {Done};
+% Sprint planning and backlog
+\node[proc] (planning) at (1.4,2.1) {Sprint\\planning};
+\node[proc] (backlog) at (5.0,2.1) {Sprint backlog\\and task selection};
 
-% Background frame for board
-\begin{scope}[on background layer]
-\node[
-    draw,
+% Kanban board background (moved slightly lower)
+\draw[
     rounded corners=3pt,
-    fill=blue!4,
-    fit=(todo)(progress)(test)(review)(done),
-    inner sep=0.4cm,
-    label={[font=\small]above:Jira / Kanban workflow}
-] {};
-\end{scope}
+    draw,
+    fill=blue!4
+] (6.8,-0.2) rectangle (19.1,2.4);
 
-% External feedback
-\node[ext, below=2.0cm of progress] (supervisor) {Supervisor\\feedback};
-\node[ext, left=1.5cm of supervisor] (internal) {Internal team\\coordination};
-\node[ext, right=1.5cm of supervisor] (commissioner) {Safe Media AI AS\\feedback};
+\node[font=\small\bfseries] at (12.95,1.95) {Jira / Kanban workflow};
 
-% Arrows
+% Kanban columns (moved lower)
+\node[column] (todo) at (8.0,0.75) {To do};
+\node[column] (progress) at (10.4,0.75) {In progress};
+\node[column] (test) at (12.8,0.75) {To test};
+\node[column] (review) at (15.2,0.75) {Review};
+\node[column] (done) at (17.6,0.75) {Done};
+
+% Main flow
 \draw[arrow] (planning) -- (backlog);
-\draw[arrow] (backlog) |- (todo);
+\draw[arrow] (backlog) -- (todo);
 \draw[arrow] (todo) -- (progress);
 \draw[arrow] (progress) -- (test);
 \draw[arrow] (test) -- (review);
 \draw[arrow] (review) -- (done);
 
 % Feedback arrows
-\draw[feedback] (supervisor.north) -- (test.south);
-\draw[feedback] (commissioner.north) -- (review.south);
-\draw[feedback] (internal.north) -- (backlog.south west);
-
-% Return arrow
-\draw[feedback] (done.north) |- ++(1.0,1.6) -| (planning.east);
+\draw[feedback] (internal.south) -- (planning.north);
+\draw[feedback] (supervisor.south) -- (backlog.north);
+\draw[feedback] (commissioner.south) -- (backlog.north east);
 
 \end{tikzpicture}%
 }
@@ -101,223 +112,145 @@ In practice, the methodology was implemented through short sprint cycles, freque
 \label{fig:scrumban-workflow}
 \end{figure}
 
+Kanban contributed to flexible development by giving the team continuous visibility of the workflow. Tasks were created as issues through the Jira board and followed a flow where they moved from planning to active work, testing, review and completion. In this way, it became easier to reprioritize when new tasks appeared, when the group received feedback from the supervisor or Safe Media AI, or when obstacles came up during development. Kanban therefore supported a more adaptive process than a sprint plan alone could have provided.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/images/chapter-4/jira_week9.jpg}
+    \caption{Jira board snapshot from Week 9, showing active work related to feature development, testing and refinement.}
+    \label{fig:jira-week9}
+\end{figure}
+
+In practice, the methodology was implemented through short sprint cycles, frequent internal coordination and regular reviews. Together, Scrum and Kanban provided a structured and adaptable development process (Figure~\ref{fig:scrumban-workflow}). This was important in a project where technical choices, feature priorities and implementation details had to be adjusted throughout. The use of Scrumban made it possible to maintain progress and direction, while still leaving room for change.
+
+
 \section{Sprint Structure and Weekly Project Rhythm}
 
 This section describes the weekly work rhythm and how it functioned in practice. It explains how the group worked in a structured and consistent way with sprint planning, daily coordination and regular review points. This rhythm followed the routines described in the project plan, where sprint planning, daily Scrum, sprint reviews and retrospectives were defined as part of the working method, see Appendix~\ref{app:project-plan}.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.96\textwidth}{!}{%
-\begin{tikzpicture}[
-    box/.style={
-        draw,
-        rounded corners=3pt,
-        fill=blue!10,
-        align=center,
-        text width=3.1cm,
-        minimum height=1.5cm,
-        font=\small
-    },
-    arrow/.style={-{Latex[length=2.2mm]}, thick}
-]
-
-\node[box] (plan) at (0,0) {Sprint planning\\[2pt]\footnotesize Prioritize tasks and assign work};
-\node[box] (daily) at (4.2,0) {Daily coordination\\and development\\[2pt]\footnotesize Implementation, Jira updates, problem solving};
-\node[box] (review) at (8.4,0) {Weekly review meeting\\[2pt]\footnotesize Status update and stakeholder feedback};
-\node[box] (retro) at (12.6,0) {Retrospective and\\reprioritization\\[2pt]\footnotesize Reflection and next-step decisions};
-
-\draw[arrow] (plan) -- (daily);
-\draw[arrow] (daily) -- (review);
-\draw[arrow] (review) -- (retro);
-
-% Loop back
-\draw[arrow] (retro.south) |- ++(0,-1.3) -| (plan.south);
-
-% Week labels
-\node[font=\small\bfseries] at (0,1.4) {Start of week};
-\node[font=\small\bfseries] at (6.3,1.4) {During week};
-\node[font=\small\bfseries] at (10.5,1.4) {End of week};
-
-\end{tikzpicture}%
-}
-\caption{Weekly project rhythm showing how planning, coordination, development, review and reprioritization formed an iterative work cycle.}
-\label{fig:weekly-project-rhythm}
-\end{figure}
-
 \methodheading{Sprint Planning and Task Management}
 
-Each sprint began with sprint planning, where the group decided which tasks should be prioritized in the coming work. In the early stages of the project, this process was mainly used to discuss project planning, assignment clarification, administrative setup and divide research tasks. Later when the course was mainly set for the project, sprint planning became more focused on dividing tasks for implementation, integration, testing, refinement and report writing. This gave the team a clear short-term direction and made the project easy to manage step by step. Tasks were assessed through group discussion based on expected complexity, uncertainty and available capacity. Larger tasks were divided into smaller issues when they became too broad to assign or complete within a sprint.
+Each sprint began with sprint planning, where the group decided which tasks should be prioritized in the coming work. In the early stages of the project, this process was mainly used to discuss project planning, assignment clarification, administrative setup, and the distribution of research tasks. Later, when the direction of the project had become clearer, sprint planning was used to divide work related to implementation, integration, testing, refinement, and report writing. This gave the team a clear short-term direction and made the project easier to manage step by step. Tasks were assessed through group discussion based on expected complexity, uncertainty, and available capacity. Larger tasks were divided into smaller issues when they became too broad to assign or complete within a sprint.
 
-Tasks created in sprint planning were tracked as issues on the project’s issue board, where they were assigned to group members corresponding to the planning. This made it easier to divide larger goals discussed into smaller work tasks which could coexist with other new findings or technical challenges. Sprint planning therefore functioned both as coordination and as a way of keeping the tasks manageable. The planned sprint rhythm and meeting structure were defined in the project plan, including sprint planning, daily Scrum, sprint reviews and retrospectives, see Appendix~\ref{app:project-plan}.
+Tasks created in sprint planning were tracked as issues on the project’s issue board, where they were assigned to group members corresponding to the planning, Figure~\ref{fig:jira-week9}. This made it easier to divide larger goals discussed into smaller work tasks which could coexist with other new findings or technical challenges. Sprint planning therefore functioned both as coordination and as a way of keeping the tasks manageable. The planned sprint rhythm and meeting structure were defined in the project plan, including sprint planning, daily Scrum, sprint reviews and retrospectives, see Appendix~\ref{app:project-plan}.
 
 \methodheading{Daily Coordination and Follow-Up}
 
-Daily Scrum was used to keep alignment within the group, and to work between each sprint planning and weekly review. Based on the group contract and routines agreed upon by the members early in the project, the team agreed on frequent internal follow-up meetings during every week. These meetings were used to clarify what had been done, what each member was currently working on and if there are any new blockers that needed to be distributed as tasks and resolved before the next milestone. These routines were based on the group contract included in the project plan, see Appendix~\ref{app:project-plan}.
+Daily Scrum was used to maintain alignment within the group between sprint planning and weekly review meetings. The group contract in Appendix~\ref{app:project-plan} describes the routines established for frequent internal follow-up meetings throughout the week. These meetings were used to clarify completed work, ongoing tasks, and any blockers that needed to be addressed before the next milestone.
 
 This continuous coordination was especially useful in a project where technical choices, implementation details and scope questions developed over time. In addition to daily Scrum, the group also worked together physically and digitally to solve problems and prepare for meetings. The daily coordination therefore helped maintain momentum in the project and the development process coherent.
 
 \methodheading{Sprint Reviews and Retrospectives}
 
-Sprint reviews and retrospectives were closely tied to the meeting with the supervisor and Safe Media AI AS. These meetings worked as natural review points for the group where status was presented, feedback was received, and afterwards a discussion of how the project can move forward. Input from these weekly sessions was often used directly to adjust scope, clarify technical direction and decide what should be prioritized in the coming sprint.
+Sprint reviews and retrospectives were closely tied to the meeting with the supervisor and Safe Media AI. These meetings worked as natural review points for the group where status was presented, feedback was received, and afterwards a discussion of how the project can move forward. Input from these weekly sessions was often used directly to adjust scope, clarify technical direction and decide what should be prioritized in the coming sprint.
 
 This structure gave the team a continuous opportunity to reflect on the product and the process. What had worked well, what had created problems and what was the strategy going to be in the coming phase. In this way, the review structure also supported continuous improvement throughout the project. The sprint reviews did not only mark the end of one work period, but they became an important mechanism for learning and helped connect weekly development to broader academic and practical expectations.
 
-\section{Stakeholder Involvement and External Feedback}
+%------------------------- 3.4 -------------------------
+
+\section{Stakeholder Involvement}
 \label{sec:stakeholder-involvement-external-feedback}
 
-The project was continuously shaped by input from both the supervisor and Safe Media AI AS. The supervisor influenced the group by giving feedback on group structure, scope, writing and prioritization. The supervisor feedback became especially important when the group had made a working version of the program and started to discuss possible directions. Such as PDF handling, video, metadata, QR/barcode detection, benchmarking and user testing. Through the discussions, the group was encouraged to focus on parts systematicly and focus more on relevant tasks one at a time. It became clear it was important to document each added functionality well, instead of trying to include every explored idea in the final product. Supervisor feedback also became important for the report work, and several meetings were used to discuss and review chapters. This helped the group decide what was relevant for the main report and connect the development to the academic requirements of the thesis. This was especially reflected in the supervisor meetings from 26.01.2026, 16.02.2026, 23.03.2026, 13.04.2026 and 23.04.2026, see Appendix~\ref{app:meeting-notes}.
+Throughout the project, feedback from both the supervisor and Safe Media AI helped shape the direction, scope, and priorities of the work. Selected meetings that influenced the development process are summarized in Table~\ref{tab:meeting-impact}, while the full selected meeting notes are included in Appendix~\ref{app:meeting-notes}. The feedback was important not only for deciding which features to develop, but also for determining which ideas should remain outside the final scope. This helped the group prioritize relevant tasks, avoid unnecessary expansion of the system, and connect the technical development to both practical needs and academic expectations.
 
-Safe Media AI AS influenced the more practical and product-oriented direction of the project. Their feedback affected system requirements, features, integration boundaries and the expected performance of the functionality which was being delivered. Early meetings clarified that the project focused on visual media with focus on image-based redaction, and options for video could be considered as the project progressed. It also became clear that PDF handling would remain part of Safe Media AI AS’s existing system. Later discussions introduced feature ideas like manual editing of detection boxes, OCR models, filtering options, redaction modes and performance benchmarking, as well as guidance on how the solution should be made to connect to Safe Medias existing workflow through API calls and a similar frontend. Safe Media also encouraged the group to explore external contact and practical use cases, since understanding the market and how redaction is needed was relevant for the final solution and part of the projects scope. This made the development process structured and more grounded, since many of the decisions were not only based on assumptions in the group, but were constantly adjusted to practical expectations. These topics were especially discussed in meetings with Safe Media AI AS on 15.01.2026, 22.01.2026, 12.02.2026, 19.02.2026, 05.03.2026 and 18.03.2026, see Appendix~\ref{app:meeting-notes}.
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\setlength{\LTpre}{0.4em}
+\setlength{\LTpost}{0.4em}
 
-External feedback also played a role for the project in its later stages. This is in relation to usability and practical refinement. The meeting with Skan-Kontroll gave the group insight into practical redaction and how it was handled by potential users. Relevant functionality for a real workflow, such as metadata handling, different levels of segmentation, more redaction options and video relevance was discussed. In addition, UX guidance from Thomas Berg Fjellestad contributed feedback on interface clarity and the projects general workflow design. The external feedback was mainly gathered through the Skan-Kontroll meeting on 12.03.2026 and the UX guidance meeting on 17.03.2026, see Appendix~\ref{app:meeting-notes}. The structured user testing itself is discussed separately in Section~\ref{sec:user-testing}.
-
-\begin{figure}[H]
-\centering
-\resizebox{\textwidth}{!}{%
-\begin{tikzpicture}[
-    stakeholder/.style={
-        draw,
-        rounded corners=3pt,
-        fill=green!10,
-        align=left,
-        text width=4.0cm,
-        minimum height=2.3cm,
-        font=\small
-    },
-    centerbox/.style={
-        draw,
-        rounded corners=3pt,
-        fill=blue!12,
-        align=left,
-        text width=4.2cm,
-        minimum height=2.8cm,
-        font=\small
-    },
-    outcome/.style={
-        draw,
-        rounded corners=3pt,
-        fill=orange!12,
-        align=left,
-        text width=4.6cm,
-        minimum height=3.2cm,
-        font=\small
-    },
-    arrow/.style={-{Latex[length=2.2mm]}, thick}
-]
-
-\node[stakeholder] (supervisor) at (0,3.2) {\textbf{Supervisor}\\
--- academic scope\\
--- report structure\\
--- evaluation strategy\\
--- prioritization};
-
-\node[stakeholder] (commissioner) at (0,0) {\textbf{Safe Media AI AS}\\
--- product direction\\
--- workflow integration\\
--- performance expectations\\
--- feature priorities};
-
-\node[stakeholder] (external) at (0,-3.2) {\textbf{External feedback}\\
--- Skan-Kontroll\\
--- UX guidance\\
--- practical workflow needs\\
--- usability refinement};
-
-\node[centerbox] (decisions) at (7.0,0) {\textbf{Project decisions}\\
--- image-first workflow\\
--- manual editing support\\
--- OCR and text detection\\
--- filters and redaction modes\\
--- PDF outside core scope\\
--- video treated as secondary};
-
-\node[outcome] (implementation) at (14.3,0) {\textbf{Result in development process}\\
--- refined scope\\
--- revised priorities\\
--- feature additions and removals\\
--- clearer user workflow\\
--- more focused final deliverables};
-
-\draw[arrow] (supervisor.east) -- (decisions.west);
-\draw[arrow] (commissioner.east) -- (decisions.west);
-\draw[arrow] (external.east) -- (decisions.west);
-\draw[arrow] (decisions.east) -- (implementation.west);
-
-% feedback loop
-\draw[arrow, dashed] (implementation.north) |- ++(0,2.0) -| (supervisor.east);
-
-\end{tikzpicture}%
+\begin{xltabular}{\textwidth}{
+    >{\raggedright\arraybackslash}p{2.7cm}
+    >{\raggedright\arraybackslash}X
 }
-\caption{Feedback loop showing how supervisor input, commissioner feedback and external feedback influenced project scope, priorities and implementation decisions.}
-\label{fig:stakeholder-feedback-loop}
-\end{figure}
+\caption{Condensed overview of selected project meetings and their influence on project decisions.}
+\label{tab:meeting-impact}\\
 
-\begin{table}[H]
-\centering
-\small
-\renewcommand{\arraystretch}{1.2}
-\caption{Selected meetings and their influence on project decisions.}
-\label{tab:meeting-impact}
-\begin{tabularx}{\textwidth}{p{1.8cm} p{2.8cm} p{4.2cm} X}
 \toprule
-\textbf{Date} & \textbf{Meeting type} & \textbf{Main topic} & \textbf{Project impact} \\
+\textbf{Date and type} & \textbf{Main outcome and project impact} \\
 \midrule
-08.01.2026 & Internal group meeting & Project setup, roles, routines and tools & Established project structure, internal work rhythm and documentation practices. \\
+\endfirsthead
 
-15.01.2026 & Startup meeting with commissioner & Assignment clarification, technical direction and redaction concepts & Confirmed image redaction as the main direction and clarified frontend/backend technology choices. \\
+\toprule
+\textbf{Date and type} & \textbf{Main outcome and project impact} \\
+\midrule
+\endhead
 
-22.01.2026 & Meeting with commissioner & Integration boundary and workflow expectations & Narrowed the core scope toward image redaction instead of full PDF handling, and emphasized manual user control. \\
+\midrule
+\multicolumn{2}{r}{\footnotesize Continued on next page} \\
+\endfoot
 
-26.01.2026 & Supervisor meeting & Project plan feedback and prototyping strategy & Encouraged academic justification of choices and supported an early exploratory prototype approach. \\
-
-12.02.2026 & Meeting with commissioner & MVP, PDF handling, OCR, performance and deployment & Confirmed that PDF logic would remain outside the core solution and strengthened the focus on image-based processing and OCR. \\
-
-16.02.2026 & Supervisor meeting & PDF dilemma, performance and report direction & Supported moving PDF handling into limitations and encouraged deeper technical evaluation of speed, privacy and model quality. \\
-
-19.02.2026 & Meeting with commissioner & Feature priorities and workflow improvements & Influenced filter options, manual marking, response structure and ideas for benchmarking and user testing. \\
-
-05.03.2026 & Meeting with commissioner & Video, advanced options and external feedback & Reinforced video as relevant but secondary, and motivated external contact for practical feedback. \\
-
-12.03.2026 & External feedback meeting with Skan-Kontroll & Practical redaction workflow and user needs & Raised metadata concerns, face/head distinctions and usability improvements related to filters and redaction options. \\
-
-17.03.2026 & UX and user-testing guidance & Interface clarity and testing design & Influenced terminology, workflow ordering, visual hierarchy and clarity of manual editing features. \\
 \bottomrule
-\end{tabularx}
-\end{table}
+\endlastfoot
+
+\meetingcell{08.01.2026}{Internal group meeting}{app:meeting-2026-01-08}
+& Established the initial project structure, including administrative setup, role distribution, Scrum routines, work logging, GitLab issues, Overleaf documentation and the need for a group contract. \\
+
+\meetingcell{09.01.2026}{Internal group meeting}{app:meeting-2026-01-09}
+& The group decided to pursue the Safe Media AI AS assignment as the preferred project direction, contacted the commissioner and prioritized completing enough of the project plan to receive early supervisor feedback. \\
+
+\meetingcell{15.01.2026}{Startup meeting with commissioner}{app:meeting-2026-01-15}
+& Clarified the assignment direction with Safe Media AI AS. Image redaction became the main starting point, React or Vue was recommended for the frontend, Python for the backend, and faces and text were identified as early detection priorities. \\
+
+\meetingcell{22.01.2026}{Commissioner meeting}{app:meeting-2026-01-22}
+& Defined the integration boundary more clearly. The group should limit the core system to image-based redaction, while Safe Media AI AS' existing system could handle document-level PDF workflows. Manual user correction was emphasized as a core requirement. \\
+
+\meetingcell{26.01.2026}{Supervisor meeting}{app:meeting-2026-01-26}
+& Received feedback on the project plan and report direction. The supervisor emphasized academic justification of technical choices and recommended using an early throwaway prototype to explore tools before committing to the real MVP. \\
+
+\meetingcell{29.01.2026}{Commissioner meeting}{app:meeting-2026-01-29}
+& Presented early prototype progress and agreed on closer weekly commissioner involvement. The meeting influenced later work on redaction strength, privacy, user trust, possible video tracking and research into \acrshort{gdpr} and \gls{anonymization} practice. \\
+
+\meetingcell{09.02.2026}{Supervisor meeting}{app:meeting-2026-02-09}
+& Clarified the evaluation priorities. The supervisor emphasized testing both correct and incorrect detections, documenting model quality with evidence, checking model licensing and considering privacy risks related to image and video processing. \\
+
+\meetingcell{12.02.2026}{Commissioner meeting}{app:meeting-2026-02-12}
+& Confirmed that full PDF handling should remain outside the core backend because Safe Media AI AS already handled PDF extraction. The meeting reinforced image-based processing, \acrshort{ocr}/text detection, performance expectations, private repositories and early deployment planning. \\
+
+\meetingcell{16.02.2026}{Supervisor meeting}{app:meeting-2026-02-16}
+& Supported moving PDF handling into project limitations and defining image redaction as the main subject of the report. The supervisor encouraged deeper technical evaluation of speed, privacy, model quality, parallel detection and relevant scientific literature. \\
+
+\meetingcell{19.02.2026}{Commissioner meeting}{app:meeting-2026-02-19}
+& Influenced feature priorities for the MVP, including file-format support, improved text detection, filter options, manual marking, adjustable highlight boxes, response structure, benchmarking, user testing and possible ground-truth data collection. \\
+
+\meetingcell{05.03.2026}{Commissioner meeting}{app:meeting-2026-03-05}
+& Explored video, advanced options and practical user needs. Video was considered relevant but secondary, while expert-mode options, interface complexity and real-world redaction workflows were identified as important design considerations. \\
+
+\meetingcell{09.03.2026}{Supervisor meeting}{app:meeting-2026-03-09}
+& Refined the user-test plan. The supervisor advised that the test should support evaluation rather than sales, assess the basic image workflow, use clear tasks and images, and treat video mainly as a proof of concept or future direction. \\
+
+\meetingcell{18.03.2026}{Commissioner meeting}{app:meeting-2026-03-18}
+& Clarified Application Programming Interface (\acrshort{api}) based integration with Safe Media AI AS and the need to consider memory use, processing time and computational requirements. The meeting also narrowed video-related goals and emphasized feasible scope control. \\
+
+\meetingcell{23.03.2026}{Supervisor meeting}{app:meeting-2026-03-23}
+& Helped control the project scope after many explored directions, including JPEG, PNG, PDF, video, metadata and surveys. The supervisor advised defining detection and redaction as the main content of the report, with less central experiments moved to appendices. \\
+
+\meetingcell{13.04.2026}{Supervisor meeting}{app:meeting-2026-04-13}
+& Provided report feedback for the remaining project period. The supervisor emphasized improving the abstract and summary, connecting theory more directly to the project, strengthening GDPR and sensitive-information discussion, and explaining development-process choices rather than only listing chronology. \\
+
+\meetingcell{22.04.2026}{Guidance for user testing and UI design}{app:meeting-2026-04-22}
+& Provided feedback on user communication during processing, video settings, report framing, benchmarking and interface terminology. The meeting also clarified that \gls{inpainting} should be presented as part of the explored and implemented functionality if the achieved results were usable. \\
+
+\meetingcell{23.04.2026}{Supervisor meeting}{app:meeting-2026-04-23}
+& Set the final phase priorities as report quality, testing, figures and security. The supervisor recommended improving readability, clearly discussing figures, showing implementation progress, documenting implemented security measures and avoiding unnecessary new functionality near the deadline. \\
+
+\end{xltabular}
+
+\vspace{0.3em}
+\noindent\footnotesize\textit{Note.} This table presents a summary of selected meeting notes. The meeting content was summarized with artificial intelligence and reviewed by the project group.
+
+\endgroup
+
+The supervisor contributed mainly through guidance on group structure, prioritization, documentation, and report writing. This became especially important after the group had developed a working version of the system and began considering possible extensions. Through these discussions, the group was encouraged to document added functionality properly rather than trying to include every explored idea in the final product. Several meetings were also used to review report chapters and clarify what belonged in the main thesis.
+
+Safe Media AI contributed mainly to the practical and product-oriented direction of the project. Their feedback helped clarify the project scope, feature priorities, integration boundaries, and expectations for the delivered prototype. This ensured that the development process was connected to practical needs rather than only the group’s own assumptions. 
+
 
 \section{Project Timeline and Milestone Development}
 \label{sec:project-timeline-milestones}
 
-The project began with a kickoff and establishment phase where the group organized roles, completed the project plan, and clarified the initial scope of the assignment together with Safe Media AI AS and the supervisor. The original direction of the group’s project changed early during this period, and after securing the new assignment with Safe Media AI AS, scope clarification and research became the sole focus. The team discussed what the solution should focus on, what sensitive information meant in visual media, and what technical and practical boundaries needed to be defined from the start. This early phase is documented in the project plan and in the selected meeting notes from 08.01.2026, 09.01.2026, 15.01.2026 and 22.01.2026, see Appendix~\ref{app:project-plan} and Appendix~\ref{app:meeting-notes}.
-
-After the initial clarification and planning phase, the group moved into a stage of experimentation, early prototyping and more research. During this phase the group investigated relevant literature, explored models and datasets, and tested different technical directions which could be implemented in the final functionality. The purpose was to identify workable technologies which would lead to the group’s MVP, while also discussing possible future implementations. The group also used an experimental prototype approach in this phase, where early frontend and backend work could be tested and replaced if it did not support the final direction. After the development of a stable MVP, the project direction became clearer, and more functionalities could be implemented further. This phase was especially shaped by the meetings from 26.01.2026, 29.01.2026 and 09.02.2026, see Appendix~\ref{app:meeting-notes}.
-
-Once the MVP had created a more stable foundation, the project entered a feature implementation and testing phase. The focus moved from exploring directions to adding functionality which built on what was already created. This included work on image-based detection and redaction, manual editing of detection boxes, OCR and text detection, filtering options, more redaction modes, deployment and performance benchmarking. Possible extensions were also investigated, such as QR/barcode detection, broader redaction categories and video. User testing and external feedback became important to the group’s development on both frontend and backend during this period. The group needed to evaluate whether the implementations made sense both from a technical perspective and in practical user workflows. This development phase is reflected in the meetings from 12.02.2026, 16.02.2026, 19.02.2026, 05.03.2026 and 09.03.2026, see Appendix~\ref{app:meeting-notes}. A Jira board snapshot from Week 11 also shows how feature development, testing and refinement were organized during this period, as shown in Figure~\ref{fig:jira-week11}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{figures/images/chapter-4/jira_week11.jpg}
-    \caption{Jira board snapshot from Week 11, showing active work related to feature development, testing and refinement.}
-    \label{fig:jira-week11}
-\end{figure}
-
-In the later stages of the project, the focus began with additional feature implementations and shifted towards refinement and final scope decisions. Feedback from the group’s user evaluation and external input, together with repeated discussions with the supervisor and Safe Media AI AS, made it necessary to narrow the project toward the most achievable and relevant deliverables. Several directions had been explored, including PDF handling, metadata, video, benchmarking, QR/barcode detection and interface refinement. For the program, this meant giving priority to the image-based workflow, which was the key functionality, while broader video support was treated as practically useful, but secondary and outside the final core scope. This final phase also made report writing, testing, documentation and appendix material more important, since not every explored idea could be included as main functionality in the delivered solution. This refinement and scope-narrowing phase was especially discussed in the meetings from 18.03.2026, 23.03.2026, 13.04.2026 and 23.04.2026, see Appendix~\ref{app:meeting-notes}. A later Jira board snapshot from Week 13 shows how the work shifted toward final refinement, documentation and prioritization, as shown in Figure~\ref{fig:jira-week13}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{figures/images/chapter-4/jira_week13.jpg}
-    \caption{Jira board snapshot from Week 13, showing work related to final refinement, documentation and prioritization.}
-    \label{fig:jira-week13}
-\end{figure}
-
-\section{Tools and Working Practices}
-\label{sec:tools-and-working-practices}
-
-The development process was supported by different tools for communication, coordination and documentation. Internal communication took place through Discord and physical meetings, while Teams was used in several meetings with Safe Media AI AS. Overleaf was used for report writing, while Word and Excel were also used for support documents such as meeting material and hour logging. The use of these tools made it possible for the group to work on the project while keeping documentation connected to the development process, see Appendix~\ref{app:project-plan}.
-
-Jira was used for project management. The group used an issue board in Jira to divide tasks and responsibilities, which supported the Scrumban process. It gave the group visibility over what was planned, what was in progress, and what needed testing. GitHub was used for version control of code, allowing the group to work together while implementing separate changes to frontend, backend and infrastructure work. The Jira workflow is also reflected in the board snapshots shown in Figure~\ref{fig:jira-week11} and Figure~\ref{fig:jira-week13}.
-
-The main development environment was VS Code, and the coding was done with React for the frontend and Python for backend and model integration. Google Cloud, Docker and GitHub Actions were used for deployment of the program and for infrastructure. Postman was also used for API testing. Other supporting tools such as draw.io and ChatGPT were used for diagrams and quality checking of code and text. Together, these tools helped create a practical workflow where planning, testing and report writing could progress in parallel, see Appendix~\ref{app:project-plan} and Appendix~\ref{app:meeting-notes}.
+Figure~\ref{fig:project-timeline} summarizes the main phases of the project from January to May. The timeline is divided into five phases, showing how the work developed from assignment clarification and early exploration to implementation, user feedback, scope narrowing, and final documentation.
 
 \begin{figure}[H]
 \centering
@@ -327,7 +260,7 @@ The main development environment was VS Code, and the coding was done with React
         draw,
         rounded corners=2pt,
         align=left,
-        minimum height=0.8cm,
+        minimum height=0.9cm,
         font=\small
     }
 ]
@@ -335,31 +268,29 @@ The main development environment was VS Code, and the coding was done with React
 % Main timeline
 \draw[thick] (0,0) -- (15,0);
 
-% Month ticks
+% Month ticks and labels
 \foreach \x/\m in {0/Jan.,3/Feb.,6/Mar.,9/Apr.,12/May}
 {
-    \draw[thick] (\x,0.2) -- (\x,-0.2);
-    \node[font=\small\bfseries] at (\x,-0.6) {\m};
+    \draw[thick] (\x,0.18) -- (\x,-0.18);
+    \node[font=\small\bfseries] at (\x,-0.55) {\m};
 }
+\draw[thick] (15,0.18) -- (15,-0.18);
 
-% Final tick
-\draw[thick] (15,0.2) -- (15,-0.2);
+% Phase boxes below the timeline
+\node[phase, fill=blue!15, anchor=west, minimum width=3.2cm] at (0.2,-1.4)
+{\textbf{A.} Kickoff, assignment change\\and scope clarification};
 
-% Phase bars
-\node[phase, fill=blue!15, anchor=west, minimum width=3.0cm] at (0,1.5)
-{Kickoff, assignment change\\and scope clarification};
+\node[phase, fill=green!15, anchor=west, minimum width=4.8cm] at (1.0,-2.5)
+{\textbf{B.} Research, literature review,\\prototyping and MVP exploration};
 
-\node[phase, fill=green!15, anchor=west, minimum width=4.8cm] at (1.2,0.4)
-{Research, literature review,\\prototyping and MVP exploration};
+\node[phase, fill=orange!15, anchor=west, minimum width=5.2cm] at (4.0,-3.6)
+{\textbf{C.} Feature implementation, \acrshort{ocr},\\manual editing, filters and testing};
 
-\node[phase, fill=orange!15, anchor=west, minimum width=5.0cm] at (4.0,-0.8)
-{Feature implementation, OCR,\\manual editing, filters and testing};
+\node[phase, fill=purple!15, anchor=west, minimum width=4.5cm] at (6.6,-4.7)
+{\textbf{D.} External feedback, user testing\\and practical refinement};
 
-\node[phase, fill=purple!15, anchor=west, minimum width=4.3cm] at (6.7,-2.0)
-{External feedback, user testing\\and practical refinement};
-
-\node[phase, fill=red!15, anchor=west, minimum width=5.0cm] at (8.5,-3.2)
-{Scope narrowing, final refinement,\\report writing and documentation};
+\node[phase, fill=red!15, anchor=west, minimum width=5.2cm] at (8.4,-5.8)
+{\textbf{E.} Scope narrowing, final refinement,\\report writing and documentation};
 
 \end{tikzpicture}%
 }
@@ -367,16 +298,79 @@ The main development environment was VS Code, and the coding was done with React
 \label{fig:project-timeline}
 \end{figure}
 
+The first phase consisted of kickoff, assignment change, and scope clarification. The project began with a transition period involving a change in assignment, role organization, and initial planning with the supervisor. During the first weeks, the group briefly collaborated with a different external client, but the cooperation was discontinued at an early stage. After securing the new assignment with Safe Media AI, the group prioritized scope clarification and early research. The team discussed what the solution should address, how sensitive information should be understood in visual media, and which technical and practical boundaries needed to be defined from the start. This transition is documented in the project plan in Appendix~\ref{app:project-plan}.
+
+The second phase focused on research, literature review, prototyping, and MVP exploration. During this stage, the group investigated relevant models, datasets, and technical approaches that could support the final solution. Early frontend and backend prototypes were tested to explore possible implementation directions. The goal of this phase was to identify a workable technical foundation and establish an MVP that could guide further development.
+
+The third phase centered on feature implementation and technical expansion. After the MVP had established a more stable foundation, the work shifted from exploration to building functionality on top of the existing system. This included image-based detection and redaction, \acrshort{ocr} and text processing, manual editing of \gls{bounding box}es, filtering options, redaction modes, deployment work, and testing. During this phase, the system evolved from an early prototype into a more complete and usable application.
+
+The fourth phase emphasized external feedback and user testing. A meeting with Skan-Kontroll gave the group insight into how redaction could be relevant in practical workflows, while UX guidance from Thomas Berg Fjellestad contributed feedback on interface clarity and workflow design. Together with the group’s own testing, this phase helped evaluate usability and practical relevance. The structured user testing itself is discussed separately in Section~\ref{sec:user-testing}.
+
+The final phase consisted of scope narrowing, final refinement, report writing, and documentation. Several possible directions had been explored during development, including video support, benchmarking, QR and barcode detection, metadata-related handling, and interface refinement. At this stage, the group prioritized the most achievable and relevant deliverables, with the image based workflow remaining the core functionality of the system.
+
+\section{Tools and Working Practices}
+\label{sec:tools-and-working-practices}
+
+The project was supported by a set of tools for communication, planning, documentation, and practical collaboration. These tools helped structure the development process and supported both the technical work and the written thesis. Rather than being part of the system itself, they were used to coordinate tasks, document progress, and support the group’s daily workflow.
+
+\begin{table}[H]
+\centering
+\caption{Main tools used to support project work}
+\label{tab:project_tools}
+\begin{tabular}{p{3.2cm} p{10.2cm}}
+\toprule
+\textbf{Tool} & \textbf{Purpose in the project} \\
+\midrule
+Jira & Planning, task distribution, and issue tracking \\
+
+GitHub & Version control and collaborative code management \\
+
+Figma & Creation of low-fidelity wireframes for early interface design \\
+
+Excel & Hour logging and short weekly summaries of completed work \\
+
+Discord & Internal communication within the group \\
+
+draw.io & Creation of diagrams and figures \\
+
+LaTeX / Overleaf & Thesis writing and report formatting \\
+
+Word & Supporting documentation and meeting material \\
+
+VS Code & Shared development environment for implementation work \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Jira was used for planning and issue tracking, which supported the Scrumban-based work process. GitHub was used for version control and collaborative code management, while VS Code was the shared development environment used by the group. Discord and physical meetings were used for internal communication, and Teams was used in several meetings with Safe Media AI AS.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/images/chapter-3/timeliste.png}
+    \caption{Example from the project hour list, showing work distribution during week 9.}
+    \label{fig:project_hour_list_example}
+\end{figure}
+
+Documentation and reporting were supported through LaTeX in Overleaf, together with Word and Excel (Figure~\ref{fig:project_hour_list_example}) for supplementary project material such as meeting notes and hour logging, further detailed spreadsheet for the hour list is in Appendix~\ref{app:project-hour-tracking}. In addition, Figma was used to sketch low-fidelity wireframes, and draw.io was used to create diagrams and figures. A summary of the main tools used in the project is provided in Table~\ref{tab:project_tools}.
+
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.3\linewidth]{figures/images/chapter-3/commit_merge_timeline.png}%
+    }
+    \caption{GitHub commit activity during the project period, showing how implementation work was distributed over time.}
+    \label{fig:github_commit_timeline}
+\end{figure}
+
+The GitHub commit history provides an overview of the actual implementation activity during the project. Figure~\ref{fig:github_commit_timeline} shows how development work was distributed over time, including periods of higher implementation intensity and later refinement. The timeline supports the project history described in this chapter by showing that development was carried out continuously rather than being concentrated only near the end of the project.
+
 \section{Artificial Intelligence as a Development Tool}
 \label{sec:ai-development-tool}
 
-Artificial intelligence tools were used during the project as supporting tools in development, documentation, research, and writing. The group also used the project as an opportunity to explore how AI tools could support work on a larger software project. The tools were not used as independent decision makers, but as aids for generating suggestions, identifying possible solutions, and improving efficiency in repetitive or time consuming tasks.
+Artificial intelligence was used as a supporting tool throughout the project, but not as an independent decision maker. Its role was to provide suggestions, help clarify problems, and reduce time spent on repetitive or clearly defined tasks. All outputs that affected the system, report, or technical decisions were reviewed, tested, and adapted by the group before being included.
 
-In the development process, AI tools were used to support programming tasks such as reviewing code, explaining errors, suggesting alternative implementations, and helping debug issues. When AI-generated code suggestions were used, they were reviewed, tested, and adapted before being integrated into the project. AI was also used to help write or improve code documentation, making parts of the implementation easier to understand and maintain.
+In development work, the support mainly involved code review, error explanation, alternative implementation suggestions, and smaller debugging tasks. Generated code was not copied directly into the system without evaluation since the suggestions often had to be adjusted to fit the existing architecture and implementation choices. The tools also contributed to code documentation by helping formulate explanations of selected implementation details.
 
-AI tools were also used during technical research and problem solving. For example, they were used to explore existing approaches, compare possible solutions to implementation challenges, and suggest relevant technologies or methods. This was particularly useful when the group needed to evaluate different ways of solving the same problem before deciding on an implementation direction.
+For technical research and problem solving, AI helped compare possible approaches and identify relevant technologies or methods. This was useful when the group needed an initial overview of different implementation alternatives before evaluating them more critically. In the \acrshort{ml} part of the project, synthetic text examples were generated for the text classification pipeline, including examples of sensitive and non-sensitive text entities. These examples were treated as supporting material and reviewed before use.
 
-In addition, AI was used to support the machine learning part of the project. One example was the generation of synthetic text data for the text classification pipeline, which helped create examples of sensitive and non-sensitive text entities for model development. The generated data was treated as supporting material and was reviewed before being used.
-
-The writing and documentation process also made use of AI tools. This included spelling correction, reformulation of text, improving clarity, and resolving LaTeX or Overleaf compiler errors. These tools helped improve the readability and structure of the report, while the final content, technical explanations, and project decisions remained the responsibility of the group.
-
+In the report work, AI contributed to spelling correction, sentence reformulation, clarification of technical explanations, and troubleshooting of LaTeX or Overleaf compiler errors. The final wording, technical content, and project decisions remained the responsibility of the group, and the suggestions were adjusted to match the actual implementation and writing style of the thesis.

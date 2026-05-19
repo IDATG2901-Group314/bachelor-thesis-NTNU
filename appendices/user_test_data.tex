@@ -1,14 +1,10 @@
 \chapter{User Test Feedback Data}
 \label{appendix:user_test_feedback}
 
-This appendix summarizes the user-test feedback used in the evaluation of
-SafeVision. Instead of presenting each individual test form in full, the
-feedback was grouped into recurring themes. The tables show which features or
-interaction areas were commented on, the main feedback given by participants,
-and how the feedback influenced the system evaluation and design decisions.
+This appendix summarizes the user-test feedback used in the evaluation of SafeVision. Instead of presenting each individual test form in full, the feedback was grouped into recurring themes. The tables show which features or interaction areas were commented on, the main feedback given by participants, and how the feedback influenced the system evaluation and design decisions. When it comes to Skan-Kontroll these user tests counts as multiple combined to one response.
 
 \section{First User Testing Phase}
-\label{appendix:user_test_phase_1}
+\label{app:user_test_phase_1}
 
 The first user testing phase focused on the early version of the system. The
 main purpose was to identify major usability issues related to workflow
@@ -129,10 +125,10 @@ boxes, copying boxes, or drawing custom redaction areas.
 feedback and support more flexible interactions for editing, deleting, and
 adjusting redaction regions.
 
-\subsection*{Overlapping detection boxes}
+\subsection*{Overlapping bounding boxes}
 
 Some users found it difficult to delete or adjust a box when it overlapped with
-another detection box. In particular, it was unclear which box was selected or
+another bounding box. In particular, it was unclear which box was selected or
 which box would be affected by the next action.
 
 \textbf{Participants:} ID014, Reell 001.
@@ -189,7 +185,7 @@ removed, or selectively handled.
 \textbf{Design implication:} Metadata handling should be made transparent and
 treated as part of the privacy-preserving workflow.
 
-\subsection*{Download behaviour}
+\subsection*{Download behavior}
 
 One participant suggested that downloaded files should automatically receive a
 modified filename, for example by adding ``Anonymisert'' or ``Redacted'' to the
@@ -235,3 +231,18 @@ and workflow clarity.
 \textbf{Design implication:} The system was perceived as practically useful, but
 manual user control should remain central so that users can handle edge cases
 and correct detection errors.
+
+\subsection*{Final real user test with Skan-Kontroll}
+\label{appsec:finale_real_test}
+
+The final real user test with Skan-Kontroll provided feedback from a realistic professional use context. Overall, the feedback was highly positive. The system was described as impressive, intuitive, easy to navigate, and visually clean. The participants also stated that the solution could have been useful in their daily work if they had access to it after the project.
+
+Several practical improvement areas were also identified. The participants noted that the patch notes were useful, but that their location or purpose in the interface was not fully clear. They also suggested that a simple FAQ or help page could support first-time users. Although the workflow was generally considered intuitive, some terminology was still seen as challenging. In particular, the word ``Redact'' was considered unfamiliar, and optional Norwegian language support was suggested as a possible improvement.
+
+Processing feedback was another important issue. The participants observed that the system could take time when many filters were selected, and that the progress bar sometimes remained at 92\% for a long period. This made it appear as if the system had stopped, even when processing was still ongoing. They also noted that redaction did not provide the same level of progress feedback, and suggested that a clearer progress indicator or estimated completion time could reduce user uncertainty during longer tasks.
+
+The participants also responded positively to the inclusion of video support. They considered video redaction to have strong commercial potential for future development, especially for organizations that handle larger amounts of visual material.
+
+\textbf{Participants:} Skan-Kontroll.
+
+\textbf{Design implication:} The feedback confirms that SafeVision has practical value in a professional setting, but also shows that future versions should improve user guidance, terminology, language support, and progress feedback. Video support should also remain an important direction for further development.

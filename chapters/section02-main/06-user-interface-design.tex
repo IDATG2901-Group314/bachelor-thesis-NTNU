@@ -1,48 +1,13 @@
-\chapter{User Interface and Usability}
+\chapter{\acrshort{ui} and Usability}
 \label{user_interface_and_usability}
 
-This chapter presents the design and development of the SafeVision user interface. The interface was designed to support a human-in-the-loop workflow, where machine learning-based detection is combined with manual user verification and adjustment. Since the system is intended to extend Safe Media AI's existing redaction capabilities to visual media, the design also considered familiarity with the existing Safe Media AI interface in order to reduce the learning curve for users already accustomed to that platform. The chapter focuses on how the interface supports efficient interaction with detection results, provides clear visual feedback, and allows users to inspect, refine, and control automated outputs before redaction is applied.
-
-\section{Design Methodology and Principles}
-
-The development of the user interface followed an iterative design process, where layout, interaction patterns, and workflow structure were gradually refined throughout the project. Instead of defining the complete interface at the beginning, design decisions were adjusted as functionality evolved and new usability needs were identified. Iterative design is widely recommended in user interface development because it allows teams to evaluate design decisions and improve solutions based on testing and practical experience \cite{hartson2012ux}. This approach allowed the design to evolve alongside the technical implementation while maintaining focus on usability and user control.
-
-\methodheading{Iterative and Agile Design Process}
-
-The project followed an agile development approach where design and implementation were carried out in parallel. As new features were introduced, the interface was continuously adjusted to support the expanding functionality of the system. This was important because SafeVision evolved from a basic image redaction prototype into a more complete tool supporting image and video workflows, detection configuration, manual refinement, and multiple redaction methods.
-
-This approach aligns with Agile UX practices, where interface decisions are refined through incremental improvements rather than finalized early in development \cite{gothelf2022leanux}. Agile frameworks such as Scrum also emphasize iterative cycles that allow continuous refinement of both technical solutions and interface design \cite{schwaber2020scrum}.
-
-The design process began with wireframes created in Figma to explore layout and interaction flows before implementation. Wireframing allows designers to quickly test ideas before committing to development \cite{hartson2012ux}. These wireframes were used to define the main workflow, including uploading files, running detection, reviewing detection results, and applying redaction.
-
-A functional prototype was then implemented to evaluate interaction patterns and identify usability issues in a practical environment. After the prototype stage, the design was refined into a minimum viable product (MVP), where core system functionality was integrated into the interface. The interface was also influenced by Safe Media AI's existing system, allowing users familiar with that platform to encounter recognizable layout structures and interaction patterns. This helped support consistency and reduced the learning curve for potential users.
-
-\methodheading{Core Design Principles}
-
-Several design principles guided the development of the interface: simplicity, user control, visual feedback, and consistency. These principles were selected because SafeVision combines automated machine learning output with manual user verification, making it important that the interface remains understandable, predictable, and easy to control.
-
-Simplicity was prioritized to reduce cognitive load and allow users to focus on identifying and redacting sensitive information \cite{norman2013design}. The interface therefore emphasizes essential functionality while avoiding unnecessary complexity. This was especially important because users must inspect visual content carefully and should not be distracted by unrelated interface elements.
-
-User control over automated processes was also central. Since detection is performed by machine learning models, users must be able to verify, adjust, and override automated results when necessary \cite{hartson2012ux}. The interface supports this through manual highlighting, adjustment of detection settings, removal of incorrect detections, and customization of redaction methods.
-
-Visual feedback was prioritized to help users understand system state and detection outcomes \cite{norman2013design}. Detection results are displayed directly on the media using labelled bounding boxes, enabling immediate interpretation of what the system has identified. Progress indicators and visible processing states further help users understand when the system is working.
-
-Consistency across components improves usability and learnability \cite{nielsen2020progressive}. Toolbars, panels, and controls follow predictable patterns, making the interface easier to navigate. In addition, alignment with familiar structures from Safe Media AI's existing system supports recognition for users already accustomed to that platform, while still allowing SafeVision to introduce functionality specific to visual media redaction.
+The final \gls{SafeVision} \acrshort{ui} is presented in this Chapter, with emphasis on how it supports the hybrid redaction workflow. The interface was developed to remain consistent with Safe Media AI's existing platform while adapting the workflow to visual media. Further discussion of the UI theory, design principles, and interface evolution is provided in Appendix~\ref{app:depth_ui_ux}.
 
 \section{Interface Design and Components}
 
-The final SafeVision interface is the result of the design process described earlier in this chapter and documented in greater detail in Appendix~\ref{app:depth_ui_ux}. This section focuses on the final interface structure and how its components support the redaction workflow. The design applies the principles of simplicity, user control, visual feedback, and consistency by keeping upload, identification, verification, manual adjustment, and redaction within one main workspace.
+As shown in Figure~\ref{fig:ui_final_examples} (a), the interface starts in an intentionally minimal state. Before files are uploaded, users are presented with a clear upload action and an empty file panel. By avoiding unnecessary controls before they become relevant, the design supports simplicity. Once files are uploaded, the interface expands into the full editing workspace shown in Figure~\ref{fig:ui_final_examples} (b).
 
-The initial state of the interface is intentionally minimal, as shown in Figure~\ref{fig:final_empty_state}. Before files are uploaded, the user is presented with a clear upload action and an empty file panel. This supports simplicity by avoiding unnecessary controls before they become relevant. Once files are uploaded, the interface expands into the full editing workspace with a file panel, toolbar, central media viewer, and configuration panels.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/images/chapter-6/uislutt01.png}
-\caption{Final interface in its initial state before files are uploaded.}
-\label{fig:final_empty_state}
-\end{figure}
-
-The left file panel provides an overview of uploaded images and videos. Each file item displays relevant information such as file name, file type, file size, selection state, and deletion control. During longer operations, each file can also display an individual progress indicator, as shown in Figure~\ref{fig:file_progress}. This design choice was introduced to improve visual feedback and system state awareness. Since SafeVision may process several files, users need to understand which file is selected, which task is running, and how far the processing has progressed. This directly supports the principle of visual feedback discussed earlier and helps reduce uncertainty during identification and redaction.
+On the left side, the file panel gives users an overview of uploaded images and videos. Each file item displays basic information such as file name and file type. During longer operations, individual progress indicators can also be shown for each file, as illustrated in Figure~\ref{fig:file_progress}. Providing this feedback improves system state awareness, especially when \gls{SafeVision} processes several files and users need to understand which file is selected, which task is running, and how far the operation has progressed.
 
 \begin{figure}[H]
 \centering
@@ -51,27 +16,42 @@ The left file panel provides an overview of uploaded images and videos. Each fil
 \label{fig:file_progress}
 \end{figure}
 
-The central workspace is the main interaction area of the application. Uploaded images and videos are displayed in the middle of the screen, keeping the user's focus on the visual content being processed. This supports the goal of reducing cognitive load, as users can inspect detection results directly on the media rather than comparing separate lists or external outputs. When identification is completed, detected regions are displayed as labelled bounding boxes directly on top of the image or video frame, as shown in Figures~\ref{fig:image_detection_results} and~\ref{fig:video_detection_results}. This is essential for the human-in-the-loop workflow, since users must be able to verify automated results before redaction is applied.
+At the center of the interface, the workspace functions as the main interaction area. Uploaded images and videos are displayed in the middle of the screen so users can inspect the visual content being processed without switching between separate views. By showing detection results directly on the media, the interface reduces the need to compare separate lists or external outputs, which helps lower cognitive load. After identification is completed, detected regions appear as labeled \gls{bounding box}es on the image or video frame, as shown in Figures~\ref{fig:ui_final_examples} (c) and~\ref{fig:video_detection_results}. Using overlays and labeled \gls{bounding box}es reflects the principle of visual feedback \cite{norman2013design}. Detection results appear directly where the sensitive content is located, making the system output easier to understand. As a result, users can assess whether the detected regions are correct, remove \gls{false positive}s, or add missing regions manually.
 
+%----------------
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt02.png}
-\caption{Final image workspace with uploaded media displayed in the central viewer.}
-\label{fig:image_workspace}
+    \centering
+
+    \begin{minipage}{\textwidth}
+        \centering
+        \includegraphics[width=0.7\textwidth]{figures/images/chapter-6/uislutt01.png}
+        \par\vspace{2pt} \small (a) Final interface in its initial state before files are uploaded.
+    \end{minipage}
+
+    \vspace{0.0cm}
+
+    \begin{minipage}{\textwidth}
+        \centering
+        \includegraphics[width=0.7\textwidth]{figures/images/chapter-6/uislutt02.png}
+        \par\vspace{2pt} \small (b) Final image workspace with uploaded media displayed in the central viewer.
+    \end{minipage}
+
+    \vspace{0.0cm}
+    
+    \begin{minipage}{\textwidth}
+        \centering
+        \includegraphics[width=0.7\textwidth]{figures/images/chapter-6/uislutt03.png}
+        \par\vspace{2pt} \small (c) Detection results displayed directly on the image using labelled \gls{bounding box}es.
+    \end{minipage}
+
+    \caption{Examples of the finalinterface across different stages of the image workflow, from the initial state to uploaded media and displayed detection results. The image used in the workspace examples is from Guillemot~\cite{guillemot_stadium}}
+    \label{fig:ui_final_examples}
 \end{figure}
+%----------------
+ 
+Primary actions are placed in the top toolbar to reflect the intended workflow. By keeping these controls consistently above the workspace as illustrated in Figure~\ref{fig:ui_final_examples}, the main workflow remains visible and predictable throughout the redaction process. 
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt03.png}
-\caption{Detection results displayed directly on the image using labelled bounding boxes.}
-\label{fig:image_detection_results}
-\end{figure}
-
-The use of overlays and labelled bounding boxes reflects the principle of visual feedback \cite{norman2013design}. Detection results are shown where the sensitive content appears, making the system output immediately understandable. This allows users to quickly assess whether the detected regions are correct, remove false positives, or add missing regions manually. Since machine learning models may produce inaccurate or incomplete detections, the interface does not treat automated results as final. Instead, it supports user control by allowing inspection and correction before redaction is performed \cite{hartson2012ux}.
-
-The top toolbar contains the primary workflow actions, including undo, redo, download, print, identification, redaction, manual highlighting, annotation visibility, zoom controls, and clearing of highlights. These controls are placed consistently above the workspace so that the main workflow remains visible and predictable. During the final design iteration, the earlier label ``AI mission'' was renamed to ``Identify''. This change improved terminology by describing the action from the user's perspective rather than from the system's internal logic. The ordering of the toolbar actions also reflects the intended task sequence: identify sensitive regions, inspect and adjust them, and then apply redaction.
-
-The side panel contains secondary and advanced settings, as shown in Figure~\ref{fig:options_panel_components}. Users can configure redaction mode, segmentation, adaptive scaling, multi-orientation detection, detection filters, scale, and video detection rate. These controls are important for flexibility, but they are not required for every basic workflow. Placing these settings in a dedicated side panel supports progressive disclosure, where advanced functionality remains available without overwhelming the main workspace \cite{nielsen2020progressive}. This balances simplicity for new users with control for more advanced users.
+As shown in Figure~\ref{fig:options_panel_components} (a), secondary and advanced settings are placed in the side panel. Instead of showing every configuration option in the main workspace, settings related to both image and video handling are grouped separately. Advanced functionality therefore remains available without overwhelming the basic workflow, which supports progressive disclosure \cite{nielsen2020progressive}. In practice, this keeps the interface simple for new users while still giving more experienced users additional control when needed. Detection filters allow users to choose which categories should be identified (b). This gives the users flexibility over the hybrid workflow. The same design logic is also applied for video options, Figure~\ref{fig:options_video_rate}. The interface therefore includes components for image visualization, control panels, and editing tools, enabling users to inspect detected regions and apply redaction methods while maintaining clarity and responsiveness, which are central usability principles \cite{usability_nielsen}.
 
 \begin{figure}[H]
 \centering
@@ -101,41 +81,82 @@ The side panel contains secondary and advanced settings, as shown in Figure~\ref
 \label{fig:options_panel_components}
 \end{figure}
 
-Detection filters allow users to control which categories should be identified, such as faces, text, or vehicles. This supports user control over automated processing and helps reduce unnecessary visual clutter. Different images and videos may require different redaction priorities, so allowing users to configure detection categories makes the system more adaptable to specific use cases. This also supports the broader design goal of keeping automated detection helpful without removing user responsibility from the redaction process.
-
-The highlight style panel, shown in Figure~\ref{fig:highlight_styles}, supports customization of how detected and manually marked regions are displayed. Users can adjust label visibility, colors, fill opacity, stroke opacity, stroke width, and category-specific styles. This is especially important because SafeVision may be used on visually complex images or videos where a single highlight style may not always be readable. Customizable highlighting therefore supports both visual feedback and accessibility, especially during detailed inspection tasks.
+Figure~\ref{fig:highlight_styles} (a), the highlight style panel controls how \gls{bounding box}es are displayed. Such customization is important because \gls{SafeVision} may be used on complex images or videos where one default highlight style may not always be readable. Customizable highlighting therefore improves visual feedback and accessibility during detailed inspection tasks.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.45\textwidth]{figures/images/chapter-6/uikomp03.png}
-\caption{Highlight style panel for customizing labels, colors, opacity, and category-specific styles.}
-\label{fig:highlight_styles}
+
+\begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uikomp03.png}
+    \caption{Highlight style panel for customizing labels, colors, opacity, and category-specific styles.}
+    \label{fig:highlight_styles}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uikomp04.png}
+    \caption{User preferences panel with appearance settings, export format, and keyboard shortcuts.}
+    \label{fig:user_preferences}
+\end{subfigure}
+
+\caption{Configuration panels for highlight styling and user preferences.}
+\label{fig:ui_configuration_panels}
 \end{figure}
 
-The user preferences panel provides additional flexibility through appearance settings, export format, and keyboard shortcuts, as shown in Figure~\ref{fig:user_preferences}. Dark and light modes allow the interface to be adapted to different working conditions, while shortcut customization supports faster interaction for experienced users. At the same time, all important actions remain available through visible interface controls, making the system usable for users who do not rely on shortcuts. This supports both accessibility and learnability.
+Additional flexibility is provided through the user preferences panel, shown in Figure~\ref{fig:user_preferences}. Users can adapt the interface to different working conditions and make frequent actions faster through personalized settings. At the same time, important functionality remains available through visible interface controls, so the system does not depend on shortcut use. In this way, the preferences panel supports both accessibility and learnability.
+
+Video support extends the same workspace principles to temporal media. As shown in Figure~\ref{fig:video_workspace}, videos are displayed in the central viewer with playback controls, while the surrounding interface remains consistent with the image workflow. After identification, detected regions can be shown on the video frame, as illustrated in Figure~\ref{fig:video_detection_results}. This consistency helps users transfer knowledge from image redaction to video redaction. At the same time, video introduces additional complexity because detections must be interpreted across frames, making clear visual feedback and playback control especially important.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.45\textwidth]{figures/images/chapter-6/uikomp04.png}
-\caption{User preferences panel with appearance settings, export format, and keyboard shortcuts.}
-\label{fig:user_preferences}
+
+\begin{subfigure}[t]{0.95\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uislutt04.png}
+    \caption{Video workspace showing uploaded video content in the central viewer.}
+    \label{fig:video_workspace}
+\end{subfigure}
+
+\vspace{0.2cm}
+
+\begin{subfigure}[t]{0.95\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-6/uislutt05.png}
+    \caption{Detected vehicle regions displayed on a video frame.}
+    \label{fig:video_detection_results}
+\end{subfigure}
+
+\caption{Examples of the final \gls{SafeVision} video workflow, showing uploaded video content and detected vehicle regions. The video used in the workspace examples is from ~\cite{pexels_highway_video}.}
+\label{fig:video_workflow_examples}
 \end{figure}
 
-Video support extends the same workspace principles to temporal media. As shown in Figure~\ref{fig:video_workspace}, videos are displayed in the central viewer with playback controls, while the surrounding interface remains consistent with the image workflow. After identification, detected regions can be shown on the video frame, as illustrated in Figure~\ref{fig:video_detection_results}. This consistency helps users transfer knowledge from image redaction to video redaction, reducing the learning curve. At the same time, video introduces additional complexity because detections must be interpreted across frames, making clear visual feedback and playback control especially important.
+In the final interface, the design principles described in the previous subsections are applied to the practical needs of \gls{SafeVision}. A single workspace layout keeps the main workflow in one place, while editable detections and configurable settings allow users to stay in control of automated results. Feedback during detection and redaction is provided directly through the interface, and consistent toolbar and panel structures make the workflow more predictable across both image and video processing. Together, these design choices support \gls{SafeVision}'s main goal of combining automated detection with user-guided refinement, so that sensitive visual content can be identified, verified, and redacted in an efficient and controlled workflow.
+
+\section{User Guidance and System Communication}
+\label{sec:user_guidance_system_communication}
+
+In addition to the main redaction workflow, the interface includes supporting elements for user guidance and system communication. A short Terms of Service dialog is shown before users begin processing content. This informs users that automated redaction may be inaccurate or incomplete, and that they remain responsible for reviewing results before sharing or publishing processed media. The full Terms of Service text is included in Appendix~\ref{app:terms_of_service}. This was included to make the limitations of automated redaction clearer and to support the responsible use of the system.
+
+The interface also includes a compact patch notes dialog that summarizes important changes between versions, such as performance improvements, image processing changes, video support, and detection updates. This helps communicate system changes to users without requiring them to inspect technical documentation. The patch notes were kept short and limited on user visible changes, since their purpose is to support transparency rather than provide a detailed development log. Examples of these supporting dialog are shown in Figure~\ref{fig:user_guidance_dialogs}.
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt04.png}
-\caption{Video workspace showing uploaded video content in the central viewer.}
-\label{fig:video_workspace}
+    \centering
+
+    \begin{subfigure}[t]{0.495\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, trim=35 35 35 35, clip]{figures/images/chapter-6/terms1.png}
+        \caption{Terms dialog requiring user confirmation before processing.}
+        \label{fig:terms_required}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.495\textwidth}
+        \centering
+        \includegraphics[width=\textwidth, trim=35 35 35 35, clip]{figures/images/chapter-6/PatchNotesExamples.png}
+        \caption{Patch notes dialog summarizing user-visible system changes.}
+        \label{fig:patch_notes}
+    \end{subfigure}
+
+    \caption{Supporting interface dialog for responsible use and system communication.}
+    \label{fig:user_guidance_dialogs}
 \end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/images/chapter-6/uislutt05.png}
-\caption{Detected vehicle regions displayed on a video frame.}
-\label{fig:video_detection_results}
-\end{figure}
-
-Overall, the final interface applies the design principles described in the previous subsections to the practical needs of SafeVision. Simplicity is reflected in the single workspace layout, user control is supported through editable detections and configurable settings, visual feedback is provided through overlays and progress indicators, and consistency is maintained through predictable toolbar and panel structures. The resulting design supports SafeVision's main goal: combining automated detection with user guided refinement so that sensitive visual content can be identified, verified, and redacted in an efficient and controlled workflow.
-

@@ -1,0 +1,336 @@
+% appendices/pen-test.tex
+
+\chapter{Mathematical Model and Verification Script for Redaction Irreversibility}
+\label{app:redaction_irreversibility}
+
+This appendix documents the mathematical basis and verification script used for the redaction irreversibility evaluation in Section~\ref{sec:irreversibility-verification}. The purpose is to show why destructive pixel replacement is not reversible from the exported file alone, and to document how the pixel-level verification was performed.
+
+\section{Mathematical Model}
+
+A digital image can be represented as an array or matrix of pixel values. Gonzalez and Woods define an image as a two-dimensional function \(f(x,y)\), where \(x\) and \(y\) are spatial coordinates, and the value of the function represents the image intensity at that point~\cite{gonzalez2018digital}. For colour images, each pixel contains several channel values, such as red, green, and blue in the RGB colour model. The image can therefore be modelled as:
+
+\[
+I \in \{0,\ldots,255\}^{H \times W \times C},
+\]
+
+where \(H\) is the image height, \(W\) is the image width, and \(C\) is the number of colour channels. For an RGB image, \(C=3\). Let \(R\) denote the region selected for redaction.
+
+A destructive black box redaction function \(F\) produces an exported image \(J\) such that:
+
+\[
+J(x,y,c) =
+\begin{cases}
+k_c, & \text{if } (x,y) \in R, \\
+I(x,y,c), & \text{if } (x,y) \notin R,
+\end{cases}
+\]
+
+where \(k\) is a constant colour value, for example \(k=(0,0,0)\) for black redaction.
+
+This operation removes the original pixel values inside \(R\). The mathematical reason this cannot be reversed uniquely follows from the standard property of inverse functions: a function must be one-to-one in order to have a unique inverse on its image~\cite{rosen2019discrete}. To illustrate this, consider two different original images \(I_1\) and \(I_2\) that are identical outside \(R\), but different inside \(R\). After black box redaction, both images contain the same constant values inside \(R\), and the same unchanged pixels outside \(R\). Therefore,
+
+\[
+F(I_1,R) = F(I_2,R)
+\]
+
+even though
+
+\[
+I_1 \neq I_2.
+\]
+
+The function is therefore not injective. Since multiple different original images can produce the same exported redacted image, no unique inverse function exists that can reconstruct the original content from the exported file alone~\cite{rosen2019discrete}. This is consistent with redaction guidance from The National Archives, which states that redaction must irreversibly remove the required information from the redacted copy and remove it from the underlying bitstream rather than only from the visible display~\cite{nationalarchives_redaction_toolkit}. The same principle is also reflected in guidance from the Information Commissioner's Office, which describes the purpose of redaction as irreversibly removing exempt information from the redacted copy~\cite{ico_disclose_safely}.
+
+This irreversibility depends on the original pixels being destructively overwritten and not preserved in hidden layers, metadata, embedded previews, caches, or external copies. For this reason, the verification also included a metadata check. This is aligned with guidance on de-identification and safe disclosure, which treats redaction as a removal-based de-identification technique~\cite{nist800188}. The ICO guidance further illustrates that visually hiding information with a black box is not sufficient if the underlying electronic file still contains the original information~\cite{ico_disclose_safely}.
+
+\begin{lstlisting}[language=Python, caption={Pixel-level verification script for exported redaction}, label={lst:redaction-verification-script}]
+from PIL import Image, ExifTags
+import numpy as np
+import json
+import os
+
+
+# ============================================================
+# Configuration
+# ============================================================
+
+ORIGINAL_PATH = "cat-original.jpg"
+REDACTED_PATH = "cat-redacted.png"
+
+# Coordinates returned by the backend in the original image coordinate space.
+REGION_ORIGINAL = {
+    "x1": 823,
+    "y1": 499,
+    "x2": 2562,
+    "y2": 2950,
+}
+
+# Expected colour for black box redaction.
+EXPECTED_COLOR = np.array([0, 0, 0])
+
+# Tolerance used when checking for black or near-black pixels.
+# A small tolerance accounts for scaling, anti-aliasing, or export effects.
+TOLERANCE = 15
+
+# Acceptance criteria for the verification.
+MIN_BLACK_LIKE_PERCENTAGE = 99.0
+MIN_CHANGED_PERCENTAGE = 99.0
+
+MAX_SAMPLE_COLORS = 10
+
+
+# ============================================================
+# Helper functions
+# ============================================================
+
+def load_rgb_image(path: str) -> Image.Image:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"File not found: {path}")
+
+    return Image.open(path).convert("RGB")
+
+
+def get_metadata(path: str) -> dict:
+    image = Image.open(path)
+
+    metadata = {
+        "format": image.format,
+        "mode": image.mode,
+        "size": image.size,
+        "info_keys": list(image.info.keys()),
+    }
+
+    exif_data = image.getexif()
+    exif_readable = {}
+
+    if exif_data:
+        for tag_id, value in exif_data.items():
+            tag = ExifTags.TAGS.get(tag_id, tag_id)
+            exif_readable[str(tag)] = str(value)
+
+    metadata["exif"] = exif_readable
+    return metadata
+
+
+def clamp_region(region: dict, width: int, height: int) -> dict:
+    return {
+        "x1": max(0, min(int(region["x1"]), width - 1)),
+        "y1": max(0, min(int(region["y1"]), height - 1)),
+        "x2": max(0, min(int(region["x2"]), width)),
+        "y2": max(0, min(int(region["y2"]), height)),
+    }
+
+
+def scale_region(region: dict, scale_x: float, scale_y: float) -> dict:
+    return {
+        "x1": round(region["x1"] * scale_x),
+        "y1": round(region["y1"] * scale_y),
+        "x2": round(region["x2"] * scale_x),
+        "y2": round(region["y2"] * scale_y),
+    }
+
+
+def validate_region(region: dict) -> None:
+    if region["x2"] <= region["x1"]:
+        raise ValueError(f"Invalid region: x2 must be greater than x1: {region}")
+
+    if region["y2"] <= region["y1"]:
+        raise ValueError(f"Invalid region: y2 must be greater than y1: {region}")
+
+
+def unique_colors_sample(region_pixels: np.ndarray, max_colors: int = 10) -> tuple[int, list]:
+    unique_colors = np.unique(region_pixels.reshape(-1, 3), axis=0)
+    return len(unique_colors), unique_colors[:max_colors].tolist()
+
+
+def percentage(part: int, total: int) -> float:
+    if total == 0:
+        return 0.0
+    return part / total * 100
+
+
+# ============================================================
+# Verification
+# ============================================================
+
+def main():
+    result = {}
+
+    original_img = load_rgb_image(ORIGINAL_PATH)
+    redacted_img = load_rgb_image(REDACTED_PATH)
+
+    original = np.array(original_img)
+    redacted = np.array(redacted_img)
+
+    original_h, original_w = original.shape[:2]
+    redacted_h, redacted_w = redacted.shape[:2]
+
+    result["files"] = {
+        "original": ORIGINAL_PATH,
+        "redacted": REDACTED_PATH,
+    }
+
+    result["original_size"] = {
+        "width": original_w,
+        "height": original_h,
+    }
+
+    result["redacted_size"] = {
+        "width": redacted_w,
+        "height": redacted_h,
+    }
+
+    same_size = original.shape == redacted.shape
+    result["same_size"] = bool(same_size)
+
+    # Compute scaling between the original image and the exported image.
+    scale_x = redacted_w / original_w
+    scale_y = redacted_h / original_h
+
+    result["scale"] = {
+        "scale_x": scale_x,
+        "scale_y": scale_y,
+        "uniform_scaling_approx": bool(abs(scale_x - scale_y) < 0.01),
+    }
+
+    # Resize the original image to the exported image size if necessary.
+    # This allows both images to be compared in the same pixel coordinate space.
+    if not same_size:
+        original_img_resized = original_img.resize(
+            (redacted_w, redacted_h),
+            Image.Resampling.LANCZOS,
+        )
+        original_for_comparison = np.array(original_img_resized)
+    else:
+        original_for_comparison = original
+
+    # Convert backend coordinates to the coordinate space of the exported image.
+    region_scaled = scale_region(REGION_ORIGINAL, scale_x, scale_y)
+    region_scaled = clamp_region(region_scaled, redacted_w, redacted_h)
+    validate_region(region_scaled)
+
+    result["region_original_coordinates"] = REGION_ORIGINAL
+    result["region_scaled_to_redacted_image"] = region_scaled
+
+    x1 = region_scaled["x1"]
+    y1 = region_scaled["y1"]
+    x2 = region_scaled["x2"]
+    y2 = region_scaled["y2"]
+
+    region_width = x2 - x1
+    region_height = y2 - y1
+    region_pixel_count = region_width * region_height
+
+    result["region_dimensions_scaled"] = {
+        "width": region_width,
+        "height": region_height,
+        "pixel_count": int(region_pixel_count),
+    }
+
+    original_region = original_for_comparison[y1:y2, x1:x2, :]
+    redacted_region = redacted[y1:y2, x1:x2, :]
+
+    if original_region.shape != redacted_region.shape:
+        raise ValueError(
+            f"Region shape mismatch: original={original_region.shape}, "
+            f"redacted={redacted_region.shape}"
+        )
+
+    # Check whether the exported redaction region is black or near-black.
+    difference_from_expected = np.abs(
+        redacted_region.astype(int) - EXPECTED_COLOR.astype(int)
+    )
+
+    black_like_pixels = np.all(difference_from_expected <= TOLERANCE, axis=2)
+
+    black_like_pixel_count = int(np.sum(black_like_pixels))
+    total_blackbox_pixels = int(black_like_pixels.size)
+    black_like_percentage = percentage(
+        black_like_pixel_count,
+        total_blackbox_pixels,
+    )
+
+    is_black_like = black_like_percentage >= MIN_BLACK_LIKE_PERCENTAGE
+
+    max_difference_from_black = int(np.max(difference_from_expected))
+    mean_difference_from_black = float(np.mean(difference_from_expected))
+
+    redacted_unique_count, redacted_unique_sample = unique_colors_sample(
+        redacted_region,
+        MAX_SAMPLE_COLORS,
+    )
+
+    result["blackbox_check"] = {
+        "expected_color": EXPECTED_COLOR.tolist(),
+        "tolerance": TOLERANCE,
+        "min_black_like_percentage_required": MIN_BLACK_LIKE_PERCENTAGE,
+        "redacted_region_is_black_like": bool(is_black_like),
+        "black_like_pixel_count": black_like_pixel_count,
+        "total_pixels_checked": total_blackbox_pixels,
+        "black_like_percentage": black_like_percentage,
+        "max_difference_from_black": max_difference_from_black,
+        "mean_difference_from_black": mean_difference_from_black,
+        "redacted_region_unique_color_count": int(redacted_unique_count),
+        "sample_unique_colors_in_redacted_region": redacted_unique_sample,
+    }
+
+    # Compare the exported region with the corresponding original region.
+    pixels_equal = np.all(original_region == redacted_region, axis=2)
+
+    equal_pixel_count = int(np.sum(pixels_equal))
+    total_pixels = int(pixels_equal.size)
+    changed_pixel_count = total_pixels - equal_pixel_count
+    changed_percentage = percentage(changed_pixel_count, total_pixels)
+
+    original_unique_count, original_unique_sample = unique_colors_sample(
+        original_region,
+        MAX_SAMPLE_COLORS,
+    )
+
+    result["pixel_comparison_in_region"] = {
+        "min_changed_percentage_required": MIN_CHANGED_PERCENTAGE,
+        "total_pixels": total_pixels,
+        "pixels_equal": equal_pixel_count,
+        "pixels_changed": changed_pixel_count,
+        "pixels_changed_percentage": changed_percentage,
+        "original_region_unique_color_count": int(original_unique_count),
+        "sample_unique_colors_in_original_region": original_unique_sample,
+    }
+
+    # Check metadata in both files.
+    result["metadata"] = {
+        "original": get_metadata(ORIGINAL_PATH),
+        "redacted": get_metadata(REDACTED_PATH),
+    }
+
+    passed = bool(
+        black_like_percentage >= MIN_BLACK_LIKE_PERCENTAGE
+        and changed_percentage >= MIN_CHANGED_PERCENTAGE
+    )
+
+    result["test_passed"] = passed
+
+    if passed:
+        result["conclusion"] = (
+            "The verification passed. The analysed redaction region in the "
+            "exported image was overwritten with black or near-black values, "
+            "and the pixel values differ from the corresponding original region."
+        )
+    else:
+        result["conclusion"] = (
+            "The verification did not pass. The region, scaling, tolerance, "
+            "or exported redaction output should be inspected."
+        )
+
+    output_file = "redaction_verification_report.json"
+
+    with open(output_file, "w", encoding="utf-8") as file:
+        json.dump(result, file, indent=4, ensure_ascii=False)
+
+    print(json.dumps(result, indent=4, ensure_ascii=False))
+    print(f"Report written to: {output_file}")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}

@@ -16,6 +16,8 @@ Another motivation came from stakeholder interest in whether metadata could help
 Export behavior is also relevant. When an image or video is redacted, the application often creates a new output file rather than modifying the original file in place. Depending on the export method, original metadata may be stripped, regenerated, or partially preserved. Browser canvas export, for example, creates a new image representation and specifies 96 dpi resolution metadata for formats that support it [6]. Metadata should therefore not be assumed as safely removed or reliably preserved. The safer design is to treat metadata handling as a deliberate export policy.
 
 \section{Relevant Metadata Categories}
+\label{appsec:relevant_metadata_categories}
+
 A metadata feature would need to handle several categories of information. The most relevant categories are summarized below.
 
 \begin{itemize}[leftmargin=1.5em]

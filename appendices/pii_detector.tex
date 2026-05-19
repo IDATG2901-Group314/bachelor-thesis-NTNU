@@ -1,0 +1,92 @@
+\chapter{Hybrid Text Analysis Pipeline}
+\label{app:pii_detector}
+
+In the deployed system, OCR-extracted text was not classified by the NER model
+alone. Instead, the final text categorization step was implemented through a
+hybrid pipeline in \texttt{pii\_detector.py}, where NER predictions were
+combined with rule-based checks, contextual field hints, and post-processing
+filters. Listings~\ref{lst:pii_detector_extract} and
+\ref{lst:pii_detector_rules} show the central extraction logic and an example of
+the rule-based entity detection used in the final system.
+
+\begin{lstlisting}[language=Python, caption={Core hybrid extraction logic used after OCR text recognition}, label={lst:pii_detector_extract}]
+def extract_entities(
+    text: str,
+    expected_label: Optional[str] = None,
+) -> List[TextEntity]:
+    clean = normalize_text(text)
+    if not clean:
+        return []
+
+    all_rule_ents: List[TextEntity] = []
+    all_gliner_ents: List[TextEntity] = []
+    all_custom_ents: List[TextEntity] = []
+
+    all_rule_ents.extend(detect_rule_entities(clean, expected_label))
+    all_custom_ents.extend(detect_custom_ner_entities(clean, expected_label))
+    all_gliner_ents.extend(detect_gliner_entities(clean, expected_label))
+
+    for line in split_lines(clean):
+        key, value = extract_key_value(line)
+        line_expected = context_label_from_key(key) or expected_label
+        segment = value if key else line
+
+        if not segment or is_noise(segment):
+            continue
+
+        all_rule_ents.extend(detect_rule_entities(segment, line_expected))
+        all_custom_ents.extend(detect_custom_ner_entities(segment, line_expected))
+        all_gliner_ents.extend(detect_gliner_entities(segment, line_expected))
+
+        # ... context-based helper rules omitted ...
+
+    entities = merge_all(all_rule_ents, all_gliner_ents, all_custom_ents)
+
+    if (
+        not entities
+        and expected_label in {"POSTAL_CODE", "PHONE", "ID_NUMBER", "DATE"}
+        and len(clean) >= 2
+        and not is_noise(clean)
+    ):
+        entities = [TextEntity(clean, expected_label, 0.50, "context")]
+
+    return dedupe_entities(entities)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Example of rule-based entity detection used alongside NER}, label={lst:pii_detector_rules}]
+def detect_rule_entities(
+    text: str,
+    expected_label: Optional[str] = None,
+) -> List[TextEntity]:
+    t = normalize_token(text)
+    entities: List[TextEntity] = []
+
+    if is_noise(t):
+        return entities
+
+    for m in EMAIL_RE.finditer(t):
+        entities.append(TextEntity(m.group(0), "EMAIL", 0.99, "regex"))
+
+    if NOR_PHONE_RE.fullmatch(t) and is_valid_phone(t):
+        entities.append(TextEntity(t, "PHONE", 0.97, "rule"))
+    elif expected_label == "PHONE":
+        for m in GENERIC_PHONE_RE.finditer(t):
+            if is_valid_phone(m.group(0)):
+                entities.append(TextEntity(m.group(0), "PHONE", 0.90, "regex+context"))
+
+    if POSTAL_RE.fullmatch(t):
+        entities.append(TextEntity(t, "POSTAL_CODE", 0.96, "rule"))
+
+    if looks_like_date(t):
+        entities.append(TextEntity(t, "DATE", 0.93, "rule"))
+
+    # ... additional rules omitted ...
+
+    return dedupe_entities(entities)
+\end{lstlisting}
+
+Listing~\ref{lst:pii_detector_extract} shows that the final text-analysis
+component combined multiple sources of evidence rather than relying only on the
+NER model. Listing~\ref{lst:pii_detector_rules} illustrates how structured
+entity types such as email addresses, phone numbers, postal codes, and dates
+were reinforced through explicit rules in addition to model-based predictions.

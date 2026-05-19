@@ -3,27 +3,130 @@
 
 \makeglossaries % Prepare for adding glossary entries
 
-
-\newglossaryentry{latex}
+\newglossaryentry{intersection over union}
 {
-        name=latex,
-        description={Is a mark up language specially suited for
-scientific documents}
+    name={intersection over union},
+    description={A standard evaluation metric in computer vision used to measure the accuracy of object detection or image segmentation methods. It is calculated as the area of overlap between the predicted and ground truth regions divided by the area of their union.}
 }
 
-\newglossaryentry{bibliography}
+\newglossaryentry{barcode}
 {
-        name=bibliography,
-        plural=bibliographies,
-        description={A list of the books referred to in a scholarly work,
-typically printed as an appendix}
+    name=barcode,
+    description={A barcode is a machine-readable representation of data, typically composed of parallel black lines and white spaces of varying widths, designed to be scanned and interpreted by a computer.}
 }
 
-\newglossaryentry{maths}
-{
-    name=mathematics,
-    description={Mathematics is what mathematicians do}
+\newglossaryentry{QR}{
+    name={QR},
+    description={A QR code (Quick Response code) is a two-dimensional, machine-readable matrix barcode consisting of black and white squares, designed to store data and be rapidly scanned by devices like smartphones}
 }
+
+\newglossaryentry{SafeVision}{
+    name={SafeVision},
+    description={The system developed in this project for detecting and anonymizing sensitive information in visual media}
+}
+
+\newglossaryentry{sensitive information}{
+    name={Sensitive Information},
+    description={Information that can directly or indirectly identify a person or reveal private, confidential, or contextually sensitive details}
+}
+
+\newglossaryentry{visual media}{
+    name={visual media},
+    description={Image or video content that may contain identifiable or sensitive information}
+}
+
+\newglossaryentry{redaction}{
+    name={redaction},
+    description={The process of hiding, removing, or altering sensitive information so that it is no longer visible or understandable}
+}
+
+
+\newglossaryentry{privacy-by-design}{
+    name={privacy by design},
+    description={A design principle where privacy considerations are built into the system from the beginning rather than added afterwards}
+}
+
+\newglossaryentry{zero trust}{
+    name={zero trust},
+    description={A security principle where no component, user, or system is automatically trusted}
+}
+
+\newglossaryentry{bounding box}{
+    name={bounding box},
+    description={A rectangular region used to mark the location of an object or sensitive area in an image or video frame}
+}
+
+\newglossaryentry{segmentation}{
+    name={segmentation},
+    description={The process of identifying the pixel-level area belonging to an object or region}
+}
+
+\newglossaryentry{masking}{
+    name={masking},
+    description={A redaction method where a selected region is covered or replaced to hide its original content}
+}
+
+\newglossaryentry{inpainting}{
+    name={inpainting},
+    description={An image processing method that fills a selected region using surrounding visual information}
+}
+
+\newglossaryentry{object detection}{
+    name={object detection},
+    description={A computer vision task where objects are identified and localized within an image or video frame}
+}
+
+\newglossaryentry{inference}{
+    name={inference},
+    description={The process of using a trained machine learning model to make predictions on new input data}
+}
+
+\newglossaryentry{false positive}{
+    name={false positive},
+    description={A result where the system detects something as sensitive even though it should not have been detected}
+}
+
+\newglossaryentry{false negative}{
+    name={false negative},
+    description={A result where the system fails to detect sensitive information that should have been detected}
+}
+
+\newglossaryentry{client side storage}{
+    name={slient side storage},
+    description={Storage located in the user's browser or device rather than on the server}
+}
+
+\newglossaryentry{stateless backend}{
+    name={stateless backend},
+    description={A backend design where each request is handled independently without relying on stored session state}
+}
+
+\newglossaryentry{kalman filter}{
+    name={Kalman filter},
+    description={A prediction algorithm used to estimate the future position of an object based on previous movement}
+}
+
+\newglossaryentry{manifest}{
+    name={manifest},
+    description={A structured data object that stores frame-level detection and tracking information for video processing}
+}
+
+\newglossaryentry{mobilesam}{
+    name={MobileSAM},
+    description={A computer vision model based on the Segment Anything Model architecture. It is used for image segmentation by generating masks that outline objects or regions in an image.}
+}
+
+\newglossaryentry{yolox}{
+    name={YOLOX},
+    description={An advanced, anchor-free object detection model based on the YOLO architecture, introduced by Megvii researchers in 2021.}
+}
+
+\newglossaryentry{yolox-s}{
+    name={YOLOX-S},
+    description={The small (S) scale variant of the YOLOX model, designed for a balance between real-time inference speed and detection accuracy.}
+}
+
+
 
 
 % --------------------
@@ -33,3 +136,28 @@ typically printed as an appendix}
 \newacronym{phd}{PhD}{philosophiae doctor}
 \newacronym{CoPCSE}{CoPCSE@NTNU}{Community of Practice in Computer ScienceEducation at NTNU}
 \newacronym{gcd}{GCD}{Greatest Common Divisor}
+\newacronym{ai}{AI}{Artificial Intelligence}
+\newacronym{ml}{ML}{Machine Learning}
+\newacronym{cv}{CV}{Computer Vision}
+\newacronym{dl}{DL}{Deep Learning}
+\newacronym{gdpr}{GDPR}{General Data Protection Regulation}
+\newacronym{ocr}{OCR}{Optical Character Recognition}
+\newacronym{ner}{NER}{Named Entity Recognition}
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym{ui}{UI}{User Interface}
+\newacronym{ux}{UX}{User Experience}
+\newacronym{qr}{QR}{Quick Response}
+\newacronym{cpu}{CPU}{Central Processing Unit}
+\newacronym{gpu}{GPU}{Graphics Processing Unit}
+\newacronym{ci}{CI}{Continuous Integration}
+\newacronym{cd}{CD}{Continuous Deployment}
+\newacronym{iou}{IoU}{Intersection over Union}
+\newacronym{es}{ES}{ECMAScript}
+\newacronym{fps}{FPS}{Frames Per Second}
+\newacronym{cors}{CORS}{Cross-Origin Resource Sharing}
+\newacronym{csrt}{CSRT}{Channel and Spatial Reliability Tracking}
+\newacronym{susaf}{SusAF}{Sustainability Awareness Framework}
+\newacronym{sam}{SAM}{Segment Anything Model}
+\newacronym{sdg}{SDG}{Sustainability Awareness Framework}
+\newacronym{un}{UN}{United Nations}
+

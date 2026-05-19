@@ -3,6 +3,28 @@
 
 This appendix provides additional documentation for the user interface design process described in Chapter~\ref{user_interface_and_usability}. While the main chapter focuses on the final interface and its usability principles, this appendix presents the earlier design iterations, prototype development, MVP stage, and additional interaction considerations that informed the final design.
 
+\section{Design Methodology and Principles}
+
+Development of the user interface followed an iterative design process, where layout, interaction patterns, and workflow structure were gradually refined throughout the project. Iterative design is widely recommended in user interface development because it allows teams to evaluate design decisions and improve solutions based on testing and practical experience \cite{hartson2012ux}. This approach allowed the design to evolve alongside the technical implementation while maintaining focus on usability and user control.
+
+\methodheading{Iterative and Agile Design Process}
+
+An agile development approach was used, where design and implementation were carried out in parallel. As new features were introduced, the interface was continuously adjusted to support the expanding functionality of the system. The approach aligns with Agile UX practices, where interface decisions are refined through incremental improvements rather than finalized early in development \cite{gothelf2022leanux}. 
+
+Initial wireframes were created in Figma to explore layout and interaction flows before implementation (Appendix~\ref{fig:prototype_loaded}). Wireframing allows designers to quickly test ideas before committing to development \cite{hartson2012ux}. They were used to define the main workflow.
+
+A functional prototype was then implemented to evaluate interaction patterns and identify usability issues in a practical environment. After the prototype stage, the design was refined into a minimum viable product (MVP), where core system functionality was integrated into the interface (Appendix~\ref{fig:mvp_detection}). The interface was also influenced by Safe Media AI's existing system, allowing users familiar with that platform to encounter recognizable layout structures and interaction patterns. This helped support consistency and reduced the learning curve for potential users.
+
+\methodheading{Core Design Principles}
+
+User control over automated processes was a central design principal. Since detection is performed by machine learning models, users must be able to verify, adjust, and override automated results when necessary \cite{hartson2012ux}. The interface supports this through manual highlighting, adjustment of detection settings, removal of incorrect detections, and customization of redaction methods.
+
+Simplicity was also prioritized to reduce cognitive load and allow users to focus on identifying and redacting sensitive information \cite{norman2013design}. The interface therefore emphasizes essential functionality while avoiding unnecessary complexity. This was especially important because users must inspect visual content carefully and should not be distracted by unrelated interface elements.
+
+Visual feedback was prioritized to help users understand system state and detection outcomes \cite{norman2013design}. Detection results are displayed directly on the media using labelled bounding boxes, enabling immediate interpretation of what the system has identified. Progress indicators and visible processing states further help users understand when the system is working.
+
+Consistency across components improves usability and learnability \cite{nielsen2020progressive}. Toolbars, panels, and controls follow predictable patterns, making the interface easier to navigate. In addition, alignment with familiar structures from Safe Media AI's existing system supports recognition for users already accustomed to that platform, while still allowing SafeVision to introduce functionality specific to visual media redaction.
+
 \section{Design Evolution}
 
 The interface evolved through several stages, beginning with simple wireframes and later progressing into a prototype, MVP, and final interface. Each stage was used to explore layout, interaction flow, and the relationship between automated detection and manual user control.
@@ -138,5 +160,28 @@ Visual accessibility is supported through dark and light modes, allowing adaptat
 Interaction accessibility is addressed through flexible input methods. Keyboard shortcuts support efficient interaction during repetitive tasks, while undo and redo functionality allow users to safely adjust detection results and redaction without risk of permanent errors.
 
 Together, these features improve usability, flexibility, and efficiency in the human-in-the-loop redaction workflow.
+
+\methodheading{Terms of Services}
+\label{app:terms_of_service}
+
+A Terms of Service dialog was included in the final interface to clarify user responsibility, acceptable use, data handling, and the limitations of automated redaction. The text below summarizes the terms shown to users before processing content in \gls{SafeVision}.
+
+\begin{enumerate}
+    \item \textbf{Operator and contact:} The service is operated by An Hoang Chu, Karwan Shekhe, and Henrik Weflen Gjermundsen. Contact: henrik.w.gjermundsen@gmail.com.
+
+    \item \textbf{What the service does:} The service provides automated detection and redaction functionality to help redact images. Automated detection may be inaccurate or incomplete.
+
+    \item \textbf{User responsibilities and acceptable use:} Users confirm that they have the necessary rights and a valid legal basis to upload and process any personal data contained in the content they submit. Users must not upload unlawful content or content that infringes the rights or privacy of others. Users must not upload content involving children or other vulnerable individuals unless they are legally authorised to do so. Users are responsible for reviewing the output before sharing, publishing, or otherwise using it, because redaction may be imperfect. Access may be blocked or restricted if there is reasonable belief that the service is being misused or used unlawfully.
+
+    \item \textbf{How images are processed, stored, and deleted:} When an image or document is uploaded, it is transmitted to the backend servers and processed by the system to detect sensitive content and apply redaction. The servers are hosted on infrastructure provided by Google Cloud. Uploaded images and redacted outputs are not stored permanently. Uploads are used only to generate the result and are deleted after the result is returned, although transient technical handling may occur during processing and delivery. Uploaded content is not used to train or improve the model.
+
+    \item \textbf{Browser-stored backtracking and cached box data:} To support editing features, the web application stores derived detection data in the user's browser on the user's device. This may include bounding-box coordinates, image dimensions, and related redaction or editing state. The service uses an in-memory undo and redo history during the session, as well as local browser storage or cache to restore detected boxes and editing state when the user revisits the site. This browser-stored data does not include the original uploaded image. Users can remove this data at any time by clearing the site's data in their browser.
+
+    \item \textbf{Logging:} The service does not intentionally log or retain uploaded image content. Some infrastructure-level operational data may be processed transiently to deliver the service.
+
+    \item \textbf{Rights and complaints:} For questions or data protection requests, users can contact henrik.w.gjermundsen@gmail.com. Users may also lodge a complaint with their supervisory authority, Datatilsynet.
+
+    \item \textbf{Disclaimer:} The service is provided ``as is'' and ``as available.'' The system does not guarantee that all sensitive content will be detected or redacted. Users are responsible for verifying outputs before sharing or publishing. Nothing in these terms limits liability where such limitation is not permitted by law.
+\end{enumerate}
 
 

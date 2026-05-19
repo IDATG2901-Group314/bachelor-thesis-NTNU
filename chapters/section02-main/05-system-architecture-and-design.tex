@@ -1,223 +1,140 @@
 \chapter{System Architecture}
+\label{chap:system_architecture}
+
+This chapter presents the architecture of \gls{SafeVision} and explains how the main system components are organized to support detection, redaction, user interaction, and deployment. It further describes the relationship between the system components and the deployment structure used to make the application available.
 
 \section{System Architecture Overview}
-\label{system_architecture_overview}
-The system is designed as a modular client-server architecture for detecting and redacting sensitive content in both still images and video. At a high level, the architecture consists of a frontend, a backend/API layer, and separate processing components for detection and redaction.
+\label{sec:system_architecture_overview}
+
+The system is designed as a modular client-server architecture for detecting and redacting sensitive content in visual media. At a high level, the architecture consists of a frontend, a backend/\acrfull{api} layer, and separate processing components for detection and redaction. Figure~\ref{fig:system_architecture_overview} provides an overview of the main architectural elements and their relationships. The following subsections describe the design principles and system components in more detail.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/images/chapter-5/SystemArchitectureOverview.png}
+    \includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{figures/images/chapter-5/SystemArchitectureOverview.png}
     \caption{High-level system architecture of the proposed solution. Created by the authors, with AI-assisted refinement.}
     \label{fig:system_architecture_overview}
 \end{figure}
 
-Figure~\ref{fig:system_architecture_overview} provides an overview of the main architectural elements and their relationships. The following subsections describe the design principles and system components in more detail.
 
 \methodheading{Architectural Design}
 \label{architecture_design}
+
 The system follows a layered architectural design, where each layer has a specific responsibility and communicates with adjacent layers. This design reduces system complexity and enables independent development of components \cite{shaw1996software}. It also simplifies debugging and testing, as each layer can be evaluated in isolation.
 
 \begin{itemize}
     \item \textbf{Presentation Layer (Frontend):} Handles user interaction and displays results.
     \item \textbf{Application Layer (Backend):} Manages requests and coordinates processing.
-    \item \textbf{Processing Layer:} Performs detection and redaction operations.
+    \item \textbf{Processing Layer (Backend):} Performs detection and redaction operations.
 \end{itemize}
 
 \methodheading{Design Principles}
 \label{design_principles}
-The architecture is guided by several design principles to ensure robustness and long-term maintainability.
 
-A client-server architecture is used to separate user interaction from processing
-logic. The client is responsible for the user interface, while the server handles
-data processing and computational tasks \cite{clientserverUW}. This separation allows
-computationally intensive operations, such as machine learning inference, to be
-performed on the server side.
+Several of the qualities introduced earlier as non-functional requirements in Section~\ref{sec:nfr} also influenced the architectural design of \gls{SafeVision}. In this section, these themes are revisited from a design perspective in order to show how they shaped the overall system structure. Table~\ref{tab:design_principles} summarizes the main design principles considered in the architecture.
 
-Separation of concerns is applied by assigning distinct responsibilities to each component. In particular, detection and redaction are implemented as separate modules, allowing improvements to one part of the pipeline without affecting the other. This reduces coupling and simplifies future extensions \cite{martin2017}.
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{5cm}|p{9cm}|}
+\hline
+\textbf{Design Principle} & \textbf{Description} \\ \hline
 
-Modularity is emphasized to support extensibility. For example, the detection module can be replaced or upgraded as new machine learning models become available, without requiring changes to the frontend or backend interfaces. This follows principles of modular design and loose coupling, improving maintainability and flexibility \cite{martin2017}.
+\textbf{Client--Server Separation} & 
+The system separates user interaction from processing logic by placing the \acrshort{ui} in the client and computational tasks in the server backend. This allows \acrshort{ml} \gls{inference} and other processing-heavy operations to be handled outside the frontend. \\ \hline
 
-The backend is designed to be stateless, meaning that each request is processed
-independently. As a result, deployment is simplified and the system can scale
-horizontally by distributing requests across multiple instances \cite{aws_stateless}.
+\textbf{Separation of Concerns} & 
+The system assigns distinct responsibilities to different components. In particular, detection and redaction are implemented as separate modules, which reduces coupling and makes the pipeline easier to maintain and extend. \\ \hline
 
-Privacy is a key design consideration. By avoiding persistent storage of sensitive
-data, the system minimizes the risk of data exposure and aligns with data
-minimization principles defined in the GDPR \cite{gdpr}. This introduces a trade-off, as features such as history tracking or persistent sessions are limited, but this was considered
-acceptable given the sensitivity of the processed data.
+\textbf{Modularity} & 
+The architecture is designed so that individual components can be replaced or improved without requiring major changes to the rest of the system. This is especially relevant for detection models, which may need to be updated over time. \\ \hline
 
-Overall, the chosen architecture reflects a balance between performance, usability, and privacy, where real-time interaction and user control are prioritized over fully automated processing.
+\textbf{Stateless Backend Design} & 
+The backend processes each request independently without relying on persistent session state. This simplifies deployment and supports scaling across multiple instances. \\ \hline
+
+\textbf{Privacy by Design} & 
+The system avoids unnecessary persistent storage of sensitive data in order to reduce exposure risk and align the architecture with data minimization principles. \\ \hline
+
+\end{tabular}
+\caption{Main design principles considered in the \gls{SafeVision} architecture}
+\label{tab:design_principles}
+\end{table}
+
+Together, these principles reflect the main architectural priorities of \gls{SafeVision}. They were used to support scalability, maintainability, extensibility, and privacy-aware handling of sensitive visual data, while also keeping the system practical to develop and deploy within the constraints of the project.
 
 \section{System Components}
 
-Section~\ref{system_architecture_overview} presented the system from a layered architectural perspective. This section complements that view by describing the system in terms of functional components and their responsibilities.
+Following the overview of the system architecture, this section presents \gls{SafeVision} in terms of its main functional components and their responsibilities. The system consists of four primary components: the \acrshort{ui}, the Detection component, the Redaction component, and the \acrshort{api} layer. Together, these components illustrate how the system distributes responsibility across interaction, processing, and communication layers.
 
-The system consists of four primary components: the User Interface (UI), the Detection component, the Redaction component, and the API layer. These components are designed according to the principles discussed in
-Subsection~\ref{design_principles}.
+\methodheading{User Interface}
 
-\methodheading{User Interface (UI)}
-
-The User Interface (UI) is a web-based frontend responsible for presenting
-detection results and enabling user interaction with the system. It serves as the
-primary point of interaction between the user and the processing pipeline.
-
-A central aspect of the UI is the workspace, which provides an interactive view
-of uploaded images and detected regions. Users can inspect and validate detection
-results before redaction is applied, supporting a human-in-the-loop workflow.
-This is further discussed in Chapter~\ref{user_interface_and_usability}.
-
-The UI communicates with the backend through the API layer and presents processed results to the user. It is responsible for maintaining a consistent interaction state as detection results are reviewed or redaction is applied.
-
-The UI supports the privacy-oriented design described in
-Subsection~\ref{design_principles} by handling sensitive user data primarily on the client side.
+The \acrshort{ui} is a web-based frontend that serves as the primary point of interaction between the user and the \gls{SafeVision} processing pipeline. It is responsible for presenting detection results, supporting user interaction, and maintaining a consistent interaction state as results are reviewed and redaction is applied. A central element of the UI is the workspace, which offers an interactive view of uploaded images or videos and the corresponding detected regions, enabling users to inspect and adjust detections before proceeding. In this way, the UI supports a hybrid workflow, as further discussed in Chapter~\ref{user_interface_and_usability}. The UI communicates with the backend through the \acrshort{api} layer and also supports the privacy-oriented design described in Subsection~\ref{design_principles}.
 
 \methodheading{Detection and Redaction Component}
 
-A central backend processing component in the system is organized around two
-main workflows: detection and redaction. As illustrated in
-Figure~\ref{fig:api_workflows}, these workflows follow the same overall
-structure for both still images and video. In both cases, the media is processed
-through the same core stages for analysis, sensitive-region identification, and
-redaction. The main difference is that video processing operates across multiple
-frames, and the frame-level results must be accumulated before being returned to
-the frontend.
+A central backend processing component in the system is organized around two main workflows, detection and redaction. As illustrated in Figure~\ref{fig:api_workflows}, these pipelines follow the same overall structure for both still images and video. The main difference is that video processing operates across multiple frames, and the frame-level results must be accumulated before being returned to the frontend.
 
-Figure~\ref{fig:api_workflows}(a) shows the high-level detection workflow. After
-input media is received by the API, it is decoded and may optionally undergo
-preprocessing. The media is then passed to multiple detection components, which
-can operate in parallel. Their outputs are subsequently normalized into a
-consistent format before being returned through the API layer. For still images,
-this produces a direct detection result. For video, the same workflow is applied
-to relevant frames, and the frame-level detections are collected into a unified
-response.
+Figure~\ref{fig:api_workflows}(a) shows the high-level detection workflow. After input media is received by the \acrshort{api}, it is decoded and may optionally undergo
+preprocessing. The media is then passed to multiple detection components, which can operate in parallel. Their outputs are subsequently normalized into a consistent format before being returned through the \acrshort{api} layer. For still images, this produces a direct detection result. For video, the same workflow is applied to relevant frames, and the frame-level detections are collected into a unified response.
 
 \begin{figure}[H]
 \centering
 
-\begin{subfigure}[t]{0.48\textwidth}
+\begin{subfigure}[t]{0.49\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/images/chapter-5/detection-api-flow-v2.png}
-    \caption{Detection pipeline showing image processing, optional preprocessing, parallel execution of detection models, and result normalization.}
+    \caption{Detection pipeline showing visual media processing.}
     \label{fig:detection_api_flow_v2}
 \end{subfigure}
 \hfill
-\begin{subfigure}[t]{0.48\textwidth}
+\begin{subfigure}[t]{0.49\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/images/chapter-5/redaction-api-flow-v2.png}
-    \caption{Redaction pipeline showing input validation, optional segmentation, and application of anonymization techniques.}
+    \caption{Redaction pipeline for \gls{anonymization}.}
     \label{fig:redaction_api_flow_v2}
 \end{subfigure}
 
-\caption{Overview of detection and redaction workflows in the backend system.}
+\caption{Overview of detection and redaction pipeline in the backend system.}
 \label{fig:api_workflows}
 \end{figure}
 
-Rather than applying redaction automatically, the detection results are sent to
-the UI for user review and adjustment. This improves reliability in cases where
-automated detection may be incomplete or imprecise.
+Figure~\ref{fig:api_workflows}(b) shows the corresponding redaction workflow. During this stage, the backend receives the input media together with the validated detection results before applying the selected \gls{anonymization} method. Depending on the selected strategy, redaction may be based on \gls{bounding box}es or \gls{segmentation} masks. Redaction is applied directly to the image, while for video, the same workflow is applied frame by frame, after which the processed frames are recombined into the final redacted video. This design makes it possible to separate redaction from detection as two independent but connected stages.
 
-Figure~\ref{fig:api_workflows}(b) shows the corresponding redaction workflow.
-In this stage, the backend receives both the input media and the validated
-detection results, applies input validation, and executes the selected
-anonymization method. Depending on the selected strategy, redaction may be
-based on bounding boxes or segmentation masks. For still images, redaction is
-applied directly to the image. For video, the same workflow is applied frame by
-frame, after which the processed frames are recombined into the final redacted
-video.
+\methodheading{\acrshort{api} Layer}
 
-This design makes it possible to separate detection from redaction as two
-independent but connected stages. Such a separation improves modularity and
-also allows detection results to be reused for visualization, inspection, or
-later anonymization.
+The \acrshort{api} layer provides the main communication interface between the frontend and backend. Through HTTP-based requests, it exposes detection and redaction functionality through well-defined endpoints, allowing the \acrshort{ui} to request processing without depending on the backend's internal implementation. Following the stateless and privacy-oriented design principles described in Subsection~\ref{subsec:architecture-principles}, the API is organized into dedicated controllers for different processing tasks. As shown in Figure~\ref{fig:backend-architecture}, this layer forms the entry point to the backend and forwards valid requests to the service layer.
 
-\methodheading{API Layer}
+The service layer is mainly used to manage shared backend resources. In \gls{SafeVision}, it ensures that \acrshort{ml} models are loaded once and reused throughout the application lifecycle instead of being initialized for every request. Keeping this responsibility separate from the \acrshort{api} routes reduces unnecessary loading overhead while preserving a clearer separation between request handling and model management.
 
-The API layer defines the communication interface between the frontend and the
-backend processing components. It exposes detection and redaction functionality
-through well-defined endpoints, allowing the UI to interact with the processing
-pipeline without depending on its internal implementation. The API follows the
-stateless and privacy-oriented design principles described in
-Subsection~\ref{design_principles}.
-
-The API is organized using a modular structure in which different tasks are
-handled by dedicated controllers. In particular, detection and redaction are
-exposed through separate routes, which improves maintainability and helps
-distinguish between different processing tasks, including image-based and
-video-based workflows.
-
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=14cm]{figures/images/chapter-5/backend_architecture_diagram.png}
-\caption{Overview of the backend architecture showing the API layer, service layer, processing pipeline, and machine learning components.}
+\caption{Overview of the communication between frontend and backend.}
 \label{fig:backend_architecture_diagram}
 \end{figure}
 
-The frontend communicates with the API layer, which forwards
-requests to the service layer and the underlying processing pipeline (Figure~\ref{fig:backend_architecture_diagram}).
-This reflects a layered design in which request handling, application logic, and
-machine learning inference are separated into distinct responsibilities.
 
+\methodheading{\acrshort{ml} Development Process}
 
-\methodheading{Machine Learning Development Process}
-
-In addition to the deployed application components, the project also included a
-separate development process for custom machine learning models. This process was required for the barcode and license plate detectors, as well
-as the custom NER model used for text classification in the system, and formed an important part of the overall solution architecture.
-
-As illustrated in Figure~\ref{fig:ml_pipeline}, the process consists of dataset
-preparation, model training, evaluation, and deployment. In practice, this
-meant that datasets had to be collected and standardized, models had to be
-trained and evaluated in a dedicated development environment, and selected model
-artifacts were then integrated into the SafeVision backend for inference.
+In addition to the deployed application components, the project included a separate development process for custom \acrshort{ml} models. This was necessary because the custom-trained models used in \gls{SafeVision} had to be prepared, trained, and evaluated before they could be integrated into the backend. As illustrated in Figure~\ref{fig:ml_pipeline}, this process begins with preparing datasets so they can be used consistently during training. The models are then trained and evaluated in a dedicated development environment, before selected model artifacts are moved into the \gls{SafeVision} backend for \gls{inference}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{figures/images/chapter-5/machine-learning-pipeline.png}
-\caption{General machine learning pipeline consisting of data preparation, model training, evaluation, and deployment phases (adapted from \cite{ml_pipeline_source}).}
+\includegraphics[width=\textwidth,height=1.0\textheight,keepaspectratio]{figures/images/chapter-5/machine-learning-pipeline.png}
+\caption{General \acrshort{ml} pipeline consisting of data preparation, model training, evaluation, and deployment phases (adapted from \cite{ml_pipeline_source}).}
 \label{fig:ml_pipeline}
 \end{figure}
 
-This development process was kept separate from the deployed application in
-order to reduce coupling between experimental model development and the
-production-oriented system. While the SafeVision application is responsible for
-inference, redaction, and user interaction, the machine learning development
-process focuses on preparing data, training models, and validating model
-performance before integration into the deployed backend.
-
-The technical tools, environments, and repository structure used to support this
-process are described in Chapter~\ref{chap:technologies_and_methodologies}, while the
-concrete implementation of dataset preparation, training, and model integration
-is presented in Chapter~\ref{chap:implementation_details}.
-
+Keeping this process separate reduced the coupling between experimental model development and the deployed application. The \gls{SafeVision} application handles workflows, while model development is carried out separately until the models are ready for integration. This made it possible to experiment with datasets and training configurations without affecting the production-oriented parts of the system. The tools, environments, and repository structure used for this process are described in Chapter~\ref{chap:technologies_and_methodologies}, while the concrete implementation of dataset preparation, training, and model integration is presented in Chapter~\ref{chap:implementation_details}.
 
 \section{Deployment Architecture}
 
-The deployment architecture describes how SafeVision is made available as a
-web-based system and how its main components are organized in operation. In
-line with the overall client--server architecture, the system is deployed as two
-separate parts: a browser-based frontend client and a backend service
-responsible for API handling and processing tasks. The backend handles
-detection, redaction, and related processing tasks for both still images and
-video. This includes model inference, redaction processing, and media-specific
-workflow handling.
+The deployment architecture describes how \gls{SafeVision} is made available as a web-based system during operation. As shown in Figure~\ref{fig:deployment_architecture}, the frontend and backend are deployed as separate components. This makes it possible to update or redeploy the backend without necessarily redeploying the frontend, and vice versa. The separation also keeps the \acrshort{ui} independent from the processing and \gls{inference} environment, which makes future maintenance and extension easier. Figure~\ref{fig:deployment_architecture} also includes the CI/CD flow used to support the deployment process. More specific technologies and infrastructure choices used to realize this deployment are described in Chapter~\ref{chap:technologies_and_methodologies}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{figures/images/chapter-5/deployment-architecture.png}
+\includegraphics[width=\textwidth,height=0.55\textheight,keepaspectratio]{figures/images/chapter-5/deployment-architecture.png}
 \caption{Deployment architecture and CI/CD pipeline.}
 \label{fig:deployment_architecture}
 \end{figure}
 
-Figure~\ref{fig:deployment_architecture} illustrates the deployment architecture
-at a structural level. The frontend provides the user-facing interface and
-communicates with the backend through HTTP-based API requests. By separating
-presentation and interaction concerns from processing and inference, the system
-becomes easier to maintain, update, and extend over time.
 
-The deployment design also reflects the architectural principles presented
-earlier in this chapter. In particular, the backend is treated as an isolated
-service environment for processing and inference, while the frontend remains
-focused on interaction and presentation. This supports modularity and reduces
-coupling between the user interface and the underlying processing pipeline.
-More specific technologies and infrastructure choices used to realize this
-deployment are described in Chapter~\ref{chap:technologies_and_methodologies}.
+\afterpage{\blankpage}

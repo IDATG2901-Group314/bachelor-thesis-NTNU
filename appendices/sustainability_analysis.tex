@@ -1,0 +1,154 @@
+\chapter{Detailed Sustainability Analysis}
+\label{app:sustainability_analysis}
+
+This chapter evaluates SafeVision from a sustainability perspective using the Sustainability Awareness Framework. The analysis considers how the system may affect users, organizations, resource consumption, long-term costs, and technical maintainability over time. Rather than treating sustainability only as an environmental issue, the chapter discusses both benefits and trade-offs across the framework’s dimensions and effect levels.
+
+\section{Sustainability Assessment Framework}
+
+The sustainability of the SafeVision system is evaluated using the Sustainability Awareness Framework (SusAF), which provides a structured approach for analyzing software systems across multiple dimensions and time horizons. The framework considers five dimensions of sustainability: human, social, environmental, economic, and technical. In addition, it distinguishes between three levels of effects: immediate, enabling, and structural \cite{penzenstadler2013sustainability}.
+
+Immediate effects refer to the direct impact of the system during use. Enabling effects describe how the system influences user behavior and workflows, while structural effects capture long term consequences for organizations and society. This perspective allows the evaluation to go beyond technical performance and consider broader implications of deploying SafeVision.
+
+The SusAF model (Figure~\ref{fig:susaf-safevision}) shows that SafeVision has mainly positive sustainability effects. The system supports improved privacy protection, faster redaction work, more standardized workflows, and lower labor costs, while its modular architecture contributes positively to technical sustainability. At the same time, the model highlights important trade-offs. Machine learning inference increases energy consumption, and long-term use may contribute to rebound effects, model drift, testing effort, and recurring maintenance costs.
+
+%------------------------- HUMAN ---------------------------
+
+\section{Human Dimension}
+
+\noindent\textbf{Immediate Effects}
+
+SafeVision improves user efficiency by automating the detection of sensitive information in images. Manual identification of such content is time consuming and cognitively demanding, particularly when working with large datasets or under time constraints.
+
+Automation reduces repetitive tasks and allows users to focus on higher level decision making, such as validating and refining detection results. Studies indicate that automation can improve productivity in data intensive tasks by up to 20--40\% by reducing manual effort and cognitive load \cite{bessen2019ai}.
+
+In SafeVision, this means that users no longer need to manually scan entire images for sensitive content. Instead, they review pre identified regions, which significantly reduces the time required per image. For example, when processing large collections of media content, automated detection can reduce inspection time from minutes to seconds per image.
+
+However, this shift introduces a dependency on system accuracy. Research shows that users interacting with automated systems may experience reduced attention and increased trust in system outputs, which can lead to overlooked errors if validation is insufficient \cite{parasuraman1997humans}. This creates a trade off between efficiency and vigilance.
+
+\noindent\textbf{Enabling Effects}
+
+SafeVision enables more structured and consistent handling of sensitive data by integrating detection and redaction into a single workflow. This reduces variability in how tasks are performed and promotes standardized practices.
+
+This is particularly relevant in the context of the General Data Protection Regulation, which imposes strict requirements on the processing of personal data \cite{voigt2017gdpr}. Manual compliance with such regulations can be complex and error prone. By embedding privacy preserving mechanisms directly into the system, SafeVision reduces the likelihood of incorrect data handling.
+
+The system also lowers the barrier for non expert users. Individuals without specialized training can perform redaction tasks through an intuitive interface. While this improves accessibility, it may also introduce inconsistencies if users interpret detection results differently or apply redaction in varying ways.
+
+\noindent\textbf{Structural Effects}
+
+In the long term, systems like SafeVision may influence organizational practices related to privacy and data protection. Increased adoption of automated tools can lead to more consistent anonymization standards and greater awareness of privacy risks.
+
+At the same time, there is a risk of over reliance on automation. If users assume that detection is always correct, errors may propagate unnoticed. This is particularly critical in privacy sensitive contexts where missed detections can lead to exposure of personal data.
+
+Maintaining a hybrid approach is therefore essential. Research emphasizes that effective human AI collaboration requires balancing automation with user control and transparency \cite{amershi2019guidelines}. SafeVision reflects this by allowing users to validate and adjust results before redaction is applied.
+
+%------------------------- SOCIAL ---------------------------
+
+\section{Social Dimension}
+
+\noindent\textbf{Immediate Effects}
+
+SafeVision contributes to improved privacy protection by reducing the likelihood that sensitive personal information is unintentionally exposed in shared media. By assisting users in identifying and redacting personal data, the system supports safer handling of digital content and may increase trust in data sharing workflows, particularly in environments where images and videos are regularly processed for documentation, communication, or analysis \cite{li2024image,zhao2023visual}. More reliable anonymization can reduce concerns related to accidental privacy breaches and improve confidence in privacy-sensitive digital workflows \cite{gdpr2016}.
+
+However, trust in automated privacy tools must be balanced with transparency and user awareness. If users do not understand the limitations of detection models, they may place excessive confidence in system output, which can create false perceptions of safety and increase the risk that undetected sensitive information is overlooked \cite{parasuraman1997humans,amershi2019guidelines}. Long-term effectiveness therefore depends not only on automation accuracy, but also on maintaining informed human oversight during validation and redaction.
+
+\noindent\textbf{Enabling Effects}
+
+At an organizational level, SafeVision enables more consistent privacy-preserving workflows by embedding anonymization directly into digital processing pipelines. This supports compliance-oriented practices, reduces variation in how sensitive data is handled across users or departments, and improves accessibility by allowing non-expert users to perform privacy protection tasks without requiring specialized technical knowledge \cite{voigt2017gdpr,becker2015requirements}. As a result, a broader range of users can safely manage privacy-sensitive material within structured workflows.
+
+At the same time, increased adoption of automated systems may create dependency on specific technical solutions, potentially reducing awareness of underlying privacy risks and the continued importance of human validation \cite{amershi2019guidelines}. If privacy protection becomes viewed primarily as an automated process, organizations may place too much trust in technical safeguards alone, weakening critical review practices that remain necessary when handling sensitive information.
+
+\noindent\textbf{Structural Effects}
+
+In the long term, systems like SafeVision may contribute to broader societal expectations that privacy protection should be integrated by design into digital tools and workflows. This aligns with principles such as privacy by design and growing regulatory expectations surrounding responsible data processing \cite{gdpr2016,voigt2017gdpr}. Widespread adoption of automated anonymization tools may also strengthen organizational privacy culture by making privacy-preserving practices more routine, scalable, and consistently integrated into everyday digital operations \cite{becker2015requirements}.
+
+However, increasing societal reliance on automated privacy tools introduces risks if such systems are deployed without sufficient transparency, accountability, or oversight. Over time, excessive dependence on automation may weaken critical human review practices and create false assumptions that technical safeguards alone are sufficient \cite{parasuraman1997humans,amershi2019guidelines}. Long-term social sustainability therefore depends on maintaining user understanding, organizational responsibility, and meaningful human oversight in privacy-critical workflows.
+
+%------------------------- ENVIRONMENTAL ---------------------------
+
+\section{Environmental Dimension}
+
+\noindent\textbf{Immediate Effects}
+
+The environmental impact of SafeVision is primarily related to computational resource usage during image processing. Machine learning tasks such as object detection and segmentation require significant processing power, particularly for high resolution images.
+
+The ICT sector is estimated to contribute between 2\% and 4\% of global carbon emissions \cite{malmodin2018ict}, while data centers account for approximately 1\% to 1.5\% of global electricity consumption \cite{iea2023datacenters}. Although SafeVision operates at a smaller scale, its reliance on machine learning models contributes to this broader impact.
+
+Research has shown that training large machine learning models can produce substantial emissions, in some cases exceeding several hundred kilograms of CO$_2$ \cite{strubell2019energy}. SafeVision primarily uses pre trained models and focuses on inference, which is less energy intensive. However, repeated inference at scale can still result in significant cumulative energy consumption.
+
+To reduce this impact, SafeVision processes data on demand and avoids persistent storage of images on the server. This limits unnecessary resource usage and reduces long term storage costs.
+
+\noindent\textbf{Enabling Effects}
+
+Automation reduces the need for repeated manual processing of the same data. In traditional workflows, images may be reviewed multiple times by different users, leading to inefficiencies.
+
+By streamlining detection and redaction, SafeVision reduces the number of operations required per task. In addition, the use of client side storage reduces server load and minimizes data transfer, which can lower energy consumption associated with network communication.
+
+However, these improvements may be offset by increased usage. As the system becomes faster and easier to use, users may process larger volumes of data. This phenomenon, often referred to as the rebound effect, can lead to increased total energy consumption despite improved efficiency per task \cite{hilty2011rebound}.
+
+\noindent\textbf{Structural Effects}
+
+At a larger scale, the adoption of systems like SafeVision may contribute to more efficient digital workflows and improved resource utilization across organizations.
+
+At the same time, the increasing use of machine learning technologies raises concerns about growing computational demand. Studies indicate that global data traffic and processing requirements continue to increase rapidly, driven in part by AI applications \cite{andrae2015global}.
+
+This creates a fundamental trade off. While individual systems may become more efficient, widespread adoption can increase total energy consumption. Long term sustainability therefore depends on both efficient system design and responsible usage patterns.
+
+%------------------------- ECONOMIC ---------------------------
+
+\section{Economic Dimension}
+
+\noindent\textbf{Immediate Effects}
+
+SafeVision reduces the time required to perform redaction tasks, leading to lower operational costs. Manual redaction is labor intensive and often requires trained personnel, especially when processing large volumes of images.
+
+Automation can significantly reduce time spent on repetitive tasks. Studies show that AI supported workflows can improve productivity by up to 20--40\% in data processing contexts \cite{bessen2019ai}. When applied at scale, even small improvements can lead to substantial cost savings.
+
+In SafeVision, this translates to reduced labor costs and faster processing times. However, these benefits depend on system accuracy. Incorrect detections may require reprocessing, which can reduce efficiency gains.
+
+\noindent\textbf{Enabling Effects}
+
+The system enables organizations to handle larger workloads without proportional increases in staffing. This improves productivity and allows human resources to focus on more complex tasks.
+
+The modular and API based design also reduces integration costs. SafeVision can be incorporated into existing workflows without extensive restructuring, which lowers adoption barriers.
+
+However, organizations must consider initial implementation costs, including infrastructure, training, and system integration. These upfront investments may be significant, particularly for smaller organizations.
+
+\noindent\textbf{Structural Effects}
+
+In the long term, automated redaction systems may transform how organizations manage sensitive data by enabling scalable and standardized workflows.
+
+Industry reports indicate that a large proportion of organizations are investing in artificial intelligence to improve efficiency and reduce costs \cite{mckinsey2021ai}. Systems like SafeVision align with this trend by supporting automation in data processing tasks.
+
+At the same time, long term economic sustainability depends on ongoing maintenance, including model updates and system monitoring. Machine learning systems require continuous evaluation to maintain accuracy, which introduces recurring costs.
+
+In addition, increased reliance on automation may shift workforce requirements, requiring new skills related to system operation and validation.
+
+%------------------------- TECHNICAL ---------------------------
+
+\section{Technical Dimension}
+
+\noindent\textbf{Immediate Effects}
+
+SafeVision introduces technical complexity through the integration of multiple machine learning models and interactive frontend components. These components must operate together within a unified processing pipeline.
+
+This complexity is managed through a modular architecture that separates concerns between components. This improves maintainability by allowing individual modules to be updated or replaced independently.
+
+The stateless backend design further improves scalability and reliability. Stateless systems are easier to scale horizontally and reduce the risk of system wide failures \cite{fielding2000rest}.
+
+\noindent\textbf{Enabling Effects}
+
+The modular design enables continuous improvement and adaptability. New detection models can be integrated without affecting other parts of the system, allowing SafeVision to evolve alongside advances in machine learning.
+
+The use of standardized APIs improves interoperability and supports integration with other systems. This aligns with principles of sustainable software engineering, which emphasize adaptability and reuse \cite{becker2015requirements}.
+
+However, modular systems also introduce coordination challenges. Ensuring compatibility between components requires careful design, testing, and version management.
+
+\noindent\textbf{Structural Effects}
+
+From a long term perspective, SafeVision supports sustainable software development through modularity, scalability, and adaptability. These characteristics enable the system to evolve without requiring complete redesign.
+
+Research highlights that maintainability and adaptability are key factors in long term software sustainability \cite{venters2014software}. SafeVision reflects these principles through its separation of detection, redaction, and interface components.
+
+At the same time, machine learning systems introduce additional challenges such as model drift, where performance degrades as data changes over time. Addressing this requires continuous monitoring and periodic updates.
+
+Increased system complexity can also make debugging and testing more difficult. Ensuring long term reliability therefore depends on robust testing strategies and clear system boundaries.

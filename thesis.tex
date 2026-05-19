@@ -1,18 +1,31 @@
 \documentclass[british,titlepage]{ntnuthesis}
 
-\usepackage{float}  % helps asserting figures between paragraphs
-\usepackage{caption} 
+\usepackage{float}      % helps asserting figures between paragraphs
+\usepackage{caption}
 \usepackage{tabularx}
 \usepackage{xcolor}
 \usepackage{array}
 \usepackage{listings}
 \usepackage{longtable}
 \usepackage{pdfpages}
-\usepackage{tabularx}
-\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{fit,backgrounds,positioning,shapes,calc}
+\usepackage{graphicx}
+\usepackage{xurl}
+\urlstyle{same}
+\usepackage{booktabs}
+\usepackage{xltabular}
+% ----- FOR ADDING EMPTY PAGE -----
+\usepackage{afterpage}
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+% ---------------------------------
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-% --- START PÅ KODE-INNSTILLINGER ---
 
+% --- START PÅ KODE-INNSTILLINGER ---
 \definecolor{vscode-bg}{RGB}{30,30,30}
 \definecolor{vscode-keyword}{RGB}{86,156,214}
 \definecolor{vscode-string}{RGB}{206,145,120}
@@ -22,18 +35,16 @@
 \lstset{
     language=Python,
     backgroundcolor=\color{vscode-bg},
-    % Bruker \scriptsize for å få plass til lange kommentarer
-    basicstyle=\ttfamily\scriptsize\color{vscode-text}, 
+    basicstyle=\ttfamily\scriptsize\color{vscode-text},
     keywordstyle=\color{vscode-keyword}\bfseries,
     stringstyle=\color{vscode-string},
     commentstyle=\color{vscode-comment}\itshape,
     identifierstyle=\color{vscode-text},
-    numbers=left, 
-    % FJERNET: frame=single (fjerner rammen/linjene rundt)
+    numbers=left,
     showstringspaces=false,
-    breaklines=true,               % Bryter linjen hvis den fortsatt er for lang
-    columns=fullflexible,          % Gjør avstanden mellom bokstaver mer kompakt
-    keepspaces=true,               % Bevarer innrykk korrekt
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
     tabsize=4,
     captionpos=b
 }
@@ -46,28 +57,31 @@
 \title{SafeVision}
 \shorttitle{Automatic Detection and Redaction of Sensitive Content in Visual Media}
 \author{Bachelor’s thesis in Computer Science}
-\shortauthor{CoPCSE$@$NTNU}
+
+% Viktigste endring:
+\shortauthor{\quad CoPCSE$@$NTNU}
+
 \date{CC-BY \ntnuthesisdate}
 
 \addbibresource{thesis.bib}
-
-\input{glossary.tex} % add glossary and acronym lists before document
+\input{glossary}
 
 \begin{document}
 
 \input{chapters/section0a-preamble/0a-abstract}
 \input{chapters/section0a-preamble/0b-summary}
+\input{chapters/section0a-preamble/0c-preface}
 
 \tableofcontents
 \listoffigures
 \listoftables
 \lstlistoflistings
 
-\chapter*{\acronymname}           % Create an unnumbered chapter for the acronyms
-\printglossary[type=\acronymtype] % Print acronyms
+\chapter*{\acronymname}
+\printglossary[type=\acronymtype]
 
-\chapter*{\glossaryname}          % Create an unnumbered chapter for the glossary
-\printglossary                    % Print glossary
+\chapter*{\glossaryname}
+\printglossary
 
 \input{chapters/section01-intro/01-introduction}
 \input{chapters/section01-intro/02-literature-review}
@@ -87,8 +101,6 @@
 
 \chapter*{\bibname}
 \printbibliography[heading=none]
-
-\input{chapters/papers.tex}
 
 \appendix
 \input{appendices/a-appendix.tex}

@@ -1,11 +1,12 @@
 % appendices/pen-test.tex
 
-\chapter{Detailed Peneteration Testing and Security Ecaluation}
+\chapter{Detailed Penetration Testing and Security Evaluation}
 \label{app:pen_test}
 
 % --------------------------------------------------
 
 \section*{Test 1 --- \texttt{/health} endpoint exposure}
+\label{appsec:pen_test_1}
 
 \begin{figure}[h]
     \centering
@@ -27,7 +28,7 @@
 
 % --------------------------------------------------
 
-\section*{Test 1 --- Valid \texttt{/api/detect} request}
+\section*{Test 2 --- Valid \texttt{/api/detect} request}
 
 \begin{figure}[H]
     \centering
@@ -49,7 +50,7 @@
 
 % --------------------------------------------------
 
-\section*{Test 2 --- Invalid file disguised as image}
+\section*{Test 3 --- Invalid file disguised as image}
 
 \begin{figure}[H]
     \centering
@@ -61,7 +62,7 @@
 
 \noindent \textbf{Endpoint:} \texttt{POST /api/detect} 
 
-\noindent \textbf{What was sent:} An empty text file renamed to \texttt{.jpg} and uploaded as multipart form-data. 
+\noindent \textbf{What was sent:} An empty text file renamed to \texttt{.png} and uploaded as multipart form-data. 
 
 \noindent \textbf{Expected result:} The API should reject the file without crashing and return an appropriate client error response. 
 
@@ -71,7 +72,29 @@
 
 % --------------------------------------------------
 
-\section*{Test 4 --- Invalid JSON in \texttt{/api/redact}}
+\section*{Test 4 --- Missing file in \texttt{/api/detect}}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/missing-file-detect.png}
+    \caption{Response from a \texttt{/api/detect} request without the required file field}
+\end{figure}
+
+\noindent \textbf{Test case:} Missing file in \texttt{/api/detect} request
+
+\noindent \textbf{Endpoint:} \texttt{POST /api/detect}
+
+\noindent \textbf{What was sent:} A request without the required \texttt{file} field.
+
+\noindent \textbf{Expected result:} The API should return a validation error.
+
+\noindent \textbf{Actual result:} The API returned \texttt{422 Unprocessable Entity} with a validation error stating that the \texttt{file} field was required.
+
+\noindent \textbf{Assessment:} Worked as expected. The request was rejected with correct validation, and no crash occurred.
+
+% --------------------------------------------------
+
+\section*{Test 5 --- Invalid JSON in \texttt{/api/redact}}
 
 \begin{figure}[H]
     \centering
@@ -137,7 +160,7 @@
 
 % --------------------------------------------------
 
-\section*{Test 10 --- Empty results list on \texttt{/api/redact}}
+\section*{Test 8 --- Empty results list on \texttt{/api/redact}}
 
 \begin{figure}[H]
     \centering
@@ -159,7 +182,7 @@
 
 % --------------------------------------------------
 
-\section*{Test 11 --- Malformed results structure on \texttt{/api/redact}}
+\section*{Test 9 --- Malformed results structure on \texttt{/api/redact}}
 
 \begin{figure}[H]
     \centering
@@ -171,7 +194,7 @@
 
 \noindent \textbf{Endpoint:} \texttt{POST /api/redact}
 
-\noindent \textbf{What was sent:} A valid image and valid method, but the \texttt{results} field was malformed and did not contain the required structure. [{"foo":"bar"}]
+\noindent \textbf{What was sent:} A valid image and valid method, but the \texttt{results} field contained a malformed structure rather than valid detection entries: \texttt{[{"foo":"bar"}]}
 
 \noindent \textbf{Expected result:} The API should reject the request or ignore invalid entries safely.
 
@@ -181,7 +204,7 @@
 
 % --------------------------------------------------
 
-\section*{Test 13 --- Many boxes in \texttt{/api/redact}}
+\section*{Test 10 --- Many boxes in \texttt{/api/redact}}
 
 \begin{figure}[H]
     \centering
@@ -203,7 +226,7 @@
 
 % --------------------------------------------------
 
-\section*{Test 14 --- Invalid query parameters on \texttt{/api/detect}}
+\section*{Test 11 --- Invalid query parameters on \texttt{/api/detect}}
 
 \begin{figure}[H]
     \centering
@@ -225,9 +248,9 @@
 
 % --------------------------------------------------
 
-\section*{Test 23 --- Very large request body / oversized file}
+\section*{Test 12 --- Very large request body / oversized file}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/oversized-file-detect.png}
     \caption{Response from an oversized file upload sent to \texttt{/api/detect}}
@@ -247,11 +270,184 @@
 
 % --------------------------------------------------
 
+\section*{Test 13 --- Mixed valid and invalid entries in \texttt{/api/redact}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/mixed-valid-invalid-redact.png}
+    \caption{Preview of redaction output from \texttt{/api/redact}, based on a cropped test image adapted from \cite{pexels_street_signage}.}
+\end{figure}
+
+\noindent \textbf{Test case:} Mixed valid and invalid entries in \texttt{/api/redact}
+
+\noindent \textbf{Endpoint:} \texttt{POST /api/redact}
+
+\noindent \textbf{What was sent:} One valid box, one malformed object, and one extreme bounding box in the \texttt{results} field. The payload used was:
+\begin{verbatim}
+[
+  {"bbox":{"x0":175,"y0":175,"x1":475,"y1":475},"entity_type":"FACE"},
+  {"foo":"bar"},
+  {"bbox":{"x0":-1000,"y0":-1000,"x1":999999,"y1":999999},"entity_type":"FACE"}
+]
+\end{verbatim}
+
+
+\noindent \textbf{Expected result:} The API should handle the request safely without crashing.
+
+\noindent \textbf{Actual result:} The API returned \texttt{200 OK} after approximately \texttt{1.18 s} and produced a redacted image as binary output. The preview showed a clearly visible blurred region in the image, indicating that the request was processed successfully.
+
+\noindent \textbf{Assessment:} Worked as expected from a robustness perspective. The endpoint remained stable and returned a valid redacted image despite mixed valid and invalid input entries. The malformed and extreme entries did not cause a crash, while the request still completed successfully.
+
+% --------------------------------------------------
+
+\section*{Test 14 --- Unsupported file type on \texttt{/api/detect}}
+\label{appsec:pen_test_14}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/unsupported-file-type-detect.png}
+    \caption{Response from an unsupported file type upload sent to \texttt{/api/detect}}
+\end{figure}
+
+\noindent \textbf{Test case:} Unsupported file type in \texttt{/api/detect}
+
+\noindent \textbf{Endpoint:} \texttt{POST /api/detect}
+
+\noindent \textbf{What was sent:} A non-supported file type uploaded as the \texttt{file} field, in this case \texttt{test.gif}.
+
+\noindent \textbf{Expected result:} The API should reject the request with a controlled client error.
+
+\noindent \textbf{Actual result:} The API returned \texttt{400 Bad Request} with the message \texttt{"Unsupported file type"}.
+
+\noindent \textbf{Assessment:} Worked as expected. The unsupported file type was blocked correctly, and the API returned a controlled client-side error without crashing.
+
+% --------------------------------------------------
+
+\section*{Test 15 --- Unusual characters in text fields on \texttt{/api/redact}}
+\label{appsec:pen_test_16}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/unusual-method-redact.png}
+    \caption{Response from \texttt{/api/redact} when the \texttt{method} field contains script-like input}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/unusual-method-with-json-redact.png}
+    \caption{Response from \texttt{/api/redact} when a script-like \texttt{method} value is combined with a structured \texttt{results} payload}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/unusual-results-redact.png}
+    \caption{Response from \texttt{/api/redact} when the \texttt{results} field contains malformed special-character input}
+\end{figure}
+
+\noindent \textbf{Test case:} Special character / script-like input in \texttt{/api/redact}
+
+\noindent \textbf{Endpoint:} \texttt{POST /api/redact}
+
+\noindent \textbf{What was sent:} Requests containing unusual or script-like text in request fields. The tested variants included \texttt{method=blur<script>} and malformed \texttt{results} input containing special characters rather than valid JSON.
+
+\noindent \textbf{Expected result:} The API should reject or safely handle the request as invalid input.
+
+\noindent \textbf{Actual result:} When \texttt{method=blur<script>} was submitted, the API returned \texttt{422 Unprocessable Entity} with a validation message stating that the input should be \texttt{blur}, \texttt{pixelate}, \texttt{blackbox}, or \texttt{inpaint}. When malformed special-character input was submitted in \texttt{results}, the API returned \texttt{400 Bad Request} with the message \texttt{"Invalid results JSON"}.
+
+\noindent \textbf{Assessment:} Worked as expected. Script-like and malformed text input was not interpreted unsafely and was instead rejected through controlled validation and parsing errors.
 
 
 % --------------------------------------------------
 
-\section*{Test 8 --- Browser storage inspection}
+\section*{Test 16 --- URL/query tampering on \texttt{/api/detect}}
+\label{appsec:pen_test_16}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/query-tampering-scale-high-detect.png}
+    \caption{Response from \texttt{/api/detect} with an excessively large \texttt{scale} value}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/query-tampering-scale-negative-detect.png}
+    \caption{Response from \texttt{/api/detect} with a negative \texttt{scale} value}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/query-tampering-types-script-detect.png}
+    \caption{Response from \texttt{/api/detect} with a script-like value in the \texttt{types} query parameter}
+\end{figure}
+
+\noindent \textbf{Test case:} Query parameter tampering on \texttt{/api/detect}
+
+\noindent \textbf{Endpoint:} \texttt{POST /api/detect}
+
+\noindent \textbf{What was sent:} Requests with invalid or extreme query parameter values using a valid image upload. The tested variants were \texttt{scale=999999}, \texttt{scale=-100}, and \verb|types=<script>alert(1)</script>|.
+
+\noindent \textbf{Expected result:} The API should reject invalid values or handle them safely without crashing.
+
+\noindent \textbf{Actual result:} For \texttt{scale=999999}, the API returned \texttt{422 Unprocessable Entity} with a validation message stating that the input should be less than or equal to \texttt{4}. For \texttt{scale=-100}, the API returned \texttt{422 Unprocessable Entity} with a validation message stating that the input should be greater than \texttt{0}. For \texttt{types=<script>alert(1)</script>}, the API returned \texttt{400 Bad Request} with the message \verb|"Unsupported detection type(s): <script>alert(1)</script>"|.
+
+\noindent \textbf{Assessment:} Worked as expected. Invalid and malformed query parameter values were handled safely through controlled client-side validation or rejection, and no crash occurred.
+
+% --------------------------------------------------
+
+\section*{Test 17 --- Browser/network data leakage}
+\label{appsec:pen_test_17}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/browser-network-overview.png}
+    \caption{Browser DevTools Network overview during frontend interaction}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/browser-network-detect-payload.png}
+    \caption{Payload inspection for the \texttt{/detect} request}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/images/chapter-9/pen-test/browser-network-redact-payload.png}
+    \caption{Payload inspection for the \texttt{/redact} request}
+\end{figure}
+
+\noindent \textbf{Test case:} Sensitive data exposure in browser network traffic
+
+\noindent \textbf{What was checked:} Requests and responses in the browser DevTools Network tab during normal \texttt{detect} and \texttt{redact} operations.
+
+\noindent \textbf{Expected result:} Sensitive content should be sent only as needed and not exposed unnecessarily in URLs or cached fields.
+
+\noindent \textbf{Actual result:} The inspected network traffic showed that operational parameters such as \texttt{types}, \texttt{scale}, and \texttt{use\_preprocess} were included in the query string for \texttt{/detect}. The uploaded image itself was sent as binary form-data in the request body rather than in the URL. For \texttt{/redact}, the request body contained the binary file, the selected redaction method, and detection results used for redaction. These detection results were visible in the request body, but not in the URL.
+
+\noindent \textbf{Assessment:} No unnecessary exposure of sensitive data in request URLs was observed. Image content was transmitted as binary form-data, while detection metadata appeared in the \texttt{results} body field only where needed for the redaction workflow.
+
+% --------------------------------------------------
+
+\section*{Test 18 --- CORS behavior from browser}
+\label{appsec:pen_test_18}
+
+\noindent \textbf{Test case:} CORS restriction review
+
+\noindent \textbf{What was checked:} Browser request behavior during normal frontend use, including whether requests completed without unexpected CORS errors, and whether the backend configuration appeared to restrict allowed origins.
+
+\noindent \textbf{Expected result:} Only expected frontend origins should be allowed.
+
+\noindent \textbf{Actual result:} During normal browser use, the frontend requests completed without visible CORS errors in DevTools. No indication was observed that arbitrary origins were being allowed from the browser-facing workflow. In addition, the backend implementation shown in Listing~\ref{lst:fastapi_routing} uses a defined \texttt{ALLOWED\_ORIGINS} list rather than a wildcard \texttt{*}, which indicates a more restrictive CORS policy.
+
+\noindent \textbf{Assessment:} CORS appears restricted to expected frontend origins. This is supported both by normal browser behavior and by the backend implementation in Listing~\ref{lst:fastapi_routing}, which uses an origin allowlist rather than a wildcard policy. However, this was not a dedicated cross-origin bypass test.
+
+% --------------------------------------------------
+
+\section*{Test 19 --- Browser storage inspection}
+\label{app:test19}
+\label{appsec:pen_test_19}
 
 \begin{figure}[H]
     \centering

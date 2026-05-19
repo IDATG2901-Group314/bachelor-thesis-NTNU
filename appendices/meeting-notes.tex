@@ -1,4 +1,298 @@
-\chapter{Selected Meeting Notes}
-\label{app:meeting-notes}
+\section{Meeting Note --- 08.01.2026}
+\label{app:meeting-2026-01-08}
+\textbf{Meeting type:} Internal group meeting\\
+\textbf{Time:} 13:00--14:10\\
+\textbf{Location:} Discord\\
+\textbf{Participants:} Hoang, Henrik and Karwan
 
-\includepdf[pages=-]{appendices/selected-meeting-notes.pdf}
+The group held an internal planning meeting to organize the early phase of the bachelor project. The meeting focused on administrative setup, assignment clarification, role distribution and planning of the first project activities. Overleaf and GitLab were set up, and the group discussed how project documentation and code collaboration should be organized.
+
+A central topic was the need to find or confirm a suitable bachelor assignment. The group discussed what should be presented to the supervisor in the upcoming meeting and agreed to contact additional possible commissioners so that the group would have several alternatives available. The group also planned how to complete important parts of the project plan before the next deadline.
+
+The members discussed the internal role distribution and agreed on routines for Scrum, number of meetings per week, weekly work logging and expected working hours. Issues were also created in GitLab to begin organizing tasks. The group agreed to create and sign a group contract and to organize project information in the project wiki.
+
+By the end of the meeting, all members had a clear understanding of what needed to be done before the next supervisor meeting and how the following week should be structured.
+
+\section{Meeting Note --- 09.01.2026}
+\label{app:meeting-2026-01-09}
+\textbf{Meeting type:} Internal group meeting\\
+\textbf{Time:} 11:00--11:55\\
+\textbf{Location:} Discord\\
+\textbf{Participants:} Hoang, Henrik and Karwan
+
+The group met to discuss the possibility of changing to a newly available bachelor assignment connected to Safe Media AI AS. The group reviewed the assignment, investigated the company and contacted the previous group that had originally been assigned to the project.
+
+An email was sent to Safe Media AI AS to confirm the group's interest in the assignment and to ask about the possibility of an introductory meeting. The group agreed that this assignment was a better direction and decided to continue work based on the assumption that the project would be connected to Safe Media AI AS.
+
+The group also discussed the project plan and agreed to complete as much of it as possible before the upcoming supervisor meeting. This was done so that feedback on both the project topic and the plan could be received early. The group agreed that members who completed their assigned parts first should continue working on other unfinished sections of the plan.
+
+\section{Meeting Note --- 15.01.2026}
+\label{app:meeting-2026-01-15}
+\textbf{Meeting type:} Startup meeting with commissioner\\
+\textbf{Time:} 14:15--15:15\\
+\textbf{Location:} Physical meeting\\
+\textbf{Participants:} Hoang, Henrik, Karwan, Tom Røise, Jon Yngve Hardeberg and Yasin
+
+The group held its first startup meeting with Safe Media AI AS and the supervisor. The purpose of the meeting was to clarify the assignment, understand the commissioner's expectations and discuss possible technical and functional directions.
+
+Safe Media AI AS explained that the project could extend their existing system by adding functionality for removing sensitive information from images. Several possible frontend directions were discussed, including a standalone frontend and possible integration with existing workflows. It was clarified that the frontend should be developed using React or Vue rather than plain HTML/CSS/JavaScript, and Python was recommended for backend development.
+
+A major topic was how redaction should work from a user perspective. The commissioner emphasized that security should be prioritized over performance and that the system should give the user meaningful choices. The group discussed whether the program actually removes the information the user expects, whether the result is useful, and what counts as sufficient redaction.
+
+Different redaction methods were discussed, including black boxes, blur, pixelation, bounding boxes and segmentation. The participants also discussed whether the system should redact only specific parts of a face, the whole face, or larger regions depending on context. It was suggested that if there was uncertainty about what option to offer the user, the group could implement and compare several alternatives.
+
+The meeting also clarified early detection priorities. Faces and text in images were considered especially important. Other possible categories included people, recognizable objects, living beings, images within images and other identifiable visual elements. Video and audio were discussed as possible extensions, but still images were considered sufficient as the main starting point.
+
+The group was encouraged to research existing tools, products and academic work before deciding on the final approach. The commissioner also encouraged the group to make independent choices and avoid asking for approval on every minor decision.
+
+\section{Meeting Note --- 22.01.2026}
+\label{app:meeting-2026-01-22}
+\textbf{Meeting type:} Meeting with commissioner\\
+\textbf{Time:} 14:15--15:05\\
+\textbf{Location:} A132\\
+\textbf{Participants:} Jon, Yasin, Hoang, Karwan and Henrik
+
+The meeting focused on understanding how Safe Media AI AS expected the solution to fit into their existing system. The commissioner demonstrated parts of their current workflow and clarified how they imagined image redaction could be integrated.
+
+The group and commissioner agreed that the first priority should be to receive a single image and redact sensitive content in that image. The broader long-term idea was that Safe Media AI AS' existing system could handle full documents and extract images from them, while the group's solution would process the images and return redacted versions or coordinates. This meant that the bachelor project should focus mainly on image redaction rather than full PDF handling.
+
+It was clarified that the group's frontend should work with images and should not attempt to display or process full PDFs in the same way as Safe Media AI AS' existing solution. Full PDF support could be considered an extension after stable image redaction had been achieved, but the core backend responsibility should be image-based.
+
+User control was discussed in detail. The commissioner emphasized that the user should be able to edit the result manually inside the application. This included adding redaction to missed faces or objects, removing incorrect detections and adjusting what should or should not be censored. The reason was that the automated system would not always match the user's intention, and the goal was to avoid forcing the user to use external tools such as Photoshop after automatic processing.
+
+The group also discussed how broad the definition of sensitive content should be. Examples included faces, buildings, recognizable objects and other contextual information. A possible threshold bar was discussed, where a higher level could make the system consider more object categories as sensitive. The meeting also included discussion of datasets, open-source models, possible model fine-tuning and MVC as a code architecture.
+
+\section{Meeting Note --- 26.01.2026}
+\label{app:meeting-2026-01-26}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 08:15--08:50\\
+\textbf{Location:} A217\\
+\textbf{Participants:} Tom, Hoang, Karwan and Henrik
+
+The supervisor meeting focused on feedback for the project plan and on how the group should begin prototyping and report writing. The supervisor emphasized that technical and design choices should be justified academically. For example, if blur was used as a redaction method, the report should explain why this was suitable rather than only treating it as a standard choice.
+
+The project plan was reviewed, and several improvements were suggested. These included making the working title clearer, avoiding inconsistent language, defining sensitive information more precisely and being consistent about whether the project focused on images, video or both. The supervisor also suggested improving the task board by adding a ``To Test'' status and removing meetings as a board category.
+
+The group discussed whether the early prototype should be treated as something to build further on or as a temporary experiment. The supervisor suggested a ``destroy philosophy,'' where the group could use an early throwaway prototype to explore tools and design choices before starting the real MVP. This would allow the group to learn from early experiments without becoming too attached to weak implementation choices.
+
+The meeting also covered report strategy. The group was encouraged to document model choices, research findings and technical evaluations as the project progressed, since this would later be useful in the final report. The supervisor also advised that not every log, meeting note or internal detail needed to be included directly in the report.
+
+\section{Meeting Note --- 29.01.2026}
+\label{app:meeting-2026-01-29}
+\textbf{Meeting type:} Meeting with commissioner\\
+\textbf{Time:} 14:15--15:00\\
+\textbf{Location:} A132\\
+\textbf{Participants:} Yasin, Jon, Hoang, Karwan and Henrik
+
+The group presented early prototype progress and discussed how future meetings with Safe Media AI AS should be organized. The commissioner expressed interest in being more closely involved and suggested weekly meetings, especially so they could give continuous input on features and follow the project's progression.
+
+The meeting included discussion about the role of the commissioner as product owner and how Safe Media AI AS should be represented in the project plan. It was agreed that Jon and Yasin did not need to be separated into different roles, but should be treated as part of the commissioner side that contributed with feedback throughout the process.
+
+Several possible product directions were discussed. For video, the group and commissioner discussed the idea of manually marking an object or face in the first frame and then tracking that region through the rest of the video. For redaction methods, the group discussed blur, pixelation and whether user comfort should be considered when choosing redaction style. The meeting also raised the question of how to test whether redaction is strong enough to prevent recognition.
+
+Privacy and trust were also discussed. The commissioner emphasized that users should understand that uploaded images are not exposed online. The group also discussed whether GDPR or existing anonymization practices define what is sufficient for anonymizing an image, and agreed that this should be researched further.
+
+\section{Meeting Note --- 09.02.2026}
+\label{app:meeting-2026-02-09}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 08:15--08:40\\
+\textbf{Location:} A217\\
+\textbf{Participants:} Tom, Hoang, Karwan and Henrik
+
+The group presented progress on the MVP and received feedback on both implementation and evaluation. The supervisor emphasized that the system should be tested not only for successful detections, but also for incorrect detections. For example, the group should test whether the model detects animals or other non-human content as people, and whether it misses relevant sensitive content.
+
+The supervisor also emphasized the need to document model quality. If the group described a model as good, the report should explain what that means through testing, metrics or comparison. Licensing was also discussed, especially whether the chosen models could be used in the project without forcing the code to become open source.
+
+Several feature and design considerations were raised. These included whether the solution should work on mobile devices, whether users should be able to process folders or multiple images, and whether bounding boxes around faces should be scalable. The supervisor also asked the group to consider pixelation strength and whether stronger pixelation would make it harder to reverse or reconstruct redacted content.
+
+The meeting also covered security and privacy. The group discussed whether image and video data moving through the system could create GDPR issues, and the supervisor emphasized that the group had responsibility for potential leaks. The group also discussed the relation between image and video support, YOLO, RetinaFace and future model choices.
+
+\section{Meeting Note --- 12.02.2026}
+\label{app:meeting-2026-02-12}
+\textbf{Meeting type:} Meeting with commissioner\\
+\textbf{Time:} 14:27--15:10\\
+\textbf{Location:} Teams\\
+\textbf{Participants:} Yasin, Hoang, Karwan and Henrik
+
+The group demonstrated MVP progress and discussed several important scope and technical decisions with Safe Media AI AS. One of the most important decisions concerned PDF handling. The commissioner clarified that Safe Media AI AS' existing system already handled PDF logic by extracting images and passing them forward. Therefore, the group's backend did not need to implement full PDF handling and should instead focus on image-based processing.
+
+Performance was also discussed. Safe Media AI AS explained that the group's image detection and redaction should ideally be faster than their existing text model so that the integrated workflow would not lose performance. This created an important performance expectation for the group, even though later discussions showed that millisecond-level processing would be difficult to achieve with the selected models and infrastructure.
+
+Text detection was discussed as a feature that could be implemented in addition to face detection. The commissioner suggested OCR, and the group discussed using Tesseract. The meeting also clarified that additional categories such as text, screens, documents and vehicles would introduce new privacy and GDPR considerations beyond what Safe Media AI AS already handled in text-based documents.
+
+Several infrastructure and security topics were discussed. The group was advised to keep the repository private so that early unsafe implementations could not be copied or misused. GitHub Actions and deployment were also discussed, and the group was encouraged to begin early with deployment automation. The meeting also covered the use of Google Cloud, the limited usefulness of rewriting API logic in Go, and the importance of improving detection speed rather than only changing the surrounding API language.
+
+\section{Meeting Note --- 16.02.2026}
+\label{app:meeting-2026-02-16}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 08:15--08:40\\
+\textbf{Location:} A217\\
+\textbf{Participants:} Tom, Hoang, Karwan and Henrik
+
+The meeting focused on the PDF dilemma, state-of-the-art research, performance and report direction. The group had implemented text detection and measured parts of the system against existing approaches, but the program was still slower than desired.
+
+The supervisor suggested investigating whether different detections could run in parallel. This was connected to the broader performance challenge, where the group needed to balance accuracy and speed. The supervisor also emphasized that the group should not rely only on statements from the commissioner about what was acceptable, but should still do a careful technical and privacy-focused evaluation.
+
+The group discussed how to handle PDF in the report. Since Safe Media AI AS already handled PDF extraction, PDF support could be placed in the project limitations or described as outside the main scope. The supervisor also supported removing code that was no longer used for PDF handling, as well as removing unnecessary Go code if it was no longer part of the solution.
+
+The meeting also covered academic research and literature. The supervisor encouraged the group to find newer scientific sources and use the NTNU library. Topics such as reversible blur, secure storage and state-of-the-art model justification were identified as relevant for further research.
+
+\section{Meeting Note --- 19.02.2026}
+\label{app:meeting-2026-02-19}
+\textbf{Meeting type:} Meeting with commissioner\\
+\textbf{Time:} 14:15--15:00\\
+\textbf{Location:} Teams\\
+\textbf{Participants:} Jon, Yasin, Hoang, Karwan and Henrik
+
+The group demonstrated the MVP and discussed feature priorities with Safe Media AI AS. The commissioner wanted support for several file formats and raised strong expectations regarding detection speed. Ideally, the model should respond very quickly, but the group recognized that this could be difficult given the models and processing requirements.
+
+Text detection was discussed further. The commissioner wanted the system to improve text detection and distinguish between different types of text. OCR was again discussed as a possible direction. The group also discussed the idea that a user could mark sensitive areas manually, after which detection could focus on that region.
+
+The meeting covered several frontend and workflow features. These included filter options for selecting which types of content should be redacted, changing highlight box size or color, and adjusting the response structure so that it could better match Safe Media AI AS' existing system. A threshold-like control was also discussed, where users could adjust the sensitivity of detection or redaction.
+
+User testing and data collection were also discussed. The group was encouraged to find users who work with redacted images, such as photographers or people connected to news media. It was suggested that the group could collect images and establish ground truth data for benchmarking and graphs. The group also discussed whether video should be included and whether further features could be discovered by talking to people who perform redaction in practice.
+
+\section{Meeting Note --- 05.03.2026}
+\label{app:meeting-2026-03-05}
+\textbf{Meeting type:} Meeting with commissioner\\
+\textbf{Time:} 14:15--15:05\\
+\textbf{Location:} Teams\\
+\textbf{Participants:} Jon, Hoang, Karwan and Henrik
+
+The meeting focused on video, user needs, advanced options and preparation for contact with Skan-Kontroll. Safe Media AI AS explained that image and video processing could both be relevant, especially if the system could be useful in practical use cases involving access requests or visual documentation.
+
+The group and commissioner discussed video processing in detail. Possible approaches included live video or recorded video, tracking objects between frames, using backtracking to reduce the risk of missed detections, and deciding how many frames should be analyzed. The group also discussed how processing time would affect the user experience and whether real-time tracking would be feasible.
+
+Advanced options were discussed as a possible part of the user interface. The commissioner suggested that an expert mode could be useful, but also warned that too many options might overwhelm users. The group discussed the possibility of having different interface levels depending on user expertise and the importance of explaining what different options do.
+
+The meeting also included discussion of Skan-Kontroll as a possible external feedback source. The group discussed how to present the project, how to describe the problem, and whether it would be acceptable to write about the meeting in the report. The commissioner also emphasized that mapping user needs, potential markets and real use cases could be valuable for understanding the problem better.
+
+\section{Meeting Note --- 09.03.2026}
+\label{app:meeting-2026-03-09}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 09:00--09:50\\
+\textbf{Location:} A217\\
+\textbf{Participants:} Tom, Hoang, Karwan and Henrik
+
+The meeting focused on user-test planning, report feedback and possible QR/barcode work. The supervisor emphasized that the upcoming user test should be conducted for the group's own learning and evaluation, not as a sales presentation. The group should take control of the session, explain the context clearly and gather relevant feedback.
+
+The supervisor advised the group to structure the user test carefully. The group discussed giving a short introduction to Safe Media AI AS, a short explanation of the bachelor project and a short explanation of the test setting. The group was encouraged to prepare tasks, test images and a plan for how much help should be given if participants struggled.
+
+It was suggested that the group should avoid presenting too many features at once. The supervisor recommended focusing on the basic image workflow and mentioning video as a proof of concept or future idea rather than making it a main part of the test. The group also discussed testing response time and whether users would consider processing time acceptable.
+
+The meeting also covered model analysis and QR/barcode detection. The supervisor advised the group to avoid presenting too much raw detail in the main report and instead focus on a smaller number of important models or results. Detailed results could be placed in appendices. QR and barcode detection were discussed as possible additional features, especially if the group could create or test with suitable data.
+
+\section{Meeting Note --- 12.03.2026}
+\label{app:meeting-2026-03-12}
+\textbf{Meeting type:} External feedback meeting with Skan-Kontroll\\
+\textbf{Time:} 10:00--11:15\\
+\textbf{Location:} Alf Bjerckes Vei 1, 0582 Oslo\\
+\textbf{Participants:} Hoang, Henrik and a representative from Skan-Kontroll
+
+The group met with Skan-Kontroll to receive practical feedback on the redaction solution and discuss needs related to image and video anonymization. The meeting provided external input from a potential user context and focused mainly on usability, redaction options and practical workflow needs.
+
+Metadata handling was discussed as an important feature. The group received feedback that users might need the option to keep metadata, remove metadata, view metadata or delete specific metadata fields individually. This showed that metadata handling could be more nuanced than simply stripping all metadata automatically.
+
+The meeting also raised the distinction between redacting only a face and redacting a larger head region. Since face detection models may only cover the central face and not the ears or head outline, it could be relevant to provide separate options such as ``face'' and ``head.'' This feedback was important for understanding that visually sensitive content may extend beyond the exact bounding box.
+
+Different redaction and interface options were also discussed. The group received feedback that having several options could be useful, including different visual styles for boxes, intensity settings for segmentation and clearer organization of filters. Sorting filters alphabetically was suggested as a possible usability improvement. The application was described as intuitive overall, but the meeting still identified several possible refinements.
+
+Video was also discussed and considered relevant in the practical context. Adobe Premiere Pro was mentioned as an existing tool used for video-related work, which helped the group understand how the proposed solution could relate to current workflows.
+
+\section{Meeting Note --- 17.03.2026}
+\label{app:meeting-2026-03-17}
+\textbf{Meeting type:} UX and user-testing guidance\\
+\textbf{Time:} 10:00--10:50\\
+\textbf{Location:} 306 Meeting Room, Mustad, Building 118\\
+\textbf{Participants:} Hoang, Henrik and Thomas Berg Fjellestad
+
+The group met with Thomas Berg Fjellestad to discuss user testing, feedback methods and user-interface design. The meeting focused on how the group could improve future tests and how the current interface could be made clearer for users.
+
+Several testing methods were discussed, including unmoderated tests, questionnaires, click-based tests, heuristic evaluation, think-aloud testing and task-based testing. The group was advised to ask precise questions and focus on finding improvement areas rather than only asking whether users liked the system. It was also emphasized that users are not always confrontational, so the test design should make it easier for them to identify problems.
+
+The user interface was reviewed, and several clarity issues were identified. The upload functionality was considered understandable, but having multiple upload areas could create confusion. After uploading an image, it was not immediately clear what the user should do next. The term ``AI mission'' was also unclear, and it was suggested that a simpler term such as ``detect'' could be more understandable.
+
+The meeting included detailed discussion of button order and visual hierarchy. It was suggested that the detection action should be more visually prominent and appear before redaction. Download and print actions could be placed later in the workflow. The group also discussed using contrast, color and hover descriptions to guide the user's attention without making the interface distracting.
+
+Manual editing and highlight boxes were also discussed. It was not always clear that boxes could be edited, so the group discussed visual indicators such as handles or dots on selected boxes. The distinction between adding and editing boxes could also be made clearer. Some advanced functionality, such as shortcuts, was considered less important for first-time users and could be placed in a less central part of the interface.
+
+\section{Meeting Note --- 18.03.2026}
+\label{app:meeting-2026-03-18}
+\textbf{Meeting type:} Meeting with commissioner\\
+\textbf{Time:} 15:15--16:25\\
+\textbf{Location:} A232\\
+\textbf{Participants:} Hoang, Henrik, Karwan, Jon and Yasin
+
+The group met with Safe Media AI AS to discuss the Skan-Kontroll meeting, current project status and further direction. The commissioner was open to several possible directions but also emphasized that the group should be careful not to take on too much at once.
+
+The meeting clarified that integration with Safe Media AI AS would mainly happen through API calls. The group therefore needed to consider memory use, processing time and how much computational power the solution required. Benchmarking was identified as important for documenting these constraints and understanding the system's practical feasibility.
+
+Video was discussed further. The group and commissioner discussed limits for video processing, such as restricting clips to a maximum duration depending on available hardware. Manual editing in video, unselecting detected regions and tracking objects backward or forward were discussed as possible requirements. A key concern was minimizing the risk that new faces or objects would enter the video without being detected.
+
+The commissioner also emphasized that if video was stored, it should only be stored after redaction. The group discussed different approaches for identifying new faces between frames and whether significant changes between time points could trigger additional detection. The meeting ended with agreement that the group needed to define a manageable set of video-related goals and focus on details that were feasible within the project timeframe.
+
+\section{Meeting Note --- 23.03.2026}
+\label{app:meeting-2026-03-23}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 09:00--09:40\\
+\textbf{Location:} A217\\
+\textbf{Participants:} Tom, Hoang, Karwan and Henrik
+
+The meeting focused on scope control, report structure and how to present the many directions explored during the project. The supervisor pointed out that the project had moved through many possible tracks, including JPEG, PNG, PDF, video, metadata and surveys. The group discussed how much should be written about work that had been explored but not fully completed.
+
+The supervisor advised the group not to include everything in the main report simply because time had been spent on it. Instead, the group should focus on the parts that were systematic, well-developed and central to the project. Additional material could be placed in appendices if it was useful but too detailed for the main text.
+
+The group discussed the main focus of the project and agreed that detection and redaction were the core contributions. QR-code detection was also discussed as a possible contribution, while concurrency and other technical tracks were considered less central. The supervisor advised the group to stay focused and avoid turning the report into a broad description of every experiment.
+
+The meeting also covered use-case diagrams. The supervisor advised the group to think from the user's perspective when designing use cases, focusing on what the user wants to do in the application rather than describing the internal technical flow. The group also discussed whether Safe Media AI AS should appear as an actor in the use-case model.
+
+\section{Meeting Note --- 13.04.2026}
+\label{app:meeting-2026-04-13}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 15:00--15:35\\
+\textbf{Location:} A217\\
+\textbf{Participants:} Tom, Hoang, Karwan and Henrik
+
+The meeting focused on report feedback and priorities for the remaining project period. The supervisor emphasized that the abstract and summary should be started early and should make the reader interested in the project without becoming too technical.
+
+Several chapters were discussed. For Chapter 2, the supervisor noted that it currently appeared more like a theory chapter than a literature review and suggested connecting the theory more directly to the project. The supervisor also suggested adding sources to parts of the GDPR and sensitive-information discussion and possibly adding a workflow figure for hybrid redaction.
+
+Chapter 4 was discussed directly. The supervisor commented that the development-process chapter should avoid becoming only a chronological story. Instead, it should explain how and why the group chose certain working methods, how tasks were estimated and assigned, and how decisions were made during the process. The supervisor also suggested adding a figure showing the different project stages.
+
+The meeting also covered later implementation and report chapters. The supervisor asked the group to be clearer about what was specific to their system and what was standard practice. More detail about privacy and security considerations was recommended. The group was also encouraged to think about which feedback should be requested from Safe Media AI AS or other experts, especially for the results section and the overall project narrative.
+
+\section{Meeting Note --- 22.04.2026}
+\label{app:meeting-2026-04-22}
+\textbf{Meeting type:} Guidance for user testing and UI design\\
+\textbf{Time:} 14:00--15:30\\
+\textbf{Location:} A232\\
+\textbf{Participants:} Hoang, Henrik, Karwan and Jon
+
+The group met with Jon to demonstrate the project and receive feedback on user testing, interface design and report direction. The meeting focused on how the application should communicate processing status, how video settings should be presented, and how the report should describe the full scope of the project.
+
+A key topic was user feedback during processing. The group discussed that manual tracking was uncertain and might need to be combined with duplicate tracking or additional verification. Better progress feedback was considered important, including a clearer progress bar, messages from the backend about what the system is detecting, and possibly an estimate of remaining processing time. Video settings were also discussed, especially using start and end time as parameters and limiting the size or duration of uploaded videos.
+
+Inpainting was discussed as functionality that Safe Media AI AS wanted the group to include if it worked sufficiently well. Jon emphasized that the commissioner would be interested in the research and functionality the group had developed, even for features that the group had considered leaving out because the result was not fully satisfactory. This made inpainting relevant to present as part of the project's explored and implemented functionality if the achieved results were usable.
+
+The meeting also covered report framing. The group was advised to introduce both image and video processing from the start so that the title, introduction and overall task description matched the full project. The report could then explain in the process chapter that video was not part of the earliest phase. The group also discussed describing what already exists in the field, what was available to the project, and how the solution compares with competitors in terms of cost, availability, advantages and disadvantages.
+
+Evaluation was discussed as a central part of the remaining work. The group was encouraged to evaluate the system qualitatively as a whole, be critical of its own product and document CPU and GPU benchmarking. This would help show both the practical quality of the solution and the technical constraints that affected the final result.
+
+Several user-interface refinements were discussed. The group considered using smarter initial filters, changing the Identify button to an Options state after first use, and improving terminology. ``Annotation'' was considered a potentially unclear word and alternatives such as show/hide were discussed. The highlight tool could be moved between Identify and Redact, and names such as Clear Highlights could be reconsidered. The group also discussed adding a dedicated help or onboarding button so that users could reopen guidance when needed.
+
+\section{Meeting Note --- 23.04.2026}
+\label{app:meeting-2026-04-23}
+\textbf{Meeting type:} Supervisor meeting\\
+\textbf{Time:} 11:00--11:30\\
+\textbf{Location:} Physical meeting\\
+\textbf{Participants:} Hoang, Henrik, Karwan and Tom Røise
+
+The meeting focused on report structure, final coding priorities, testing, figures, and security. The supervisor gave feedback on the abstract and summary, explaining that the project should have an English abstract and a Norwegian translation rather than two overlapping texts.
+
+The supervisor advised the group to make the report more efficient and easier to read. Short subsections should be avoided, paragraphs should be divided clearly, and figures should not be forced into specific positions if it harms readability. The group was also reminded that figures should be discussed in the surrounding text and that reused or strongly inspired figures should be properly attributed.
+
+The group discussed how to present the implementation work. One possible approach was to show an earlier version of the implementation, explain its limitations, and then show the final implementation and how it solved those problems. This would make the implementation chapter more concrete and show development progress.
+
+Testing and security were also discussed. The supervisor suggested that the group should consider whether testing deserved its own chapter or a more detailed appendix. User-test forms and other testing material should at least be included as appendices if they were important. The group was also reminded to describe what security measures had actually been implemented.
+
+Finally, the group discussed whether to continue adding new functionality or stop coding. The supervisor advised that the group could decide that enough code had been produced and that further effort might be better spent on testing and documenting the existing system. New code should only be added if it built directly on existing functionality and did not create unnecessary risk near the end of the project.

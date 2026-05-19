@@ -460,3 +460,199 @@ Since the proposed system benefits from detecting as many license plates as
 possible while still maintaining high precision, the v0 configuration was
 selected as the final license plate detection model. The results show that v0
 provides the best overall balance between precision, recall, and F1-score. The final barcode detection model was therefore selected for use in the proposed system.
+
+
+
+
+
+
+
+
+
+
+% --------------------------------------------------------------------------------
+
+
+\section{Named Entity Recognition}
+\label{app:ner_evaluation}
+
+\subsection{Training Setup}
+
+The NER model was trained as a token classification model based on XLM-RoBERTa. Unlike the barcode and license plate models, which were trained as object detectors, the NER component addressed sequence labeling of \acrshort{ocr} extracted text. The training workflow combined synthetically generated data with converted external NER datasets in order to balance \acrshort{ocr} specific privacy entities with more natural running-text examples.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l r}
+\toprule
+\textbf{Dataset source} & \textbf{Samples} \\
+\midrule
+Synthetic dataset & 199000 \\
+NorNE (converted) \cite{norne_sprakbanken} & 15000 \\
+English NER dataset (converted) \cite{kaggle_ner_dataset} & 15000 \\
+\midrule
+Total merged dataset & 229000 \\
+\bottomrule
+\end{tabular}
+\caption{Composition of the merged NER dataset used before train/validation/test splitting.}
+\label{tab:ner_dataset_composition}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l r}
+\toprule
+\textbf{Split} & \textbf{Samples} \\
+\midrule
+Train & 183200 \\
+Validation & 22900 \\
+Test & 22900 \\
+\bottomrule
+\end{tabular}
+\caption{Final split sizes for the merged NER dataset.}
+\label{tab:ner_final_splits}
+\end{table}
+
+As shown in Tables~\ref{tab:ner_dataset_composition} and~\ref{tab:ner_final_splits},
+the training data consisted primarily of synthetic samples, while smaller converted
+Norwegian and English NER datasets were included to strengthen the recognition of
+more general entity types in running text.
+
+\subsection{Training Configuration}
+
+The model was trained using the Hugging Face Transformers framework with
+\texttt{FacebookAI/xlm-roberta-base} as the pretrained backbone. Training was
+performed as a BIO-formatted token classification task.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l l}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Backbone & XLM-RoBERTa base \\
+Task type & Token classification \\
+Max sequence length & 256 \\
+Epochs & 6 \\
+Learning rate & \(3 \times 10^{-5}\) \\
+Train batch size & 8 \\
+Evaluation batch size & 16 \\
+Evaluation strategy & Per epoch \\
+Save strategy & Per epoch \\
+Mixed precision & Enabled when CUDA was available \\
+\bottomrule
+\end{tabular}
+\caption{Final training configuration for the NER model.}
+\label{tab:ner_training_config}
+\end{table}
+
+The selected configuration was intended to provide a lightweight fine-tuning setup
+while remaining feasible within the available hardware constraints.
+
+\subsection{Training Curves}
+
+Figures~\ref{fig:ner_train_loss} and~\ref{fig:ner_validation_metrics} summarize the
+training process. The training loss decreased sharply during the early training steps
+and then gradually stabilized at a very low level. The validation loss also decreased
+overall across epochs, although a temporary increase was observed around epoch 4.
+Similarly, the validation F1 improved overall during training, despite a short-lived
+drop at epoch 4, and reached its highest value in the final epoch.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/images/chapter-11/ner/ner_train_loss.png}
+\caption{Training loss during fine-tuning of the NER model.}
+\label{fig:ner_train_loss}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{figures/images/chapter-11/ner/ner_validation_metrics.png}
+\caption{Validation loss and validation F1 across training epochs for the NER model. Validation loss is shown on the primary y-axis, while validation F1 is shown on the secondary y-axis.}
+\label{fig:ner_validation_metrics}
+\end{figure}
+
+Taken together, the curves indicate stable convergence on the constructed training
+and validation data, but they do not by themselves demonstrate robust performance
+on real-world OCR document scenarios.
+
+\subsection{Per-Label Evaluation}
+
+To better assess generalization, the model was also evaluated on a separate harder
+OCR-oriented test set. The overall performance on this set is shown in
+Table~\ref{tab:ner_results_hard_appendix}, while the per-label performance is shown
+in Table~\ref{tab:ner_hard_test_results} and Figure~\ref{fig:ner_per_label_metrics}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Evaluation set} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\
+\midrule
+Hard test set & 91.32\% & 96.13\% & 0.9366 \\
+\bottomrule
+\end{tabular}
+\caption{Overall NER performance on the harder OCR-oriented test set.}
+\label{tab:ner_results_hard_appendix}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Label} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} & \textbf{Support} \\
+\midrule
+ADDRESS        & 100.00\% & 100.00\% & 1.0000 & 37 \\
+DATE           & 100.00\% & 100.00\% & 1.0000 & 50 \\
+EMAIL          & 100.00\% & 100.00\% & 1.0000 & 83 \\
+ID\_NUMBER     & 90.74\%  & 98.00\%  & 0.9423 & 50 \\
+LICENSE\_PLATE & 95.45\%  & 100.00\% & 0.9767 & 21 \\
+LOCATION       & 84.21\%  & 88.89\%  & 0.8649 & 72 \\
+ORGANIZATION   & 67.16\%  & 95.74\%  & 0.7895 & 47 \\
+PERSON\_NAME   & 86.21\%  & 93.75\%  & 0.8982 & 80 \\
+PHONE          & 100.00\% & 91.43\%  & 0.9552 & 70 \\
+POSTAL\_CODE   & 100.00\% & 100.00\% & 1.0000 & 59 \\
+\bottomrule
+\end{tabular}
+\caption{Per-label performance of the NER model on the harder OCR-oriented test set.}
+\label{tab:ner_hard_test_results}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/images/chapter-11/ner/ner_per_label_metrics.png}
+\caption{Per-label precision, recall, and F1 on the harder OCR-oriented test set.}
+\label{fig:ner_per_label_metrics}
+\end{figure}
+
+As shown in Table~\ref{tab:ner_hard_test_results} and
+Figure~\ref{fig:ner_per_label_metrics}, the model remained strong on more
+structured entity types such as email addresses, postal codes, dates, and
+addresses. However, performance was noticeably weaker for semantically more
+ambiguous categories such as organizations, locations, and person names. This
+indicates that the model generalized less reliably when the OCR text became more
+document-oriented and difficult to categorize.
+
+\subsection{Error Analysis}
+
+Figure~\ref{fig:ner_real_vs_controlled } shows a qualitative comparison
+between a controlled example and a real-world document scenario. In the
+controlled example, the text is more structured and the categorization pipeline
+assigns several relevant labels. In the real-world document example, the OCR
+text is more fragmented and the assigned categories are less consistent.
+
+These examples illustrate an important limitation of the NER component. While
+the model can perform well on structured and simplified inputs, it has greater
+difficulty distinguishing reliably between entity categories in practical
+document scenarios. This was particularly visible for semantically similar
+categories such as person names, organizations, and locations.
+
+\subsection{Summary}
+
+Overall, the NER model achieved very strong results on the constructed held-out
+test split and converged stably during training. However, the harder OCR-oriented
+evaluation and the qualitative document examples showed that these results
+overestimated the practical robustness of the model. In particular, the model
+was less reliable for semantically ambiguous categories such as organization,
+location, and person-name entities. For this reason, the final SafeVision system
+did not rely on the NER model alone, but instead used it as part of a hybrid
+text-analysis pipeline.

@@ -1,0 +1,438 @@
+% Project plan converted from PDF, prepared as a thesis appendix fragment.
+% Include from the main report with: \input{appendices/project-plan_converted}
+% Do not compile this file directly: it has no \documentclass, \begin{document}, or \end{document}.
+% Expected preamble packages in the main report: graphicx, booktabs, longtable, array, float.
+% Optional: enumitem. If enumitem is loaded, list margins are set to match the original project plan style.
+
+\cleardoublepage
+\chapter{Project Plan}
+\label{app:project-plan}
+
+\begingroup
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+\makeatletter
+\@ifpackageloaded{enumitem}{%
+    \setlist[itemize]{leftmargin=*}%
+    \setlist[enumerate]{leftmargin=*}%
+}{}%
+\makeatother
+\sloppy
+
+\begin{center}
+    {\Large\textbf{Redaction of Sensitive Information in Images}}\\[0.3em]
+    {\large Project Plan}\\[0.7em]
+    An Hoang Chu, Henrik Weflen Gjermundsen, Karwan Shekhe\\[0.3em]
+    Spring 2026
+\end{center}
+
+\section{Frame and Goals}
+
+\subsection{Background}
+
+Photographs and videos are commonly used to document places and events in areas such as surveillance, mapping, crime documentation, and journalism. These media may contain sensitive information, defined as data that, if disclosed, can compromise the privacy or safety of individuals or expose confidential information belonging to organizations, including faces, license plates, text, and metadata. When such information is made publicly available, it can lead to risks such as unauthorized identification, tracking, or misuse of personal data. Consequently, handling visual media requires careful consideration of privacy, data protection regulations, and ethical responsibilities.
+
+To safeguard privacy, sensitive information often needs to be removed or obscured. This process is commonly referred to as redaction or censoring. Today, this is frequently performed manually using tools such as Photoshop. Manual editing is time-consuming and may lead to errors when large volumes of data are processed. This creates a need for more efficient and automated solutions.
+
+Advances in artificial intelligence and machine learning have enabled the automated identification and redaction of sensitive content. As a result, several commercial and research-based solutions are available today. However, their quality, functionality, and usability vary significantly. Safe Media AI AS has developed an AI-based platform for editing text-based documents and aims to extend this platform to also support images and potentially video content. As a small startup company, Safe Media AI AS focuses on leveraging artificial intelligence to automatically identify and redact sensitive information.
+
+\subsection{Project Goals}
+\label{appsec:goals}
+
+\paragraph{Result Goals}
+The goal is to develop and evaluate a solution for automatic and interactive editing of sensitive content in images and potentially video. The solution shall be compatible with existing systems at Safe Media AI AS, support multiple file formats, and comply with requirements related to security and privacy.
+
+Performance and quality will be evaluated both quantitatively and qualitatively. Quantitative evaluation will include metrics such as precision, recall, and F1-score. This captures both missed detections (false negatives) and incorrect redactions (false positives). Qualitative evaluation will assess usability, user experience, and overall effectiveness of the interactive editing features. The solution will also be compared with existing state-of-the-art approaches to highlight improvements in accuracy, efficiency, and user satisfaction.
+
+\paragraph{Impact Goals}
+The project aims to improve the efficiency of censoring sensitive information in images and videos through the use of artificial intelligence. The solution is intended to reduce the need for manual work, thereby saving time and resources for users who currently have to manually edit large volumes of visual material.
+
+Another key impact goal is to reduce the risk of human error during the censoring process, ensuring that sensitive information is more accurately identified and anonymized prior to publication or sharing. This will contribute to improved protection of privacy and increased data security.
+
+The project will also enable Safe Media AI AS to offer an extended solution that covers text, images, and video within a single platform. This provides increased value for existing customers and facilitates further commercial use.
+
+\paragraph{Learning Goals}
+The project aims to provide the group with increased academic and practical competence in the development of software solutions based on artificial intelligence. Through this work, the group seeks to gain a deeper understanding of how modern AI solutions function in practice and how such technologies can be used to improve efficiency and automate manual work in real-world problem domains.
+
+A key learning objective is to understand how artificial intelligence can be applied as a practical tool in software development, ranging from the integration of existing AI models to the evaluation of performance, quality, and reliability of the solution. This includes gaining insight into how AI-based systems interact with other system components such as backend services and user interfaces.
+
+The project also aims to strengthen skills related to collaboration and working methodologies in larger development projects. Through long-term teamwork, the group seeks to gain experience in clear communication, task allocation, and coordination, which are essential for project progress and quality. Furthermore, an important learning goal is to apply the Scrum methodology in practice through sprint-based work, including task planning and prioritization. In addition, the project will provide experience in collaborating with a product owner to gain a better understanding of agile development processes as used in professional software development projects.
+
+\subsection{Frameworks}
+
+The frameworks guiding this project are as follows:
+
+\paragraph{Technological Frameworks}
+The project builds upon existing solutions developed by Safe Media AI AS, and further development will be based on their artificial intelligence technology. Backend development will primarily be carried out using Python and its associated libraries. The specific libraries to be used have not yet been finalized and will be selected during development based on project requirements.
+
+Frontend development will primarily utilize the React framework in combination with Vite as a build tool, enabling efficient development, fast build times, and a modern development workflow. This approach is chosen to ensure seamless integration with Safe Media AI AS' existing solutions while maintaining flexibility and scalability. If project requirements change or the solution becomes diddicukt to solve with these tools, alternative frameworks or technologies may be considered.
+
+The solution will initially focus on processing still images, with the goal of identifying and anonymizing sensitive information such as faces and text.
+
+\paragraph{Deployment and Infrastructure}
+Google Cloud will be used as the project's Infrastructure as a Service (IaaS) platform, providing hosting for servers, databases, and additional storage services. The project will be deployed with Docker and support PDF, PNG and JPEG.
+
+\paragraph{Methodological Frameworks}
+The project will follow the Scrum methodology as the framework for development. This includes working in short sprints, conducting daily stand-up meetings (daily scrum), sprint planning, sprint reviews, and sprint retrospectives. The workflow will be organized using a Kanban board to provide an overview of tasks, priorities, and progress. Version control will be managed using Git, while project management will be handled through Jira. Code changes will be quality assured through the use of issues and merge requests.
+
+\paragraph{Testing Frameworks}
+Unit testing will be applied to both backend and frontend components throughout development to ensure correct functionality. In addition, user testing will be conducted to verify overall system coherence and usability. Postman will be used for API testing to ensure reliable data exchange between system components.
+
+\paragraph{Storage Constraints}
+Images and modified images will not be stored at all. They will only exist on the website through IndexedDB to have some data persistence on the website. The server will only receive, detect and the redact and not store anything.
+
+\paragraph{Time Constraints}
+The project will be carried out within the specified timeframe during the spring of 2026, with final submission of the bachelor's thesis scheduled for May 20, 2026. The scope of the work is limited to the development and evaluation of a functional prototype, and long-term operation or maintenance is not included.
+
+\paragraph{General Data Protection Regulation Compliance and Security}
+GDPR compliance is an important consideration in this project, as the solution processes images that may contain personal data such as faces and license plates. The system is designed in line with the principles of privacy by design and data minimization, ensuring that only necessary data is processed.
+
+Images are not stored on the server at any point and are only processed temporarily for redaction. Limited client-side persistence is handled through IndexedDB to support usability without transmitting or retaining data beyond the user's environment. All communication between system components is secured, and sensitive information is anonymized through redaction prior to use or sharing.
+
+\section{Scope}
+
+\subsection{Subject Area}
+
+The project belongs to the field of data engineering (BIDATA), with a primary focus on artificial intelligence, image processing, as well as security within these domains. The work combines methods from machine learning and computer vision with system development, aiming to create software capable of analyzing and processing visual content in an efficient and reliable manner.
+
+The subject area includes the development and integration of AI-based solutions into complete software systems, encompassing backend services and infrastructure. The project also addresses key challenges related to secure data processing, where requirements for confidentiality, integrity, and correct handling of sensitive information are central.
+
+Throughout the project, theoretical knowledge acquired during the study program is applied in a practical context, with an emphasis on how AI technologies can be used to solve real-world challenges related to privacy and security when publishing and sharing visual material.
+
+\subsection{Task Description}
+
+The task is to design, develop, and evalute an AI-based software sokution for the automatic removal or anonymazation of sensitive information in still images. If time permits, the solution may be extended to support videos as well. The system shall be capable of identifying elements such as faces and text and edit them in a manner that preserves privacy. This works by sending in images and the AI will give a preview on whatever you wanted to be redacted. The editing process itself will happen with one picture at a time or in bulks depending on what the user needs. The solution is required to be user-friendly, support multiple file formats, and offer both automatic and user-controlled editing. Furthermore, the solution will be compared with relevant research and existing commercial solutions and evaluated using both quantitative and qualitative methods.
+
+\subsection{Delimitation}
+
+The project is limited to the development and evaluation of a functional software solution within the given timeframe. The solution shall be usable and suitable for further development by Safe Media AI AS; however, long-term maintenance is not included in the scope of the project.
+
+The core scopeof the project is anonymization of sensitive information in still images, including faces, license plates, and buildings. Video support is considered an optional extension and will only be implemented if a robust and stable solution for still images is achived early in the project. If video is included, the scope will be limited to visual redaction only, and audio content (e.g. speech) will not be processed.
+
+The project will include PDF, PNG and JPEG formats, support for other formats will be considered if everything else is working fine.
+
+Most importantly, the project will at all times prioritize security for both users and employees of the commissioning organization. Therefore, particular emphasis is placed on adhering to privacy principles throughout the entire development process.
+
+\section{Project Organization}
+
+\subsection{Responsibilities and Roles}
+\label{appsec:group}
+
+\textbf{Backend Developer and Scrum Master (Henrik):}
+
+The Scrum Master is responsible for ensuring that meetings are scheduled and conducted as planned. This role includes keeping track of discussions during meetings and documenting minutes for each meeting. The Scrum Master also ensures effective communication within the team, takes action if issues arise, and facilitates discussions and meetings to maintain progress. Additionaly, he serves as the primary contact point between the team, the Product owner and the supervisor and writes notes under each meeting.
+
+\textbf{Backend Developer and Product manager (Karwan):}
+
+The Product Manager ensures that coding standards and best practices are followed throughout the project. This role defines the overall framework for the product and ensures that all developers are aligned during the development process. In the event of major disagreements regarding functional or non-functional requirements, the Project Manager is responsible for facilitating dialogue between the parties and leading the process toward a resolution.
+
+\textbf{Frontend Developer and Documentation Manager (Hoang):}
+
+As the Documentation Manager, he is responsible for planning, coordinating, and delivering all project documentation within agreed deadlines. He ensures compliance with formal and academic requirements and with guidelines provided by the institution, Product Owner, and supervisor. He performs proofreading and quality assurance prior to submission, maintains consistency in language, terminology, and structure, and ensures that all updates are reflected in the final documentation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{appendices/scrum_team.png}
+    \caption{Scrum team}
+\end{figure}
+
+\subsection{Routines and Group Rules}
+
+The complete set of group rules is included in Appendix A. Some key points are outlined below:
+
+\begin{itemize}
+    \item Working hours shall be logged, and each member may additionally describe the tasks completed during the week if desired.
+    \item These logs are reviewed during project meetings to provide and receive feedback, allowing the group to discuss the work performed by each member.
+    \item The group conducts daily Scrum meetings from Monday to Wednesday.
+    \item The group holds a meeting with the supervisor every Monday and meets with the project provider every Thursday.
+    \item Meeting minutes shall be written after all meetings.
+    \item Each group member is expected to allocate several hours after meetings to work together physically at the same location.
+    \item Group members shall use the kanban board to assign and prioritize tasks.
+    \item Online communication shall take place via Discord.
+\end{itemize}
+
+\section{Planning, Follow-up and Reporting}
+
+\subsection{Main breakdown of the project}
+\label{appsec:pfar}
+
+We have chosen to use the agile methodology Scrum together with a Kanban board, also called Scrumban. The reason we chose this model is that, in a project like ours, a number of technical uncertainties can arise along the way, which this type of model is well suited for. Another reason is that almost every organization practices agile methods, and the agile Kanban has seen increased popularity especially in software development. Scrum and Kanban are considered as the two powerful Agile methods that handle and manage the progress of software development (Alaidaros \& Omar, 2017; Lei et al., 2017). With a Kanban board we can set up and get an overview of new tasks that appear during the process, and we get a good visualization of workflow and priorities. At the same time, Scrumban allows us to organize the work into short sprints where we can divide the work into phases based on where we are in the project. This methodology also gives us a way of working where it is easy to get feedback from each other/the supervisor/product owner, implement changes continuously, and maintain a good overview.
+
+The way we follow Scrumban in practice is by using Jira as our management tool. In Jira we create issues that we can organize through the columns ``to do'', ``in progress'', ``to test'', ``in review'', ``done''. This is done so that we can visualize the workflow and identify bottlenecks, so tasks do not pile up. This sprint backlog can be updated in connection with the daily scrum, so that we remain flexible during the sprint. Code changes are done via merge requests in GitHub and quality-assured by the rest of the group before it goes into the main branch (see 5.1). An issue is considered finished when it has been confirmed as implemented by everyone in the group and documented to the necessary degree, so that everyone stays aligned on what has been done in the code and can take it into account in meetings.
+
+We will also follow a Gantt chart during the project period. The idea is that we will get an early view of what the whole process will look like from start to finish and be aligned and in agreement on how we will work. The Gantt chart will not be very detailed, but will function as a general breakdown. This is so that we can run Scrumban and still be flexible with tasks, and set short deadlines for ourselves along the way. The Gantt chart is built around longer epics that lead up to a number of milestones and takes decision points into account. We do this so that we can break epics into smaller sprints and have enough time to work and plan/come up with more specific tasks within each epic.
+
+\subsection{Plan for status meetings and decision points during the period}
+\label{appsec:}
+
+The plan for the period is to have 1-week sprints at the start and a fixed meeting structure based on that. This is to ensure coordination among the group members so that we can handle challenges and agree on priorities at all times. After that, we will increase the sprint length to 2 weeks or more as needed, again so that we are ready to be flexible:
+
+As a main rule, we will have daily scrum 3--4 times per week, with the purpose of synchronizing progress with each group member. Then we learn what has been done recently and what will be done until the next meeting. We have a meeting lead, and we ensure that all members report their progress status, and we adjust the Kanban board if necessary.
+
+\begin{itemize}
+    \item We will have sprint planning at the start of each 2-week sprint. In this meeting we will plan what the sprint goal will be and select issues accordingly.
+    \item We will have a sprint review every monday with the supervisor. This is so that we get a good summary of the sprint deliveries, while also receiving feedback we can use later.
+    \item After the sprint review we will have a sprint retrospective where we evaluate what worked well during the sprint and what should be improved, as well as actions for the upcoming sprint.
+    \item We will also have meetings with the product owner every thursday and meetings with supervisor/other external contacts as needed. All meetings will be documented through shared meeting minutes for logging, and so that we can look back during the process and stay updated on what we have discussed and agreed on.
+    \item We will have decision points along the way, which are goals we intend to keep in mind when planning sprints. These are:
+    \begin{itemize}
+        \item \textbf{Decision point 1: Approval of the project plan.} First of all, we must have good dialogue with the supervisor and agree on a good project plan before we begin the actual task.
+        \item \textbf{Decision point 2: Choice of technology/method/model for the final solution.} When we have a plan for how the project will be carried out, we must have a plan for how we will implement the actual solution to the task.
+        \item \textbf{Decision point 3: Prototype.} First we must create a working prototype before we can think about adding more functionality/fine-tuning.
+        \item \textbf{Decision point 4: Final idea of what will be a feasible plan.} During the project we gain insight into what will be possible to achieve with the task. Here we form an idea of what the final product should ultimately look like.
+        \item \textbf{Decision point 5: Feature freeze (no more new functionality).} At some point we will stop implementing and instead focus on polishing/making already implemented functionality work well.
+        \item \textbf{Decision point 6: Final demo/delivery.} Finally, we will finalize the product, the report and the full delivery.
+    \end{itemize}
+\end{itemize}
+
+\section{Organization and Quality Assurance}
+
+\subsection{Documentation, Standards, and Tools}
+
+To ensure a consistent and professional execution of the project, established workflows and best practices are followed. This applies to documentation structure, naming conventions, and coordinated collaboration within the development process. Standardized practices contribute to improved teamwork and easier maintenance.
+
+\subsubsection{Documentation}
+
+Great emphasis is placed on systematic and continuous documentation throughout the entire project. All changes and decisions are documented continuously and regularly to ensure a shared and up-to-date overview of the project's progress.
+
+The group uses a dedicated Discord server as the main platform for internal communication and documentation. Weekly updates and project-related changes are recorded. Henrik, who is responsible as the minute-taker, will write and upload the meeting minutes after each meeting. The meeting minutes include the agenda, meeting objectives, decisions made, and any changes along with their justifications.
+
+\subsubsection{Source Code}
+
+The source code is structured in a clear and organized manner and is commented where necessary to ensure good readability and understanding. This contributes to making the system easier to maintain and extend. In addition, consideration is given to the possibility that the code may be further developed or used by others, and therefore a clear structure and explanatory comments are prioritized.
+
+\subsubsection{Tools}
+
+All source code is stored and version-controlled on GitHub using Git. Changes are documented through commit messages and merge requests with clear titles and short, precise descriptions of the implemented changes.
+
+The frontend is developed using React to enable integration with the client's existing frontend solutions. React is also a well-established and effective framework for developing user interfaces. The backend is developed in Python due to the extensive range of libraries that support machine learning. In addition, Google Cloud is used for running and testing the solution, primarily based on the client's preferences and existing infrastructure.
+
+\begin{longtable}{p{0.14\textwidth}p{0.20\textwidth}p{0.23\textwidth}p{0.33\textwidth}}
+\caption{Overview of Tools Used}\\
+\toprule
+\textbf{Name} & \textbf{Type} & \textbf{Usage Area} & \textbf{Justification} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Name} & \textbf{Type} & \textbf{Usage Area} & \textbf{Justification} \\
+\midrule
+\endhead
+React & Frontend framework & User interface & Integrates with the client's existing frontend solution \\
+Python & Programming language & Backend / AI & Extensive library support for machine learning \\
+Google Cloud & Cloud platform & Execution and testing & Preferred platform of the client \\
+GitHub & Version control & Source code & Collaboration, traceability, and version control \\
+Vite & Build tool & Frontend & Used for fast development and building of the React application \\
+Jira & Project management tool & Planning and tracking & Used for task management, progress tracking, and project overview \\
+Overleaf & Documentation tool & Report and project plan & Used for collaborative LaTeX documentation \\
+Discord & Communication tool & Internal communication & Used for daily communication, meetings, and logging \\
+Postman & API tool & Backend testing & Used to test and verify API endpoints \\
+Visual Studio Code & Code editor & Development & Primary editor for frontend and backend development \\
+Jupyter Notebook & Development tool & Model development and testing & Used for experimentation and testing of machine learning models \\
+Figma & Design tool & UI/UX design & Used to sketch and plan user interfaces \\
+draw.io & Diagram tool & Architecture and flow & Used to create diagrams and system sketches \\
+Docker & Container platform & Deployment and execution & Used to package and run the application consistently \\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Workflow and Version Control}
+
+To ensure traceability and structure, fixed rules for commit messages are followed. Commit messages are named according to the pattern \texttt{<repository-name>\#<issue-number>}, allowing each change to be directly linked to a specific task or issue in the project. The project follows a structured branching strategy in which the main branch (\texttt{main}) contains only stable and finalized code. All development is carried out through a dedicated development branch (\texttt{dev}). Each group member creates individual feature branches based on \texttt{dev}, tailored to the tasks they are working on, in order to avoid conflicts and ensure controlled code integration.
+
+Working branches are named according to the pattern:
+
+\begin{quote}
+\texttt{<name>/<branch-prefix>/<short-description>}.
+\end{quote}
+
+Branch prefixes are used to clearly indicate the purpose of the change. The following prefixes are used in the project:
+
+\begin{itemize}
+    \item \texttt{feat/} -- new functionality
+    \item \texttt{fix/} -- bug fixes
+    \item \texttt{docs/} -- documentation
+    \item \texttt{test/} -- tests
+    \item \texttt{refactor/} -- code restructuring without changing functionality
+\end{itemize}
+
+This structure contributes to good overview, reduces the risk of conflicts within the codebase, and facilitates safe and controlled development.
+
+\subsection{Inspection and Testing Plan}
+
+Throughout the project development, thorough testing is essential. Testing is used to ensure correct functionality and quality both during and after the development phase. The project places emphasis on unit, integration, and system testing.
+
+\begin{itemize}
+    \item \textbf{Unit testing (automated):} Focuses on testing individual components, methods, and functions of the source code in isolation.
+    \item \textbf{API testing (automated or manual):} Validates API endpoints to ensure they function as expected and meet performance requirements.
+    \item \textbf{Integration testing (automated or manual):} Verifies that different modules or services work correctly when combined.
+    \item \textbf{System testing:} Evaluates the fully integrated system as a whole to ensure that all requirements are met.
+    \item \textbf{User testing:} Users and the client are involved in evaluating the system to identify potential improvements.
+\end{itemize}
+
+Implemented functionality is tested immediately after implementation by verifying expected behavior and addressing any detected issues. Testing helps identify errors early and ensures the stability and reliability of the solution.
+
+\subsection{Project-Level Risk Analysis}
+
+A project-level risk analysis has been conducted to identify potential events that may affect the project's execution, progress, and collaboration within the group.
+
+The risks are assessed based on probability and impact and are placed in a risk matrix, as shown in Table~\ref{tab:project-plan-risk-matrix}. Based on this assessment, specific risk factors have been identified and are presented in Table~\ref{tab:project-plan-identified-risks}, where both probability and impact are indicated.
+
+To keep the analysis focused and relevant, risks with low probability and low impact have been excluded from the mitigation table, as they are considered manageable through normal project routines. The mitigation measures present in Table~\ref{tab:project-plan-risk-mitigation} therefore focus on the most significant risks.
+
+For each identified risk, risk mitigation measures have been defined to prevent, reduce, or manage the consequences should the risk occur. These measures are summarized in Table~\ref{tab:project-plan-risk-mitigation}. The risk analysis will be updated as needed throughout the project period.
+
+\begin{table}[H]
+\centering
+\caption{Risk Matrix (5x5)}
+\label{tab:project-plan-risk-matrix}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Probability / Impact} & \textbf{Minimal} & \textbf{Marginal} & \textbf{Moderate} & \textbf{Severe} & \textbf{Critical} \\
+\midrule
+Almost Certain & & & & & \\
+Likely & & & & & \\
+Possible & & & & & \\
+Unlikely & & & & & \\
+Rare & & & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{longtable}{p{0.08\textwidth}p{0.60\textwidth}p{0.14\textwidth}p{0.12\textwidth}}
+\caption{Identified Risks}\label{tab:project-plan-identified-risks}\\
+\toprule
+\textbf{Risk \#} & \textbf{Description} & \textbf{Probability} & \textbf{Impact} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Risk \#} & \textbf{Description} & \textbf{Probability} & \textbf{Impact} \\
+\midrule
+\endhead
+1 & Technical challenges related to the use of new technology. & Possible & Moderate \\
+2 & Loss or corruption of source code and documentation. & Possible & Critical \\
+3 & Insufficient or delayed communication with the client. & Unlikely & Severe \\
+4 & Risk of reduced backend performance due to the use of Python and machine learning libraries. & Possible & Moderate \\
+5 & The AI model misclassifies sensitive information (false negatives and false positives), resulting in either missed anonymization of sensitive content or unnecessary anonymization of non-sensitive content. & Possible & Critical \\
+6 & Errors or performance issues are detected late in the testing phase, leading to delays or reduced solution quality. & Likely & Severe \\
+7 & User testing reveals significant usability issues that require changes to design or functionality. & Likely & Severe \\
+8 & Lack of communication in the group & Unlikely & Severe \\
+9 & Delays in the project due to time consumptions and coordinations. & Unlikely & Moderate \\
+10 & Uneven workload distribution within the group. & Unlikely & Moderate \\
+11 & Illness or absence of one or more group members. & Unlikely & Minimal \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{p{0.08\textwidth}p{0.70\textwidth}p{0.14\textwidth}}
+\caption{Risk Mitigation Measures}\label{tab:project-plan-risk-mitigation}\\
+\toprule
+\textbf{Risk \#} & \textbf{Mitigation Measures} & \textbf{Priority} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Risk \#} & \textbf{Mitigation Measures} & \textbf{Priority} \\
+\midrule
+\endhead
+1 & Early prototyping and close dialogue with the supervisor and client to reduce technical uncertainty. & Medium \\
+2 & Use cloud-based storage services and perform regular backups. & High \\
+3 & Ensure clear communication channels and fixed points of contact with the client and supervisor. & Medium \\
+4 & Limit scope, use efficient models, and test performance early. & Medium \\
+5, 6 & Use well-documented models, conduct thorough testing, and combine automated and manual evaluation of results. & High \\
+7 & Test functionality and performance early and continuously throughout the development process. & High \\
+8 & Involve users and the client early in the testing phase and iterate on the solution based on feedback. & High \\
+\bottomrule
+\end{longtable}
+
+\section{Plan for Implementation}
+
+\subsection{Progress-plan (Gantt-chart)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=0.75\textheight,keepaspectratio]{appendices/gantt_chart.png}
+    \caption{Gantt chart for the project timeline.}
+\end{figure}
+
+\subsection{Milestones and Decision Points}
+
+\begin{itemize}
+    \item \textbf{Milestone 1, Choice of Development Environment (January 5 - January 7).} Decide between GitLab or GitHub, set up a Kanban board, assign roles, and handle other administrative tasks.
+    \item \textbf{Milestone 2, Preliminary Project Deadline (January 8 - January 18).} Sign the group contract and complete the project plan.
+    \item \textbf{Milestone 3, Research and Data Collection (January 15 - January 23).} Conduct research on similar projects and identify models that can be used for this project.
+    \item \textbf{Milestone 4, Frontend and Backend prototype with destroy philosphy (January 23 - February 1.).} Test all tools for frontend and backend. Do work, but be ready to scrap and destroy progress that didnt work. Then we start over again and work on the real MVP with the gained experience.
+    \item \textbf{Milestone 5, Frontend and Backend development (MVP) (January 23 - February 12).} Start frontend development and establish a pipeline for the backend.
+    \item \textbf{Milestone 6, Backend Integration with Frontend (MVP) (February 12 - February 19).} Develop the backend and integrate it with the frontend.
+    \item \textbf{Milestone 7, Feature implementations (February 19 - March 22).} Develop features to both frontend and backend/harden functionality.
+    \item \textbf{Milestone 8, Project Testing, Documentation (February 20 - April 10).} Conduct user tests, double-check all existing tests and ensure documentation is complete where needed.
+    \item \textbf{Milestone 9, Development Deadline (March 23 - April 10).} Feature freeze: no new additions, only refining existing work. Make the product as strong and reliable as possible with no more added features. Incorporate feedback from user tests and prepare everything for final submission.
+    \item \textbf{Milestone 10, Project Report Writing (February 1 - May 16).} Begin writing the report and aim to complete it.
+    \item \textbf{Milestone 11, Bachelor Project Deadline (May 16 - May 20).} Double-check that everything is ready for submission and polish the report.
+\end{itemize}
+
+\section{Gruppe kontrakt}
+
+\begin{center}
+    \Large\textbf{Gruppe konrakt - IDATG2901}\\[0.5em]
+    An Hoang Chu, Henrik Weflen Gjermundsen, Karwan Shekhe\\[0.5em]
+    Januar 2026
+\end{center}
+
+\subsection{Kontraktoverskrift}
+
+Kontrakten gjelder for disse medlemmene:
+
+\begin{itemize}
+    \item An Hoang Chu
+    \item Henrik Weflen Gjermundsen
+    \item Karwan Shekhe
+\end{itemize}
+
+Kontrakten er gylding til 06.06.2026.
+
+\subsection{Kommunikasjon og diskusjon}
+
+\begin{itemize}
+    \item Medlemmene skal kommunisere og diskutere sammen gjennom hele prosjektet, både fysisk og digitalt. Dersom noen blir syke eller er borte over lengre tid, skal dette kommuniseres tydelig, da det er viktig informasjon for resten av gruppen.
+    \item Oppgave fordelig blir bestem gjennom diskusjon sammen blant gruppen, og blir tildelt på Jira sitt kanban. Denne diskusjonen bør skje under møtene og sprints. I tillegg blir det kommunisert på hvem som har kodet hva gjennom GitHub.
+    \item Dersom det blir vanskelig å komme seg til en beslutning felles vil det være prosjektlederen som tar det endelige valget for gruppen.
+\end{itemize}
+
+\subsection{Ansvar og roller}
+
+Rollene blir fordelt blant medlemmene etter at de har diskutert hvem de mener er egnet best for hva. Disse tre rollene blir prosjekt ansvarlig, scrum master og en dokument ansvarlig. Selv om det blir delt tre forskjellige roller innad gruppen, er enda alle tre utviklere.
+
+\begin{itemize}
+    \item Prosjekt ansvarlig tar ansvar for innholdet i prosjektet og hvordan det skal utføres. Passer også på at prosjektet går riktig vei og at kriterier blir møtt på god tid. Sørger for at det som blir pusha inn til Git er korrekt og holder øye på merges.
+    \item Scrum master sørger for at møtereferater blir skrevet under hvert møte og setter opp møter og sprints. Holder øyet på at møtene ikke kræsjer med resten av medlemmene sine timeplaner og får møte i gang.
+    \item Dokument ansvarlig passer på at dokumeneter er klare før fristende og at de er innafor kriteriene. Sørger for at alle formelle krav er oppfylt og dobbelsjekker kildene som brukes. Får alle medlemmer til å lese gjennom dokumentene slik at alle er enig om det som står der.
+\end{itemize}
+
+\subsection{Regler}
+
+Under prosjekt perioden av gruppe kontrakten vil det være noen regler som bør bli holdt for å ha gode rutiner og bra arbeidsmoral.
+
+\begin{itemize}
+    \item Gruppe medlemmene skal samarbeide aktivt gjennom hele prosessen og dele kunnskap og ressurser innad gruppen.
+    \item Oppgaver som blir tildelt må bli gjort og hver medlem bør ta iniativ til å gi seg selv flere oppgaver dersom de blir ferdig med sine opprinnelige oppgaver.
+    \item Ikke lov til å gi seg selv flere enn tre issues.
+    \item Reviews bør prioriteres, helst fullføre reviews før man går videre med sine issues.
+    \item Det er obligatorisk å hjelpe en annen medlem når de spør om hjelp og sitter fast på noe.
+    \item Alle skal passe på at de er oppdatert med arbeidet gjennom Jira og GitHub.
+    \item Gruppe medlemmer er klare og vet når og hvor møtene skal holdes.
+    \item Det skal være minst 30 timer med arbeid hver uke.
+    \item Timer skal bli loggført.
+\end{itemize}
+
+\subsection{Møter}
+
+Det vil være et første møte hvor gruppe medlemmer diskuterer innholdet i gruppe kontrakten og signerer det, samtidig fordeler roller og diskuterer fremtiden for gruppen. Det vil bli holdt daily scrums fra tirsdag til torsdag, hvor møtet på torsdag blir med oppdragsgiverene våres. I tillegg har vi en sprint review og retrospektiv hver mandag etter møtet med veileder. Møtene skal være fysisk på campus, men hvis to av tre medlemmer er syke kan det arrangeres en annen tid, dette bør kommuniseres på god tid.
+
+Ved å signere dette dokumentet godtar du punktene over.
+
+\vspace{2em}
+\textbf{Signert av:}
+
+\vspace{3em}
+\begin{tabular}{p{0.3\textwidth}p{0.3\textwidth}p{0.3\textwidth}}
+An Hoang Chu & Henrik Weflen Gjermundsen & Karwan Shekhe \\
+\end{tabular}
+
+\endgroup

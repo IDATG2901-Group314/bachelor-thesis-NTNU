@@ -1,12 +1,15 @@
 \chapter{Software Requirements Specification}
+\label{chap:software_requirements_specification}
 
-%------------------------- 3.1 ---------------------------
+This chapter defines the requirements that guided the design and development of \gls{SafeVision}. It presents the main functional requirements, describes central use cases for detection and redaction, and outlines the non-functional requirements related to security, performance, usability, and maintainability. The chapter also explains how the requirements were prioritized to support a practical development process and ensure that the most important functionality was implemented first.
+
+%------------------------- 4.1 ---------------------------
 
 \section{Functional Requirements}
 
-Functional requirements describe the core capabilities that the system must provide. These requirements are derived from initial discussions with Safe Media AI and define the expected behavior of the system from a user perspective.
+Functional requirements describe the core capabilities that the system must provide. These requirements are derived from the problem statement and scope in Section~\ref{sec:problem-statement-and-scope}, the project delimitations in Section~\ref{sec:delimitation}, and the stakeholder meetings summarized in Table~\ref{tab:meeting-impact}. The requirements therefore reflect both the original project direction and the practical feedback received from Safe Media AI and the supervisor during development.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \begin{tabular}{|p{5cm}|p{9cm}|}
 \hline
@@ -22,7 +25,7 @@ The system shall support commonly used image formats such as PNG and JPEG. \\ \h
 The system shall allow users to review, modify, and remove detected regions before redaction is applied. \\ \hline
 
 \textbf{Multiple Redaction Methods} & 
-The system shall support different redaction techniques such as blurring, pixelation, and masking. \\ \hline
+The system shall support different redaction techniques such as blurring, pixelation, and \gls{masking}. \\ \hline
 
 \textbf{Redaction Execution} & 
 The system shall apply selected redaction methods to user-defined or detected regions. \\ \hline
@@ -34,34 +37,30 @@ The detection process should not be noticeably longer than Safe Media AI's detec
 The system should be designed in a way that allows integration with external systems through well-defined interfaces. \\ \hline
 
 \end{tabular}
-\caption{Functional Requirements for the SafeVision System}
+\caption{Functional Requirements for the \gls{SafeVision} System}
 \label{tab:functional_requirements}
 \end{table}
 
-%------------------------- 3.2 ---------------------------
+%------------------------- 4.2 ---------------------------
 
 \section{Use Case Details}
 
-The functional requirements are further illustrated through use cases, which describe how users interact with the system to achieve specific goals.
+Use cases further illustrate how users interact with \gls{SafeVision} to achieve the main goals of the system. Whereas the functional requirements define the capabilities the system must provide, the use cases show how these capabilities are combined in practice. For \gls{SafeVision}, this is especially important because the workflow combines automated detection with user review, allowing the system to support the user while leaving the final redaction decisions under user control.
 
-Figure~\ref{fig:safevision_usecase} presents a high-level overview of the system’s use cases.
+Figure~\ref{fig:safevision_usecase} presents a high-level overview of the system's use cases. The main workflow consists of uploading visual media, detecting sensitive information, reviewing the detected regions, adjusting the results when necessary, applying redaction, and verifying the processed output. These interactions form the basis for the sequence diagrams below, which describe the two most central workflows in more detail.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/images/chapter-3/SafeVisionUseCase.png}
-    \caption{Use case diagram for the SafeVision system}
-    \label{fig:safevision_usecase}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/images/chapter-3/SafeVisionUseCase.png}
+\caption{Use case diagram for the \gls{SafeVision} system}
+\label{fig:safevision_usecase}
 \end{figure}
-
-The primary workflow of the system consists of detecting sensitive information in images and applying redaction based on user input. These interactions are further detailed using sequence diagrams.
 
 \methodheading{Image Detection Scenario}
 
-The detection process begins when a user uploads an image through the interface. The system analyzes the image and identifies regions that may contain sensitive information.
+-As shown in Figure~\ref{fig:sequence_detection}, the image detection scenario begins when the user uploads an image through the interface and starts the detection process. \gls{SafeVision} then sends the image to the backend, where the relevant detection components analyze it and identify regions that may contain sensitive information. Once the analysis is complete, the detected regions are returned to the frontend and displayed as editable areas. Rather than being treated as final decisions, these results function as suggestions that the user can review, adjust, remove, or supplement with manually added regions before continuing. In this way, the workflow keeps the user in control of the detection outcome and reduces the risk of relying blindly on automated results.
 
-The detected regions are then presented to the user, allowing them to review and adjust the results before proceeding. This ensures that the user remains in control of the detection outcome.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/images/chapter-3/SequenceDetection.png}
     \caption{Sequence diagram illustrating the image detection interaction}
@@ -70,81 +69,143 @@ The detected regions are then presented to the user, allowing them to review and
 
 \methodheading{Redaction Scenario}
 
-After reviewing the detected regions, the user can modify the selected areas and choose a redaction method. The system then applies the redaction and generates a processed image.
+The redaction scenario follows the same overall interaction structure as the detection scenario shown in Figure~\ref{fig:sequence_detection}, but begins after the user has reviewed the detected regions. At this stage, the user decides which areas should be anonymized and selects an appropriate redaction method, such as blur, pixelation, or \gls{masking}. For standard redaction methods, the selected regions and settings are processed directly by the backend before the updated result is returned to the frontend. If the user instead selects \gls{segmentation} or \gls{inpainting}, the request is passed to the relevant AI-based processing components before the final result is generated. In both cases, the redacted output is presented to the user for verification before further use. This means that successful \gls{anonymization} depends not only on detecting relevant regions, but also on whether the final output sufficiently hides sensitive information.
 
-The final result is presented to the user, allowing verification that sensitive information has been properly anonymized.
+Combined, these scenarios demonstrate how \gls{SafeVision} connects automated processing with user-guided verification. Detection and redaction are supported as linked workflow steps, while users can inspect and correct results before final \gls{anonymization}. As a result, the system supports both usability and reliability when handling sensitive information in visual media.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/images/chapter-3/SequenceRedaction.png}
-    \caption{Sequence diagram illustrating the redaction interaction}
-    \label{fig:sequence_redaction}
-\end{figure}
-
-These scenarios demonstrate how the system combines automated processing with user control, ensuring both usability and reliability in handling sensitive information.
-
-%------------------------- 3.3 ---------------------------
+%------------------------- 4.3 ---------------------------
 
 \section{Non-Functional Requirements}
+\label{sec:nfr}
 
-Beyond the core functional capabilities of detecting and redacting sensitive information, the system must satisfy several non-functional requirements. These requirements define the overall quality attributes of the system and guide architectural and implementation decisions.
+Beyond the core functional capabilities of detecting and redacting sensitive information, \gls{SafeVision} must satisfy several non-functional requirements that define the overall quality attributes of the system. These requirements guide architectural and implementation decisions by describing how the system should behave, rather than only what it should do. In this project, the non-functional requirements are categorized into four main areas: \textit{security}, \textit{performance}, \textit{usability}, and \textit{maintainability}, as illustrated in Figure~\ref{fig:non_functional_req}.
 
-The non-functional requirements for this project are categorized into four main areas: \textit{security}, \textit{performance}, \textit{usability}, and \textit{maintainability}, as illustrated in Figure~\ref{fig:non_functional_req}.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/images/chapter-3/NonFunctionalReq.png}
+    \resizebox{0.92\textwidth}{!}{%
+    \begin{tikzpicture}[font=\sffamily]
+
+        % Title
+        \node[
+            draw=black,
+            fill=white,
+            rounded corners=2pt,
+            minimum width=10.8cm,
+            minimum height=0.75cm,
+            font=\bfseries\Large,
+            align=center
+        ] at (8.4,7.75) {Non Functional Requirements};
+
+        % Performance
+        \node[
+            draw=black,
+            fill=white,
+            rounded corners=2pt,
+            anchor=north,
+            inner sep=8pt
+        ] at (2.2,6.95) {%
+            \parbox[t][5.75cm][t]{3.1cm}{%
+                {\centering\Large Performance\par}
+                \vspace{0.20cm}
+                {\normalfont\small\raggedright
+                \textbullet\ Fast detection and redaction time\par\vspace{0.16cm}
+                \textbullet\ Operations are concurrent\par\vspace{0.16cm}
+                \textbullet\ Scalable architecture\par\vspace{0.16cm}
+                \textbullet\ Caching for a persistent experience\par}
+            }%
+        };
+
+        % Security
+        \node[
+            draw=black,
+            fill=white,
+            rounded corners=2pt,
+            anchor=north,
+            inner sep=8pt
+        ] at (6.2,6.95) {%
+            \parbox[t][5.75cm][t]{3.0cm}{%
+                {\centering\Large Security\par}
+                \vspace{0.20cm}
+                {\normalfont\small\raggedright
+                \textbullet\ GDPR compliance\par\vspace{0.16cm}
+                \textbullet\ Secure redaction\par\vspace{0.16cm}
+                \textbullet\ No server-side data storage\par}
+            }%
+        };
+
+        % Usability
+        \node[
+            draw=black,
+            fill=white,
+            rounded corners=2pt,
+            anchor=north,
+            inner sep=8pt
+        ] at (10.3,6.95) {%
+            \parbox[t][5.75cm][t]{3.0cm}{%
+                {\centering\Large Usability\par}
+                \vspace{0.20cm}
+                {\normalfont\small\raggedright
+                \textbullet\ Intuitive interface\par\vspace{0.16cm}
+                \textbullet\ Responsive user feedback\par\vspace{0.16cm}
+                \textbullet\ Consistent design\par\vspace{0.16cm}
+                \textbullet\ Flexible \acrshort{ui}\par\vspace{0.16cm}
+                \textbullet\ Error handling\par}
+            }%
+        };
+
+        % Maintainability
+        \node[
+            draw=black,
+            fill=white,
+            rounded corners=2pt,
+            anchor=north,
+            inner sep=8pt
+        ] at (14.45,6.95) {%
+            \parbox[t][5.75cm][t]{3.15cm}{%
+                {\centering\Large Maintainability\par}
+                \vspace{0.20cm}
+                {\normalfont\small\raggedright
+                \textbullet\ Tidy and clean code architecture\par\vspace{0.16cm}
+                \textbullet\ Modular code base\par\vspace{0.16cm}
+                \textbullet\ Helpful documentation\par\vspace{0.16cm}
+                \textbullet\ Meaningful tests\par\vspace{0.16cm}
+                \textbullet\ CI/CD\par}
+            }%
+        };
+
+    \end{tikzpicture}%
+    }
+
     \caption{Overview of Non-Functional Requirements}
     \label{fig:non_functional_req}
 \end{figure}
 
 \subsubsection{Security}
 
-Security requirements focus on ensuring that sensitive information is handled in a safe and compliant manner. The system is designed in accordance with GDPR, ensuring that personal data is processed responsibly and in line with regulatory standards.
-
-Secure redaction is a central aspect of the system, meaning that sensitive information is properly anonymized before any output is presented to the user. This reduces the risk of exposing identifiable data.
-
-Additionally, the system does not store any data on the server. All processing is performed temporarily, ensuring that sensitive images are not persistently stored. This minimizes potential risks related to data breaches and unauthorized access.
+Security requirements ensure that sensitive information is handled in a safe and responsible manner. Since the system processes images and videos that may contain personal data, the design should support GDPR-related principles such as data minimization, responsible processing, and reduced unnecessary storage. To support this, uploaded media should only be processed temporarily and should not be stored permanently on the server after the operation is complete. Secure redaction is therefore a central requirement, meaning that sensitive information should be anonymized before the processed output is used further. This reduces the risk of data breaches, unnecessary retention, and exposure of identifiable information while supporting the privacy oriented purpose of the system.
 
 \subsubsection{Performance}
 
-Performance requirements ensure that the system operates efficiently and provides a smooth user experience. The user interface is designed to be responsive and fast, allowing users to interact with the system without delays.
-
-Fast detection and redaction time is essential to reduce waiting time when processing images. The system is optimized to perform these operations efficiently.
-
-The system supports concurrent operations, enabling multiple processes or users to interact with the system simultaneously without significant performance degradation.
-
-A scalable architecture is implemented to handle increasing workloads and larger datasets if needed. Additionally, caching mechanisms are used to provide a more persistent and efficient user experience by reducing unnecessary repeated computations.
+Performance requirements ensure that the system operates efficiently and provides a smooth user experience. Detection and redaction should be completed within a reasonable time so that users do not experience unnecessary delays when processing images or videos. This is especially important because \gls{SafeVision} includes \acrshort{ml} based analysis, which can be computationally demanding depending on the selected detection options, file size, and redaction method. The architecture should also support concurrent operations and be able to handle increasing workloads if the system is expanded further. Caching and client-side state handling can contribute to a more efficient user experience by reducing unnecessary repeated work and preserving relevant workflow information during interactions.
 
 \subsubsection{Usability}
 
-Usability requirements focus on making the system intuitive and easy to use. The interface is designed to be simple and understandable, allowing users to quickly learn how to interact with the system.
+Usability requirements focus on making the system intuitive and understandable for users. Since \gls{SafeVision} is intended to support a workflow involving upload, detection, review, manual correction, redaction, and verification, the interface must make this sequence clear. Users should be able to understand what step they are in, what action is expected next, and whether the system is currently processing or waiting for input.
 
-Responsive user feedback ensures that users receive immediate visual or system responses when performing actions. This helps users understand the system state and results of their interactions.
-
-A consistent design is maintained across the application, making navigation predictable and reducing user confusion. The interface is also flexible, allowing it to adapt to different user needs and workflows.
-
-Error handling is implemented to guide users when issues occur. Clear and informative messages help users recover from errors and continue their tasks efficiently.
+Responsive feedback is therefore important. Visual indicators, progress feedback, and clear messages help users understand the system state and the results of their actions. A consistent design across the application also makes navigation more predictable and reduces confusion. In addition, the interface should support flexibility by allowing users to adjust detection results, choose redaction methods, and correct errors before final output. Clear error handling is also necessary so that users can recover from issues without losing track of the workflow.
 
 \subsubsection{Maintainability}
 
-Maintainability requirements ensure that the system can be easily developed, updated, and extended over time. The system follows a tidy and clean code architecture, making it easier to understand and maintain.
+Maintainability requirements ensure that the system can be developed, updated, and extended over time. \gls{SafeVision} consists of several connected parts, including frontend interaction, backend services, \acrshort{ml} models, redaction logic, video processing, and deployment configuration. A modular codebase is therefore important because it separates responsibilities and makes it easier to modify one part of the system without affecting unrelated functionality.
 
-A modular code base is used to separate different components of the system. This allows developers to modify or extend parts of the system without affecting the entire application.
+Clean code structure, helpful documentation, and meaningful tests support long-term maintainability. Documentation makes the system easier to understand for new contributors, while tests help verify that important functionality continues to work when changes are introduced. CI/CD practices further support maintainability by enabling regular validation and deployment of updates. These requirements are important because the system should be designed in a way that allows for future improvement and extension.
 
-Helpful documentation is maintained to support development and onboarding of new contributors. This ensures that the system remains understandable throughout its lifecycle.
-
-Testing plays an important role in maintainability. Meaningful tests are implemented to verify system functionality and ensure stability during future changes.
-
-Finally, CI/CD practices are used to support continuous integration and deployment, enabling efficient development workflows and reliable system updates.
-
-%------------------------- 3.4 ---------------------------
+%------------------------- 4.4 ---------------------------
 
 \section{Requirement Prioritization}
+\label{sec:priority}
 
-To guide development and ensure that critical functionality was implemented first, the requirements were prioritized based on their importance, impact on the system, and input from Safe Media AI.
-
-The prioritization reflects a practical development approach, where essential functionality was implemented first, followed by desirable features, while less critical functionality was considered for potential future work.
+To guide development and ensure that critical functionality was implemented first, the requirements were prioritized based on their importance, impact on the system, and input from Safe Media AI. The prioritization reflects a practical development approach, where essential functionality was implemented first, followed by desirable features, while less critical functionality was considered for potential future work.
 
 \begin{itemize}
     \item \textbf{High Priority:}
@@ -164,11 +225,11 @@ The prioritization reflects a practical development approach, where essential fu
 
     \item \textbf{Lower Priority:}
     \begin{itemize}
-        \item Recognition capabilities
-        \item Advanced filtering and customization options
+        \item Text Recognition capabilities
+        \item Advanced customization options
+        \item Inpaint redaction method
         \item Complex user preference options
         \item Metadata extraction and flexibility
     \end{itemize}
 \end{itemize}
 
-This prioritization ensured that the most important system features were developed within the project timeframe while still allowing flexibility for future extensions and improvements.

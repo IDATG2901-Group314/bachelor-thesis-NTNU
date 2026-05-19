@@ -32,6 +32,12 @@
     \noindent{\fontsize{13pt}{16pt}\selectfont\textbf{#1}}
 }
 
+% For meetings
+\newcommand{\meetingcell}[3]{%
+    \hyperref[#3]{\textbf{#1}}\\[-0.15em]
+    {\emph{#2}}%
+}
+
 % Title Page
 \DeclareOption{titlepage}{
     \AtBeginDocument{
@@ -337,3 +343,4 @@
 % Renew \glossarysection command to avoid creating a section for the glossary.
 % Using unnumbered chapters for correct chapter name in headings.
 \renewcommand{\glossarysection}[2][]{}
+
